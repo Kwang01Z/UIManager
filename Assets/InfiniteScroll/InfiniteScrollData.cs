@@ -72,13 +72,20 @@ public partial class InfiniteScrollData : MonoBehaviour
         {
             var placeHolder = _placeHolders[i];
 
-            var itemAnchor = cursorPos;
             bool isStretchWidth = RectTransformUtility.IsStretchWidth(placeHolder.BaseRectTransform);
+            var itemAnchor = isStretchWidth 
+                ? new Vector2((padding.left - padding.right) / 2f 
+                                            + (Mathf.Abs(placeHolder.BaseRectTransform.rect.width) 
+                                            * placeHolder.BaseRectTransform.pivot.x 
+                                            + placeHolder.BaseRectTransform.anchoredPosition.x)
+                    ,cursorPos.y) 
+                : cursorPos;
+            
             float itemWidth = isStretchWidth 
                 ? ViewportRect.rect.width - padding.left - padding.right + placeHolder.BaseRectTransform.rect.width
                 : placeHolder.BaseRectTransform.rect.width;
             itemAnchor.x += (rowItemIndex - 1) * (itemWidth + spacing.x);
-            _placeHolders[i].SetPosition(itemAnchor);
+            _placeHolders[i].SetPosition(itemAnchor, padding);
             
             if (i < _placeHolders.Count - 1)
             {

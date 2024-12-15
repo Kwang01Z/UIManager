@@ -678,8 +678,8 @@ MonoBehaviour:
   scrollRect: {fileID: 1781565193}
   scrollType: 1
   padding:
-    left: 0
-    right: 0
+    left: 10
+    right: 20
     top: 0
     bottom: 0
   spacing: {x: 10, y: 10}
@@ -933,7 +933,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 300}
+  m_SizeDelta: {x: 440, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1781565193
 MonoBehaviour:

@@ -33,9 +33,18 @@ public class InfiniteScrollElement : MonoBehaviour
         if (isStretchWidth || isStretchHeight) numberFixed = 1;
     }
 
-    public void SetupData(Vector2 anchoredPosition, object data)
+    public void SetupData(Vector2 anchoredPosition, Vector4D margin, object data)
     {
         RectTransform.anchoredPosition = anchoredPosition;
+        bool isStretchWidth = RectTransformUtility.IsStretchWidth(RectTransform);
+        bool isStretchHeight = RectTransformUtility.IsStretchHeight(RectTransform);
+        if (isStretchWidth || isStretchHeight)
+        {
+            RectTransform.sizeDelta = new Vector2(
+                RectTransform.sizeDelta.x - margin.left - margin.right,
+                RectTransform.sizeDelta.y - margin.top - margin.bottom);
+        }
+        
         if(DataLoaderPF != null && data != null) DataLoaderPF.SetupData(data);
     }
     
