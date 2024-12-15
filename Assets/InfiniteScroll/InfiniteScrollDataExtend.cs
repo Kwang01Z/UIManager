@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,16 +10,35 @@ public partial class InfiniteScrollData
     [SerializeField] private GridLayoutGroup.Axis scrollType;
     [SerializeField] private Vector4D padding;
     [SerializeField] private Vector2 spacing;
-    [SerializeField] private GridLayoutGroup.Corner startCorner;
-    [SerializeField] private TextAnchor childAlignment;
     
     RectTransform ContentRect => scrollRect.content;
+    RectTransform ViewportRect => scrollRect.viewport;
+    
     private void OnValidate()
     {
         if (scrollRect)
         {
             scrollRect.horizontal = scrollType == GridLayoutGroup.Axis.Horizontal;
             scrollRect.vertical = scrollType == GridLayoutGroup.Axis.Vertical;
+
+            if (scrollType == GridLayoutGroup.Axis.Vertical)
+            {
+                ContentRect.anchorMin = new Vector2(0, 1);
+                ContentRect.anchorMax = new Vector2(1, 1);
+                ContentRect.pivot = new Vector2(0.5f, 1);
+                ContentRect.offsetMin = new Vector2(0, 1);
+                ContentRect.offsetMax = new Vector2(0, 1);
+            }
+            else
+            {
+                ContentRect.anchorMin = new Vector2(0, 0);
+                ContentRect.anchorMax = new Vector2(0, 1);
+                ContentRect.pivot = new Vector2(0f, 0.5f);
+                ContentRect.offsetMin = new Vector2(0, 1);
+                ContentRect.offsetMax = new Vector2(0, 1);
+            }
+            
+            ContentRect.anchoredPosition = Vector2.zero;
         }
     }
 }

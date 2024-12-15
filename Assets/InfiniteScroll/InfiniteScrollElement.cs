@@ -28,9 +28,9 @@ public class InfiniteScrollElement : MonoBehaviour
 
     void ValidateNumberFixed()
     {
-        bool isFullWidth = !Mathf.Approximately(RectTransform.anchorMin.x, RectTransform.anchorMax.x);
-        bool isFullHeight = !Mathf.Approximately(RectTransform.anchorMin.y, RectTransform.anchorMax.y);
-        if (isFullWidth || isFullHeight) numberFixed = 1;
+        bool isStretchWidth = RectTransformUtility.IsStretchWidth(RectTransform);
+        bool isStretchHeight = RectTransformUtility.IsStretchHeight(RectTransform);
+        if (isStretchWidth || isStretchHeight) numberFixed = 1;
     }
 
     public void SetupData(Vector2 anchoredPosition, object data)
@@ -38,6 +38,7 @@ public class InfiniteScrollElement : MonoBehaviour
         RectTransform.anchoredPosition = anchoredPosition;
         if(DataLoaderPF != null && data != null) DataLoaderPF.SetupData(data);
     }
+    
 }
 
 [CustomEditor(typeof(InfiniteScrollElement))]

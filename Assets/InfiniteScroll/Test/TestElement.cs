@@ -6,6 +6,6 @@ public class TestElement : MonoBehaviour, IDataLoader
 {
     public void SetupData(object data)
     {
-        throw new System.NotImplementedException();
+        
     }
 }

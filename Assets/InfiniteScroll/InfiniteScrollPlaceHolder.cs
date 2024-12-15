@@ -4,31 +4,47 @@ using UnityEngine;
 
 public class InfiniteScrollPlaceHolder
 {
-    private InfiniteScrollElement _baseElement;
-    
     private Vector2 _anchoredPosition;
     private InfiniteScrollElement _element;
     private object _data;
 
-    private bool _isVisible;
+    public InfiniteScrollElement BaseElement { get; private set; }
+    public bool IsVisible { get; private set; }
+    public RectTransform BaseRectTransform => BaseElement?.RectTransform;
+    public object Data => _data;
 
     public InfiniteScrollPlaceHolder(InfiniteScrollElement element, object data)
     {
-        _baseElement = element;
+        BaseElement = element;
         _data = data;
+    }
+
+    public void SetPosition(Vector2 anchoredPosition)
+    {
+        var newPosition = anchoredPosition;
+        newPosition.x += BaseRectTransform.pivot.x * BaseRectTransform.rect.width;
+        newPosition.y += (BaseRectTransform.pivot.y - 1)  * BaseRectTransform.rect.height;
+        _anchoredPosition = newPosition;
     }
 
     public void SetVisible(bool visible)
     {
-        if(visible ^ _isVisible) return;
-        _isVisible = visible;
-        if (!visible)
+        IsChangeState = visible ^ IsVisible;
+        if(!IsChangeState) return;
+        IsVisible = visible;
+    }
+
+    public bool IsChangeState { get; private set; }
+
+    public void UpdateData(Transform parent)
+    {
+        if (!IsVisible)
         {
             ReleaseData();
             return;
         }
 
-        _element = PoolHolder.Instance.Get(_baseElement) as InfiniteScrollElement;
+        _element = PoolHolder.Instance.Get(BaseElement,parent) as InfiniteScrollElement;
         _element?.SetupData(_anchoredPosition, _data);
     }
 
@@ -39,5 +55,7 @@ public class InfiniteScrollPlaceHolder
             PoolHolder.Instance.Release(_element);
             _element = null;
         }
+
+        BaseElement = null;
     }
 }
