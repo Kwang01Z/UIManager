@@ -135,7 +135,8 @@ public partial class InfiniteScrollData : MonoBehaviour
         {
             bool isStretchWidth = RectTransformUtility.IsStretchWidth(holder.BaseRectTransform);
             if (isStretchWidth) return 1;
-            int maxItemPerRow = Mathf.FloorToInt((ViewportRect.rect.width - padding.left - padding.right + spacing.x) 
+            var marginWidth = Mathf.Max(padding.left, padding.right) * 2f;
+            int maxItemPerRow = Mathf.FloorToInt((ViewportRect.rect.width - marginWidth + spacing.x) 
                                                  / (holder.BaseRectTransform.rect.width + spacing.x));
             return holder.BaseElement.ElementType == IFS_ElementType.Flexible
             ? maxItemPerRow : Mathf.Min(holder.BaseElement.NumberFixed, maxItemPerRow);
