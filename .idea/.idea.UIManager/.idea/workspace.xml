@@ -5,17 +5,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ceb3e8a2-3302-4d39-a364-a7ae0aed681f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.UIManager/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UIManager/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollDataExtend.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollDataExtend.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollElement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollElement.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollPlaceHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollPlaceHolder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/Test/TestData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/Test/TestData.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/ObjectPooling/PoolHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ObjectPooling/PoolHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DpaMonitoringSettings">
+    <option name="autoShow" value="false" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Kwang01Z&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Kwang01Z/UIManager.git&quot;,
+    &quot;accountId&quot;: &quot;d7e14ec6-1612-46e1-989e-8e2355f3adc9&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/24d45e813e524a99bfb7a145158a7980157a00/f5/c68835c5/Object.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollDataExtend.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollEnum.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/InfiniteScroll/Test/TestData.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -24,20 +52,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "v01",
-    "ignore.virus.scanning.warn.message": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v01&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2021.3.9f1\Editor\Unity.exe" />
@@ -65,10 +95,10 @@
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="19072">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" />
+      <option name="pid" value="19072" />
       <option name="projectPathOnTarget" />
       <option name="selectedOptions">
         <list />
@@ -86,12 +116,58 @@
       <updated>1730608067833</updated>
       <workItem from="1730608088002" duration="214000" />
       <workItem from="1730627987391" duration="3220000" />
+      <workItem from="1732412805592" duration="9403000" />
+      <workItem from="1732436655403" duration="9236000" />
+      <workItem from="1732547248587" duration="3918000" />
+      <workItem from="1732633781800" duration="3463000" />
+      <workItem from="1732987341417" duration="1943000" />
+      <workItem from="1733018959522" duration="3940000" />
+      <workItem from="1734254383312" duration="76000" />
+      <workItem from="1734254524262" duration="4924000" />
+      <workItem from="1734366786366" duration="1256000" />
+      <workItem from="1734450468697" duration="1992000" />
+      <workItem from="1736087481352" duration="5237000" />
+      <workItem from="1736264658046" duration="2011000" />
     </task>
+    <task id="LOCAL-00001" summary="Infinite Scroll">
+      <option name="closed" value="true" />
+      <created>1732454623613</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1732454623613</updated>
+    </task>
+    <task id="LOCAL-00002" summary="set position verticle">
+      <option name="closed" value="true" />
+      <created>1734256209134</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1734256209134</updated>
+    </task>
+    <task id="LOCAL-00003" summary="position stretch">
+      <option name="closed" value="true" />
+      <created>1734259371412</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1734259371412</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Fix flexible when padding not equal">
+      <option name="closed" value="true" />
+      <created>1734367932979</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1734367932979</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityProjectDiscoverer">
     <option name="hasUnityReference" value="true" />
@@ -101,5 +177,29 @@
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Infinite Scroll" />
+    <MESSAGE value="set position verticle" />
+    <MESSAGE value="position stretch" />
+    <MESSAGE value="Fix flexible when padding not equal" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix flexible when padding not equal" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollElement.cs</url>
+          <line>44</line>
+          <properties documentPath="G:\Unity\Projects\UIManager\Assets\InfiniteScroll\InfiniteScrollElement.cs" containingFunctionPresentation="Method 'SetupData'">
+            <startOffsets>
+              <option value="1426" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1591" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

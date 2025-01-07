@@ -13,7 +13,7 @@ public class TestData : MonoBehaviour
     private void Start()
     {
         List<InfiniteScrollPlaceHolder> data = new List<InfiniteScrollPlaceHolder>();
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 100; i++)
         {
             if (i % 10 == 0) data.Add(new InfiniteScrollPlaceHolder(_element2, i));
             data.Add(new InfiniteScrollPlaceHolder(_element, i));

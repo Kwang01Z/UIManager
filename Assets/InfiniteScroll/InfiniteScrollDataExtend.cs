@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,4 +42,20 @@ public partial class InfiniteScrollData
             ContentRect.anchoredPosition = Vector2.zero;
         }
     }
+
+    private void Start()
+    {
+        scrollRect.onValueChanged.AddListener(OnScroll);
+    }
+
+    private void OnScroll(Vector2 arg0)
+    {
+        UpdateData();
+    }
+    
+    private void UpdateContentSize(Vector2 contentSize)
+    {
+        ContentRect.sizeDelta = contentSize;
+    }
+    
 }

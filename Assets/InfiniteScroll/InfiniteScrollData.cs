@@ -34,14 +34,24 @@ public partial class InfiniteScrollData : MonoBehaviour
         CalculateAnchoredPosition();
         UpdateData();
     }
+
+    private Vector2 _contentAnchor;
     void UpdateData()
     {
-        Parallel.ForEach(_placeHolders, (placeHolder) =>
+        _contentAnchor = ContentRect.anchoredPosition;
+        /*Parallel.ForEach(_placeHolders, (placeHolder) =>
         {
             bool isVisible = IsVisible(placeHolder);
             placeHolder.SetVisible(isVisible);
-        });
-        foreach (var infiniteScrollPlaceHolder in _placeHolders.FindAll(x=>x.IsChangeState))
+        });*/
+        foreach (var placeHolder in _placeHolders)
+        {
+            bool isVisible = IsVisible(placeHolder);
+            placeHolder.SetVisible(isVisible);
+        }
+
+        var placeHolderChange = _placeHolders.FindAll(x => x.IsChangeState);
+        foreach (var infiniteScrollPlaceHolder in placeHolderChange)
         {
             infiniteScrollPlaceHolder.UpdateData(scrollRect.content);
         }
@@ -63,29 +73,22 @@ public partial class InfiniteScrollData : MonoBehaviour
     private void CalculateAnchoredPositionVertical()
     {
         if(_placeHolders.Count == 0) return;
+        
         var cursorPos = new Vector2(padding.left, padding.top);
         var rowFistWidth = RowWidth(_placeHolders[0]);
         cursorPos.x = (ViewportRect.rect.width - rowFistWidth) / 2f;
         float rowItemIndex = 1;
+        float contentHeight = 0f;
         
         for (var i = 0; i < _placeHolders.Count; i++)
         {
             var placeHolder = _placeHolders[i];
 
             bool isStretchWidth = RectTransformUtility.IsStretchWidth(placeHolder.BaseRectTransform);
-            var itemAnchor = isStretchWidth 
-                ? new Vector2((padding.left - padding.right) / 2f 
-                                            + (Mathf.Abs(placeHolder.BaseRectTransform.rect.width) 
-                                            * placeHolder.BaseRectTransform.pivot.x 
-                                            + placeHolder.BaseRectTransform.anchoredPosition.x)
-                    ,cursorPos.y) 
-                : cursorPos;
+            var itemAnchor = CalculateNewAnchor(isStretchWidth,placeHolder);
+            _placeHolders[i].SetPositionData(itemAnchor, padding);
             
-            float itemWidth = isStretchWidth 
-                ? ViewportRect.rect.width - padding.left - padding.right + placeHolder.BaseRectTransform.rect.width
-                : placeHolder.BaseRectTransform.rect.width;
-            itemAnchor.x += (rowItemIndex - 1) * (itemWidth + spacing.x);
-            _placeHolders[i].SetPosition(itemAnchor, padding);
+            contentHeight = Mathf.Max(contentHeight, Mathf.Abs(cursorPos.y) + placeHolder.BaseRectTransform.rect.height);
             
             if (i < _placeHolders.Count - 1)
             {
@@ -99,6 +102,25 @@ public partial class InfiniteScrollData : MonoBehaviour
                 }
                 TryInitNewRow(currentElement, nextElement);
             }
+        }
+
+        UpdateContentSize(new Vector2(ContentRect.sizeDelta.x, contentHeight));
+
+        Vector2 CalculateNewAnchor(bool isStretchWidth, InfiniteScrollPlaceHolder placeHolder)
+        {
+            var newAnchor = isStretchWidth 
+                ? new Vector2((padding.left - padding.right) / 2f 
+                              + (Mathf.Abs(placeHolder.BaseRectTransform.rect.width) 
+                                 * placeHolder.BaseRectTransform.pivot.x 
+                                 + placeHolder.BaseRectTransform.anchoredPosition.x)
+                    ,cursorPos.y) 
+                : cursorPos;
+            
+            float itemWidth = isStretchWidth 
+                ? ViewportRect.rect.width - padding.left - padding.right + placeHolder.BaseRectTransform.rect.width
+                : placeHolder.BaseRectTransform.rect.width;
+            newAnchor.x += (rowItemIndex - 1) * (itemWidth + spacing.x);
+            return newAnchor;
         }
 
         void TryInitNewRow(InfiniteScrollPlaceHolder holder, InfiniteScrollPlaceHolder nextElement)
@@ -162,6 +184,26 @@ public partial class InfiniteScrollData : MonoBehaviour
 
     bool IsVisible(InfiniteScrollPlaceHolder placeHolder)
     {
+        switch (scrollType)
+        {
+            case GridLayoutGroup.Axis.Horizontal:
+                return true;
+            case GridLayoutGroup.Axis.Vertical:
+                return CalculateVisibleVertical(placeHolder);
+        }
+
         return true;
+    }
+
+    private bool CalculateVisibleVertical(InfiniteScrollPlaceHolder placeHolder)
+    {
+        if (placeHolder.BaseRectTransform == null) return false;
+
+        bool overTop = Mathf.Abs(placeHolder.AnchoredPosition.y 
+                                 - placeHolder.BaseRectTransform.rect.height)
+                       >= _contentAnchor.y;
+        bool overBottom = Mathf.Abs(placeHolder.AnchoredPosition.y)
+                          <= _contentAnchor.y + ViewportRect.rect.height;
+        return overTop && overBottom;
     }
 }

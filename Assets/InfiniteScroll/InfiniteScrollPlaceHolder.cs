@@ -13,6 +13,7 @@ public class InfiniteScrollPlaceHolder
     public bool IsVisible { get; private set; }
     public RectTransform BaseRectTransform => BaseElement?.RectTransform;
     public object Data => _data;
+    public Vector2 AnchoredPosition => _anchoredPosition;
 
     public InfiniteScrollPlaceHolder(InfiniteScrollElement element, object data)
     {
@@ -20,7 +21,7 @@ public class InfiniteScrollPlaceHolder
         _data = data;
     }
 
-    public void SetPosition(Vector2 anchoredPosition, Vector4D margin)
+    public void SetPositionData(Vector2 anchoredPosition, Vector4D margin)
     {
         var newPosition = anchoredPosition;
         newPosition.x += BaseRectTransform.pivot.x * BaseRectTransform.rect.width;
@@ -57,7 +58,5 @@ public class InfiniteScrollPlaceHolder
             PoolHolder.Instance.Release(_element);
             _element = null;
         }
-
-        BaseElement = null;
     }
 }

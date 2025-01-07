@@ -16,9 +16,11 @@ public class InfiniteScrollElement : MonoBehaviour
     public IFS_ElementType ElementType => elementType;
     public RectTransform RectTransform => transform as RectTransform;
 
+    Vector2 _baseSizeDelta;
     private void Awake()
     {
         ValidateNumberFixed();
+        _baseSizeDelta = RectTransform.sizeDelta;
     }
 
     private void OnValidate()
@@ -41,8 +43,8 @@ public class InfiniteScrollElement : MonoBehaviour
         if (isStretchWidth || isStretchHeight)
         {
             RectTransform.sizeDelta = new Vector2(
-                RectTransform.sizeDelta.x - margin.left - margin.right,
-                RectTransform.sizeDelta.y - margin.top - margin.bottom);
+                _baseSizeDelta.x - margin.left - margin.right,
+                _baseSizeDelta.y - margin.top - margin.bottom);
         }
         
         if(DataLoaderPF != null && data != null) DataLoaderPF.SetupData(data);

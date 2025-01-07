@@ -2,19 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PoolHolder : MonoSingleton<PoolHolder>
 {
-    Dictionary<Type, Queue<MonoBehaviour>> _pools = new ();
-    Dictionary<Type,int> _capacity = new();
+    Dictionary<string, Queue<MonoBehaviour>> _pools = new ();
+    Dictionary<string,int> _capacity = new();
     
     [CanBeNull]
     public MonoBehaviour Get(MonoBehaviour t, Transform parent = null, Vector3 position = default, Quaternion rotation = default)
     {
         lock (_pools)
         {
-            var key = t.GetType();
+            var key = GetKey(t);
             _pools.TryAdd(key, new Queue<MonoBehaviour>());
             _capacity.TryAdd(key, 0);
         
@@ -38,6 +39,7 @@ public class PoolHolder : MonoSingleton<PoolHolder>
                 result = _pools[key].Dequeue();
                 result.transform.SetParent(parent);
             }
+            result.name = key;
             result.transform.position = position;
             result.transform.rotation = rotation;
             result.gameObject.SetActive(true);
@@ -49,7 +51,7 @@ public class PoolHolder : MonoSingleton<PoolHolder>
     {
         lock (_pools)
         {
-            var key = t.GetType();
+            var key = t.name;
             _pools.TryAdd(key, new Queue<MonoBehaviour>());
 
             var size = _capacity.GetValueOrDefault(key);
@@ -67,7 +69,12 @@ public class PoolHolder : MonoSingleton<PoolHolder>
 
     public void SetMaxSize(MonoBehaviour t, int size)
     {
-        _capacity[t.GetType()] = size;
+        _capacity[GetKey(t)] = size;
+    }
+
+    private string GetKey(MonoBehaviour t)
+    {
+        return t.name + "-(PoolElement_No." + t.gameObject.GetInstanceID() +")";
     }
 
     private void OnDestroy()
