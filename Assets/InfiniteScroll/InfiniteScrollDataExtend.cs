@@ -14,7 +14,9 @@ public partial class InfiniteScrollData
     
     RectTransform ContentRect => scrollRect.content;
     RectTransform ViewportRect => scrollRect.viewport;
-    
+    public float ViewportWidth { get;private set; }
+    public float ViewportHeight { get;private set; }
+    private Vector2 _tempContentAnchor;
     private void OnValidate()
     {
         if (scrollRect)

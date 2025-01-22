@@ -9,6 +9,8 @@ public class InfiniteScrollPlaceHolder
     private object _data;
     private Vector4D _margin;
 
+    public float ItemHeight { get;private set; }
+    public float ItemWidth { get;private set; }
     public InfiniteScrollElement BaseElement { get; private set; }
     public bool IsVisible { get; private set; }
     public RectTransform BaseRectTransform => BaseElement?.RectTransform;
@@ -19,6 +21,8 @@ public class InfiniteScrollPlaceHolder
     {
         BaseElement = element;
         _data = data;
+        ItemHeight = BaseElement.RectTransform.rect.height;
+        ItemWidth = BaseElement.RectTransform.rect.width;
     }
 
     public void SetPositionData(Vector2 anchoredPosition, Vector4D margin)

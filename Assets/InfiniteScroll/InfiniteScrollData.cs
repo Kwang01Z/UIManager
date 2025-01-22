@@ -35,28 +35,29 @@ public partial class InfiniteScrollData : MonoBehaviour
         UpdateData();
     }
 
-    private Vector2 _contentAnchor;
-    void UpdateData()
+    
+    private void UpdateData()
     {
-        _contentAnchor = ContentRect.anchoredPosition;
-        /*Parallel.ForEach(_placeHolders, (placeHolder) =>
+        SetupBaseData();
+        Parallel.ForEach(_placeHolders, (placeHolder) =>
         {
             bool isVisible = IsVisible(placeHolder);
             placeHolder.SetVisible(isVisible);
-        });*/
-        foreach (var placeHolder in _placeHolders)
-        {
-            bool isVisible = IsVisible(placeHolder);
-            placeHolder.SetVisible(isVisible);
-        }
-
+        });
         var placeHolderChange = _placeHolders.FindAll(x => x.IsChangeState);
         foreach (var infiniteScrollPlaceHolder in placeHolderChange)
         {
             infiniteScrollPlaceHolder.UpdateData(scrollRect.content);
         }
     }
-    
+
+    private void SetupBaseData()
+    {
+        _tempContentAnchor = ContentRect.anchoredPosition;
+        ViewportWidth = ViewportRect.rect.width;
+        ViewportHeight = ViewportRect.rect.height;
+    }
+
     private void CalculateAnchoredPosition()
     {
         switch (scrollType)
@@ -177,7 +178,106 @@ public partial class InfiniteScrollData : MonoBehaviour
 
     private void CalculateAnchoredPositionHorizontal()
     {
+        if(_placeHolders.Count == 0) return;
         
+        var cursorPos = new Vector2(padding.left, padding.top);
+        var colFistHeight = ColumnHeight(_placeHolders[0]);
+        cursorPos.y = (ViewportRect.rect.height - colFistHeight) / 2f;
+        float colItemIndex = 1;
+        float contentWidth = 0f;
+        
+        for (var i = 0; i < _placeHolders.Count; i++)
+        {
+            var placeHolder = _placeHolders[i];
+
+            bool isStretchHeight = RectTransformUtility.IsStretchHeight(placeHolder.BaseRectTransform);
+            var itemAnchor = CalculateNewAnchor(isStretchHeight,placeHolder);
+            _placeHolders[i].SetPositionData(itemAnchor, padding);
+            
+            contentWidth = Mathf.Max(contentWidth, Mathf.Abs(cursorPos.x) + placeHolder.BaseRectTransform.rect.width);
+            
+            if (i < _placeHolders.Count - 1)
+            {
+                var currentElement = _placeHolders[i];
+                var nextElement = _placeHolders[i + 1];
+                bool isNewType = currentElement.BaseElement.GetHashCode() != nextElement.BaseElement.GetHashCode();
+                if (isNewType)
+                {
+                    InitNewColumn(nextElement);
+                    continue;
+                }
+                TryInitNewRow(currentElement, nextElement);
+            }
+        }
+
+        UpdateContentSize(new Vector2(contentWidth,ContentRect.sizeDelta.y));
+
+        Vector2 CalculateNewAnchor(bool isStretchHeight, InfiniteScrollPlaceHolder placeHolder)
+        {
+            var newAnchor = isStretchHeight 
+                ? new Vector2(cursorPos.x,(padding.top - padding.bottom) / 2f 
+                                          + (Mathf.Abs(placeHolder.BaseRectTransform.rect.height) 
+                                             * placeHolder.BaseRectTransform.pivot.y
+                                             + placeHolder.BaseRectTransform.anchoredPosition.y)) 
+                : cursorPos;
+            
+            float itemHeight = isStretchHeight 
+                ? ViewportRect.rect.height - padding.top - padding.bottom + placeHolder.BaseRectTransform.rect.height
+                : placeHolder.BaseRectTransform.rect.height;
+            newAnchor.y += (colItemIndex - 1) * (itemHeight + spacing.y);
+            return newAnchor;
+        }
+
+        void TryInitNewRow(InfiniteScrollPlaceHolder holder, InfiniteScrollPlaceHolder nextElement)
+        {
+            var elementRect = holder.BaseRectTransform;
+            if(!elementRect) return;
+            bool isStretchWidth = RectTransformUtility.IsStretchWidth(elementRect);
+            bool isOnlyPerRow = holder.BaseElement.ElementType == IFS_ElementType.Fixed 
+                                && holder.BaseElement.NumberFixed == 1;
+            
+            if (isStretchWidth || isOnlyPerRow)
+            {
+                InitNewColumn(nextElement);
+                return;
+            }
+
+            if (colItemIndex >= MaxItemPerColumn(holder))
+            {
+                InitNewColumn(nextElement);
+                return;
+            }
+            colItemIndex++;
+        }
+
+        void InitNewColumn(InfiniteScrollPlaceHolder holder)
+        {
+            var columnHeight = ColumnHeight(holder);
+            cursorPos.y = (ViewportRect.rect.height - columnHeight) / 2f;
+            cursorPos.x -= spacing.x + holder.BaseRectTransform.rect.height;
+            colItemIndex = 1;
+        }
+
+        int MaxItemPerColumn(InfiniteScrollPlaceHolder holder)
+        {
+            bool isStretchHeight = RectTransformUtility.IsStretchHeight(holder.BaseRectTransform);
+            if (isStretchHeight) return 1;
+            var marginHeight = Mathf.Max(padding.top, padding.bottom) * 2f;
+            int maxItemPerColumn = Mathf.FloorToInt((ViewportRect.rect.height - marginHeight + spacing.y) 
+                                                 / (holder.BaseRectTransform.rect.height + spacing.y));
+            return holder.BaseElement.ElementType == IFS_ElementType.Flexible
+            ? maxItemPerColumn : Mathf.Min(holder.BaseElement.NumberFixed, maxItemPerColumn);
+        }
+
+        float ColumnHeight(InfiniteScrollPlaceHolder holder)
+        {
+            int maxItemPerColumn = MaxItemPerColumn(holder);
+            bool isStretchHeight = RectTransformUtility.IsStretchHeight(holder.BaseRectTransform);
+            float itemHeight = isStretchHeight 
+                ? ViewportRect.rect.height - padding.top - padding.bottom + holder.BaseRectTransform.rect.height
+                : holder.BaseRectTransform.rect.height;
+            return itemHeight * maxItemPerColumn + spacing.x * (maxItemPerColumn - 1);
+        }
     }
 
     
@@ -187,7 +287,7 @@ public partial class InfiniteScrollData : MonoBehaviour
         switch (scrollType)
         {
             case GridLayoutGroup.Axis.Horizontal:
-                return true;
+                return CalculateVisibleHorizontal(placeHolder);
             case GridLayoutGroup.Axis.Vertical:
                 return CalculateVisibleVertical(placeHolder);
         }
@@ -195,15 +295,26 @@ public partial class InfiniteScrollData : MonoBehaviour
         return true;
     }
 
+    private bool CalculateVisibleHorizontal(InfiniteScrollPlaceHolder placeHolder)
+    {
+        if (placeHolder.BaseElement == null) return false;
+        bool overLeft = Mathf.Abs(placeHolder.AnchoredPosition.x 
+                                  - placeHolder.ItemWidth)
+                        >= _tempContentAnchor.x;
+        bool overRight = Mathf.Abs(placeHolder.AnchoredPosition.x)
+                         <= _tempContentAnchor.x + ViewportWidth;
+        return overLeft && overRight;
+    }
+
     private bool CalculateVisibleVertical(InfiniteScrollPlaceHolder placeHolder)
     {
-        if (placeHolder.BaseRectTransform == null) return false;
+        if (placeHolder.BaseElement == null) return false;
 
         bool overTop = Mathf.Abs(placeHolder.AnchoredPosition.y 
-                                 - placeHolder.BaseRectTransform.rect.height)
-                       >= _contentAnchor.y;
+                                 - placeHolder.ItemHeight)
+                       >= _tempContentAnchor.y;
         bool overBottom = Mathf.Abs(placeHolder.AnchoredPosition.y)
-                          <= _contentAnchor.y + ViewportRect.rect.height;
+                          <= _tempContentAnchor.y + ViewportHeight;
         return overTop && overBottom;
     }
 }
