@@ -16,6 +16,7 @@ public class InfiniteScrollPlaceHolder
     public RectTransform BaseRectTransform => BaseElement?.RectTransform;
     public object Data => _data;
     public Vector2 AnchoredPosition => _anchoredPosition;
+    public Vector2 Pivot { get;private set; }
 
     public InfiniteScrollPlaceHolder(InfiniteScrollElement element, object data)
     {
@@ -23,6 +24,7 @@ public class InfiniteScrollPlaceHolder
         _data = data;
         ItemHeight = BaseElement.RectTransform.rect.height;
         ItemWidth = BaseElement.RectTransform.rect.width;
+        Pivot = BaseElement.RectTransform.pivot;
     }
 
     public void SetPositionData(Vector2 anchoredPosition, Vector4D margin)

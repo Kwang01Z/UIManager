@@ -12,11 +12,17 @@ public partial class InfiniteScrollData
     [SerializeField] private Vector4D padding;
     [SerializeField] private Vector2 spacing;
     
-    RectTransform ContentRect => scrollRect.content;
-    RectTransform ViewportRect => scrollRect.viewport;
+    public Vector2 Spacing => spacing;
+    public Vector4D Padding => padding;
+    public Vector2 ContentSize => scrollRect.content.sizeDelta;
+    protected RectTransform ContentRect => scrollRect.content;
+    protected RectTransform ViewportRect => scrollRect.viewport;
     public float ViewportWidth { get;private set; }
     public float ViewportHeight { get;private set; }
-    private Vector2 _tempContentAnchor;
+    
+    public Vector2 ContentAnchor {get; private set;}
+    private IInfiniteScrollVisible _scrollVisible;
+    private IInfiniteScrollCursor _scrollCursor;
     private void OnValidate()
     {
         if (scrollRect)
@@ -45,19 +51,24 @@ public partial class InfiniteScrollData
         }
     }
 
-    private void Start()
+    protected void Awake()
+    {
+        _scrollVisible = InfiniteScrollVisibleFactory.Build(scrollType);
+        _scrollCursor = InfiniteScrollCursorFactory.Build(scrollType);
+    }
+
+    protected void Start()
     {
         scrollRect.onValueChanged.AddListener(OnScroll);
     }
 
     private void OnScroll(Vector2 arg0)
     {
-        UpdateData();
+        InitData();
     }
     
     private void UpdateContentSize(Vector2 contentSize)
     {
         ContentRect.sizeDelta = contentSize;
     }
-    
 }
