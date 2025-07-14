@@ -29,7 +29,7 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
         {
             var placeHolder = _placeHolders[i];
 
-            bool isStretchWidth = RectTransformUtility.IsStretchWidth(placeHolder.BaseRectTransform);
+            bool isStretchWidth = placeHolder.BaseRectTransform.IsStretchWidth();
             var itemAnchor = CalculateNewAnchor(isStretchWidth,placeHolder,cursorPos,rowItemIndex);
             _placeHolders[i].SetPositionData(itemAnchor, Padding);
             
@@ -71,7 +71,7 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
     {
         var elementRect = holder.BaseRectTransform;
         if(!elementRect) return;
-        bool isStretchWidth = RectTransformUtility.IsStretchWidth(elementRect);
+        bool isStretchWidth = elementRect.IsStretchWidth();
         bool isOnlyPerRow = holder.BaseElement.ElementType == IFS_ElementType.Fixed 
                             && holder.BaseElement.NumberFixed == 1;
             
@@ -98,7 +98,7 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
 
     private int MaxItemPerRow(InfiniteScrollPlaceHolder holder)
     {
-        bool isStretchWidth = RectTransformUtility.IsStretchWidth(holder.BaseRectTransform);
+        bool isStretchWidth = holder.BaseRectTransform.IsStretchWidth();
         if (isStretchWidth) return 1;
         var marginWidth = Mathf.Max(Padding.left, Padding.right) * 2f;
         int maxItemPerRow = Mathf.FloorToInt((ViewPortWidth - marginWidth + Spacing.x) 
@@ -110,7 +110,7 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
     private float RowWidth(InfiniteScrollPlaceHolder holder)
     {
         int maxItemPerRow = MaxItemPerRow(holder);
-        bool isStretchWidth = RectTransformUtility.IsStretchWidth(holder.BaseRectTransform);
+        bool isStretchWidth = holder.BaseRectTransform.IsStretchWidth();
         float itemWidth = isStretchWidth 
             ? ViewPortWidth - Padding.left - Padding.right + holder.BaseRectTransform.rect.width
             : holder.BaseRectTransform.rect.width;

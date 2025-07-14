@@ -30,16 +30,16 @@ public class InfiniteScrollElement : MonoBehaviour
 
     void ValidateNumberFixed()
     {
-        bool isStretchWidth = RectTransformUtility.IsStretchWidth(RectTransform);
-        bool isStretchHeight = RectTransformUtility.IsStretchHeight(RectTransform);
+        bool isStretchWidth = RectTransform.IsStretchWidth();
+        bool isStretchHeight = RectTransform.IsStretchHeight();
         if (isStretchWidth || isStretchHeight) numberFixed = 1;
     }
 
     public void SetupData(Vector2 anchoredPosition, Vector4D margin, object data)
     {
         RectTransform.anchoredPosition = anchoredPosition;
-        bool isStretchWidth = RectTransformUtility.IsStretchWidth(RectTransform);
-        bool isStretchHeight = RectTransformUtility.IsStretchHeight(RectTransform);
+        bool isStretchWidth = RectTransform.IsStretchWidth();
+        bool isStretchHeight = RectTransform.IsStretchHeight();
         if (isStretchWidth)
         {
             RectTransform.sizeDelta = new Vector2(

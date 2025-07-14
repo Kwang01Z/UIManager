@@ -79,6 +79,9 @@ public class PoolHolder : MonoSingleton<PoolHolder>
 
     private void OnDestroy()
     {
-        _pools.Clear();
+        lock (_pools)
+        {
+            _pools.Clear();
+        }
     }
 }

@@ -27,7 +27,7 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void Awake()
     {
-        if (_instance)
+        if (_instance && _instance != this)
         {
 #if UNITY_EDITOR
             Debug.Log("Had been exist instance of "+ typeof(T).Name);

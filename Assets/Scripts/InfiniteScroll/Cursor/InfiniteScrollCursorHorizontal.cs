@@ -30,7 +30,7 @@ public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
         {
             var placeHolder = _placeHolders[i];
 
-            bool isStretchHeight = RectTransformUtility.IsStretchHeight(placeHolder.BaseRectTransform);
+            bool isStretchHeight = placeHolder.BaseRectTransform.IsStretchHeight();
             var itemAnchor = CalculateNewAnchor(isStretchHeight,placeHolder, cursorPos, colItemIndex);
             _placeHolders[i].SetPositionData(itemAnchor, Padding);
             
@@ -72,7 +72,7 @@ public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
     {
         var elementRect = holder.BaseRectTransform;
         if(!elementRect) return;
-        bool isStretchWidth = RectTransformUtility.IsStretchWidth(elementRect);
+        bool isStretchWidth = elementRect.IsStretchWidth();
         bool isOnlyPerRow = holder.BaseElement.ElementType == IFS_ElementType.Fixed 
                             && holder.BaseElement.NumberFixed == 1;
             
@@ -101,7 +101,7 @@ public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
     private float ColumnHeight(InfiniteScrollPlaceHolder holder)
     {
         int maxItemPerColumn = MaxItemPerColumn(holder);
-        bool isStretchHeight = RectTransformUtility.IsStretchHeight(holder.BaseRectTransform);
+        bool isStretchHeight = holder.BaseRectTransform.IsStretchHeight();
         float itemHeight = isStretchHeight 
             ? ViewPortHeight - Padding.top - Padding.bottom + holder.BaseRectTransform.rect.height
             : holder.BaseRectTransform.rect.height;
@@ -109,7 +109,7 @@ public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
     }
     private int MaxItemPerColumn(InfiniteScrollPlaceHolder holder)
     {
-        bool isStretchHeight = RectTransformUtility.IsStretchHeight(holder.BaseRectTransform);
+        bool isStretchHeight = holder.BaseRectTransform.IsStretchHeight();
         if (isStretchHeight) return 1;
         var marginHeight = Mathf.Max(Padding.top, Padding.bottom) * 2f;
         int maxItemPerColumn = Mathf.FloorToInt((ViewPortHeight - marginHeight + Spacing.y) 
