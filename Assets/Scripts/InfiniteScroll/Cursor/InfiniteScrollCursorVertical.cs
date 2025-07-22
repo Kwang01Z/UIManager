@@ -42,7 +42,7 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
             bool isNewType = currentElement.BaseElement.GetHashCode() != nextElement.BaseElement.GetHashCode();
             if (isNewType)
             {
-                InitNewRow(nextElement, ref cursorPos, ref rowItemIndex);
+                InitNewRow(currentElement,nextElement, ref cursorPos, ref rowItemIndex);
                 continue;
             }
             TryInitNewRow(currentElement, nextElement, ref cursorPos, ref rowItemIndex);
@@ -77,22 +77,22 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
             
         if (isStretchWidth || isOnlyPerRow)
         {
-            InitNewRow(nextElement, ref cursorPos, ref rowItemIndex);
+            InitNewRow(holder,nextElement, ref cursorPos, ref rowItemIndex);
             return;
         }
 
         if (rowItemIndex >= MaxItemPerRow(holder))
         {
-            InitNewRow(nextElement, ref cursorPos, ref rowItemIndex);
+            InitNewRow(holder,nextElement, ref cursorPos, ref rowItemIndex);
             return;
         }
         rowItemIndex++;
     }
-    private void InitNewRow(InfiniteScrollPlaceHolder holder, ref Vector2 cursorPos, ref int rowItemIndex)
+    private void InitNewRow(InfiniteScrollPlaceHolder currentHolder , InfiniteScrollPlaceHolder nextHolder, ref Vector2 cursorPos, ref int rowItemIndex)
     {
-        var rowWidth = RowWidth(holder);
+        var rowWidth = RowWidth(nextHolder);
         cursorPos.x = (ViewPortWidth - rowWidth) / 2f;
-        cursorPos.y -= Spacing.y + holder.BaseRectTransform.rect.height;
+        cursorPos.y -= Spacing.y + currentHolder.BaseRectTransform.rect.height;
         rowItemIndex = 1;
     }
 

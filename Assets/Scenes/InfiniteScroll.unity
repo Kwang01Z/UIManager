@@ -448,7 +448,7 @@ MonoBehaviour:
     right: 10
     top: 10
     bottom: 10
-  spacing: {x: 10, y: 10}
+  spacing: {x: 10, y: 25}
 --- !u!114 &1175104202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -463,7 +463,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scrollData: {fileID: 1175104201}
   _element: {fileID: 6165063635246652330, guid: c8f1b031fb5dd48479a5e49c2f815131, type: 3}
-  _element2: {fileID: 6165063635246652330, guid: 6e85ef56c36ea9447a6420aacbd1f3f2, type: 3}
+  _element2: {fileID: 6165063635246652330, guid: 8151af17da0291242905e3a512b5b015, type: 3}
   numberOfElements: 100
 --- !u!1 &1756239991
 GameObject:
@@ -570,7 +570,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 430.46, y: 341.8}
+  m_SizeDelta: {x: 600, y: 1200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1781565193
 MonoBehaviour:

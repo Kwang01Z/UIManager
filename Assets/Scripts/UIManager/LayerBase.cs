@@ -35,3 +35,16 @@ public class LayerBase : MonoBehaviour
         canvas.sortingOrder = order;
     }
 }
+public class LayerGroup
+{
+    public LayerType Type;
+    public List<LayerBase> Layers = new List<LayerBase>();
+
+    public void HideGroup()
+    {
+        foreach (var layerBase in Layers)
+        {
+            layerBase.CloseLayer();
+        }
+    }
+}

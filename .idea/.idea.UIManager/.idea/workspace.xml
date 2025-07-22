@@ -6,13 +6,18 @@
   <component name="ChangeListManager">
     <list default="true" id="ceb3e8a2-3302-4d39-a364-a7ae0aed681f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UIManager/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UIManager/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollDataExtend.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollDataExtend.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollElement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollElement.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollPlaceHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollPlaceHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/InfiniteScroll/Test/TestData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/InfiniteScroll/Test/TestData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ObjectPooling/PoolHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ObjectPooling/PoolHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/InfiniteScroll.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/InfiniteScroll.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/LayerManager.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/LayerManager.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorHorizontal.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorHorizontal.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorVertical.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorVertical.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Test/TestData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Test/TestData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UIManager/LayerBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UIManager/LayerBase.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UIManager/LayerManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UIManager/LayerManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/boot.config" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +25,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="DpaMonitoringSettings">
-    <option name="autoShow" value="false" />
+    <option name="firstShow" value="false" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -34,14 +39,12 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Kwang01Z/UIManager.git&quot;,
-    &quot;accountId&quot;: &quot;d7e14ec6-1612-46e1-989e-8e2355f3adc9&quot;
+    &quot;accountId&quot;: &quot;e8e3ee3d-f689-4438-8549-33ab5bb322cd&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/24d45e813e524a99bfb7a145158a7980157a00/f5/c68835c5/Object.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollDataExtend.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollEnum.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/InfiniteScroll/Test/TestData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/UIManager/Layer_Utility.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Utility/UI_Utility.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -57,6 +60,7 @@
     &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;v01&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -64,13 +68,13 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.codeium.AppSettingsConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2021.3.9f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2022.3.56f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath G:\Unity\Projects\UIManager -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="G:\Unity\Projects\UIManager" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -78,7 +82,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2021.3.9f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2022.3.56f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath G:\Unity\Projects\UIManager -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="G:\Unity\Projects\UIManager" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -90,16 +94,24 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="19072">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="14000">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" value="19072" />
+      <option name="pid" value="14000" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list>
+          <MonoRuntime />
+        </list>
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
@@ -128,6 +140,19 @@
       <workItem from="1734450468697" duration="1992000" />
       <workItem from="1736087481352" duration="5237000" />
       <workItem from="1736264658046" duration="2011000" />
+      <workItem from="1740302919639" duration="6554000" />
+      <workItem from="1740328714283" duration="1558000" />
+      <workItem from="1740413153594" duration="2717000" />
+      <workItem from="1740496580732" duration="2571000" />
+      <workItem from="1740671010095" duration="1838000" />
+      <workItem from="1751818046033" duration="81000" />
+      <workItem from="1751818140515" duration="3130000" />
+      <workItem from="1752423087771" duration="905000" />
+      <workItem from="1752452082870" duration="1302000" />
+      <workItem from="1752508061214" duration="1928000" />
+      <workItem from="1753023324440" duration="1750000" />
+      <workItem from="1753142808262" duration="1482000" />
+      <workItem from="1753201949742" duration="957000" />
     </task>
     <task id="LOCAL-00001" summary="Infinite Scroll">
       <option name="closed" value="true" />
@@ -161,7 +186,31 @@
       <option name="project" value="LOCAL" />
       <updated>1734367932979</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="infinite scroll complete init">
+      <option name="closed" value="true" />
+      <created>1740498069250</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1740498069250</updated>
+    </task>
+    <task id="LOCAL-00006" summary="manage script">
+      <option name="closed" value="true" />
+      <created>1740672226570</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1740672226570</updated>
+    </task>
+    <task id="LOCAL-00007" summary="day thieu">
+      <option name="closed" value="true" />
+      <created>1740672306556</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1740672306556</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -181,25 +230,90 @@
     <MESSAGE value="set position verticle" />
     <MESSAGE value="position stretch" />
     <MESSAGE value="Fix flexible when padding not equal" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix flexible when padding not equal" />
+    <MESSAGE value="infinite scroll complete init" />
+    <MESSAGE value="manage script" />
+    <MESSAGE value="day thieu" />
+    <option name="LAST_COMMIT_MESSAGE" value="day thieu" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
+        <line-breakpoint type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/InfiniteScroll/Cursor/InfiniteScrollCursorHorizontal.cs</url>
+          <line>72</line>
+          <properties documentPath="D:\Users\ACER\UIManager\Assets\InfiniteScroll\Cursor\InfiniteScrollCursorHorizontal.cs" containingFunctionPresentation="Method 'TryInitNewCol'" />
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/InfiniteScroll/InfiniteScrollElement.cs</url>
-          <line>44</line>
-          <properties documentPath="G:\Unity\Projects\UIManager\Assets\InfiniteScroll\InfiniteScrollElement.cs" containingFunctionPresentation="Method 'SetupData'">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorVertical.cs</url>
+          <line>27</line>
+          <properties documentPath="D:\Users\ACER\UIManager\Assets\Scripts\InfiniteScroll\Cursor\InfiniteScrollCursorVertical.cs" containingFunctionPresentation="Method 'CalculateAnchoredPositionVertical'">
             <startOffsets>
-              <option value="1426" />
+              <option value="1075" />
             </startOffsets>
             <endOffsets>
-              <option value="1591" />
+              <option value="1120" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="11" />
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorVertical.cs</url>
+          <line>24</line>
+          <properties documentPath="D:\Users\ACER\UIManager\Assets\Scripts\InfiniteScroll\Cursor\InfiniteScrollCursorVertical.cs" containingFunctionPresentation="Method 'CalculateAnchoredPositionVertical'">
+            <startOffsets>
+              <option value="1003" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1024" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorVertical.cs</url>
+          <line>25</line>
+          <properties documentPath="D:\Users\ACER\UIManager\Assets\Scripts\InfiniteScroll\Cursor\InfiniteScrollCursorVertical.cs" containingFunctionPresentation="Method 'CalculateAnchoredPositionVertical'">
+            <startOffsets>
+              <option value="1033" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1057" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorVertical.cs</url>
+          <line>42</line>
+          <properties documentPath="D:\Users\ACER\UIManager\Assets\Scripts\InfiniteScroll\Cursor\InfiniteScrollCursorVertical.cs" containingFunctionPresentation="Method 'CalculateAnchoredPositionVertical'">
+            <startOffsets>
+              <option value="1901" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1915" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/InfiniteScroll/Cursor/InfiniteScrollCursorVertical.cs</url>
+          <line>71</line>
+          <properties documentPath="D:\Users\ACER\UIManager\Assets\Scripts\InfiniteScroll\Cursor\InfiniteScrollCursorVertical.cs" containingFunctionPresentation="Method 'TryInitNewRow'">
+            <startOffsets>
+              <option value="3255" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3298" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
