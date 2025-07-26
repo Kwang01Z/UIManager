@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -12,6 +13,12 @@ public class LayerBase : MonoBehaviour
     [SerializeField] protected CanvasGroup canvasGroup;
 
     private List<int> _sortOrders = new ();
+
+    public int GetSortingOrder()
+    {
+        return _sortOrders.Count > 0 ? _sortOrders.Last() : 0;
+    }
+
     protected virtual void Reset()
     {
         if(!canvas) canvas = GetComponent<Canvas>();
@@ -23,18 +30,18 @@ public class LayerBase : MonoBehaviour
         canvasGroup.SetActive(false);
     }
 
-    public virtual async UniTask ShowLayerAsync()
+    public virtual async UniTask ShowLayerAsync(CancellationToken cancellationToken)
     {
         canvasGroup.SetActive(true);
     }
 
-    public virtual async UniTask HideLayerAsync()
+    public virtual async UniTask HideLayerAsync(CancellationToken cancellationToken)
     {
         canvasGroup.SetActive(false);
     }
-    public virtual async UniTask CloseLayerAsync(bool force = false)
+    public virtual async UniTask CloseLayerAsync(bool force = false, CancellationToken cancellationToken = default)
     {
-        await HideLayerAsync();
+        await HideLayerAsync(cancellationToken);
         if(force) _sortOrders.Clear();
         var order = -10000;
         if (_sortOrders.Count > 1)
@@ -54,7 +61,8 @@ public class LayerGroup
 {
     private Dictionary<LayerType, LayerBase> _layerBases = new ();
 
-    public async UniTask HideGroupAsync()
+    public List<LayerType> LayerTypes => _layerBases.Keys.ToList();
+    public async UniTask CloseGroupAsync()
     {
         var tasks = new List<UniTask>();
         foreach (var layerBase in _layerBases.Values)
@@ -70,5 +78,24 @@ public class LayerGroup
     public LayerBase GetLayerBase(LayerType layerType)
     {
         return _layerBases.GetValueOrDefault(layerType);
+    }
+
+    public void SetSortOrder(int order)
+    {
+        int subOrder = 1;
+        foreach (var layerBase in _layerBases.Values)
+        {
+            layerBase.SetSortOrder(order + subOrder);
+            subOrder++;
+        }
+    }
+    public async UniTask ShowGroupAsync(CancellationToken cancellationToken)
+    {
+        var tasks = new List<UniTask>();
+        foreach (var layerBase in _layerBases.Values)
+        {
+            tasks.Add(layerBase.ShowLayerAsync(cancellationToken));
+        }
+        await UniTask.WhenAll(tasks);
     }
 }

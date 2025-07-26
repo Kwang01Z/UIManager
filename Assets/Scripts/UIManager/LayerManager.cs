@@ -13,9 +13,17 @@ public partial class LayerManager : MonoSingleton<LayerManager>
 {
     [SerializeField] private bool hasLayerRoot = true;
     [SerializeField] private RectTransform layerParent;
+    public int SpaceBetweenLayer = 100;
     private CancellationToken _destroyCTS;
     private Dictionary<LayerType, LayerBase> _showedLayerBases = new();
     private Dictionary<LayerType, LayerBase> _showingLayerBases = new();
+    private Stack<ShowLayerGroupData> _showingLayerGroups = new();
+
+    private void Reset()
+    {
+        if(!layerParent) layerParent = transform as RectTransform;
+    }
+
     protected override void Awake()
     {
         base.Awake();
@@ -23,7 +31,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     }
 
     public bool IsShowing { get; private set; }
-    private async UniTask<LayerGroup> ShowGroupLayer(ShowLayerGroupData showData)
+    public async UniTask<LayerGroup> ShowGroupLayer(ShowLayerGroupData showData, bool isShow = true)
     {
         await UniTask.WhenAny(UniTask.WaitUntil(() => !IsShowing,cancellationToken:_destroyCTS)
             , UniTask.WaitForSeconds(5, cancellationToken: _destroyCTS));
@@ -39,6 +47,9 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         {
             result = await InitLayerGroup(showData);
             await HideLayerExist(showData);
+            SetSortingLayer(result);
+            _showingLayerGroups.Push(showData);
+            if (isShow) await DisplayLayerGroup(result);
         }
         catch (Exception e)
         {
@@ -47,6 +58,47 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             
         IsShowing = false;
         return result;
+    }
+
+    public async UniTask DisplayLayerGroup(LayerGroup group)
+    {
+        await group.ShowGroupAsync(cancellationToken:destroyCancellationToken);
+    }
+
+    public async UniTask CloseLastLayerGroup()
+    {
+        if (_showingLayerGroups.Count == 0) return;
+        if(_showingLayerGroups.Count <= 1 && hasLayerRoot) return;
+        var lastGroup = _showingLayerGroups.Pop();
+        var closeTask = new List<UniTask>();
+        foreach (var layerType in lastGroup.LayerTypes)
+        {
+            var layerBase = GetLayerBase(layerType);
+            if (!layerBase) continue;
+            closeTask.Add(layerBase.CloseLayerAsync(cancellationToken:destroyCancellationToken));
+        }
+        await UniTask.WhenAll(closeTask);
+    }
+
+    private void SetSortingLayer(LayerGroup layerGroup)
+    {
+        int bestOrder = GetBestLayerSorting(layerGroup) + SpaceBetweenLayer;
+        layerGroup.SetSortOrder(bestOrder);
+    }
+
+    private int GetBestLayerSorting(LayerGroup layerGroup)
+    {
+        var layerTypeShowings = _showingLayerBases.Keys.Except(layerGroup.LayerTypes).ToList();
+        var layerBaseShowings = new List<LayerBase>();
+        foreach (var layerType in layerTypeShowings)
+        {
+            var layerBase = GetLayerBase(layerType);
+            if (!layerBase) continue;
+            layerBaseShowings.Add(layerBase);
+        }
+
+        var bestLayerSorting = layerBaseShowings.Count > 0 ? layerBaseShowings.Max(x => x.GetSortingOrder()) : 0;
+        return bestLayerSorting / SpaceBetweenLayer * SpaceBetweenLayer;
     }
 
     private async UniTask<LayerGroup> InitLayerGroup(ShowLayerGroupData showData)
@@ -82,7 +134,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             return null;
         }
         var insLayerBaseHandle = Addressables.InstantiateAsync(loadPath, layerParent);
-        await insLayerBaseHandle.Task;
+        await insLayerBaseHandle.Task.AsUniTask().AttachExternalCancellation(destroyCancellationToken);
         if (insLayerBaseHandle.Status == AsyncOperationStatus.Succeeded)
         {
             var insLayerBase = insLayerBaseHandle.Result.GetComponent<LayerBase>();
@@ -109,46 +161,62 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         }
         else if (showData.HideAllOtherLayer)
         {
-            await HideAllLayerExist();
+            await HideAllLayerExist(showData);
         }
         if (showData.CloseAllPopup)
         {
-            await CloseAllPopupExist();
+            await CloseAllPopupExist(showData);
         }
     }
 
-    private async UniTask CloseAllPopupExist()
+    private async UniTask CloseAllPopupExist(ShowLayerGroupData showData)
     {
+        var layerPopup = _showingLayerGroups
+            .Where(x => x.LayerGroupType == LayerGroupType.Popup)
+            .SelectMany(x => x.LayerTypes)
+            .Except(showData.LayerTypes).ToList();
         
+        var closeTasks = new List<UniTask>();
+        for (var i = 0; i < layerPopup.Count; i++)
+        {
+            closeTasks.Add(CloseLayerAsync(layerPopup[i], true));
+        }
+        await UniTask.WhenAll(closeTasks);
     }
 
-    private async UniTask HideAllLayerExist()
-    {
-        
-    }
-
-    private async UniTask CloseAllLayerExist(ShowLayerGroupData showData)
+    private async UniTask HideAllLayerExist(ShowLayerGroupData showData)
     {
         var layerTypeToHide = _showingLayerBases.Keys.Except(showData.LayerTypes).ToList();
         var hideTasks = new List<UniTask>();
         for (var i = 0; i < layerTypeToHide.Count; i++)
         {
-            hideTasks.Add(CloseLayerAsync(layerTypeToHide[i]));
+            hideTasks.Add(HideLayerAsync(layerTypeToHide[i]));
         }
         await UniTask.WhenAll(hideTasks);
     }
 
-    private async UniTask CloseLayerAsync(LayerType layerType)
+    private async UniTask CloseAllLayerExist(ShowLayerGroupData showData)
+    {
+        var layerTypeToClose = _showingLayerBases.Keys.Except(showData.LayerTypes).ToList();
+        var hideTasks = new List<UniTask>();
+        for (var i = 0; i < layerTypeToClose.Count; i++)
+        {
+            hideTasks.Add(CloseLayerAsync(layerTypeToClose[i], true));
+        }
+        await UniTask.WhenAll(hideTasks);
+    }
+
+    private async UniTask CloseLayerAsync(LayerType layerType, bool force = false)
     {
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return;
-        await layerBase.CloseLayerAsync();
+        await layerBase.CloseLayerAsync(force,cancellationToken:destroyCancellationToken);
     }
     private UniTask HideLayerAsync(LayerType layerType)
     {
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return UniTask.CompletedTask;
-        return layerBase.HideLayerAsync();
+        return layerBase.HideLayerAsync(cancellationToken:destroyCancellationToken);
     }
 }
 
