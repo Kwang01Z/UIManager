@@ -5,6 +5,7 @@ using UnityEngine;
 
 public static class LayerSourcePath
 {
+    public const string Layer01 = "Layers/LayerTest01";
     public static string GetPath(string variableName)
     {
         var type = typeof(LayerSourcePath);
@@ -22,5 +23,5 @@ public static class LayerSourcePath
 
 public enum LayerType
 {
-    
+    Layer01 = 1,
 }

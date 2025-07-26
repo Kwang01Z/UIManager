@@ -75,9 +75,10 @@ public class LayerGroup
     {
         _layerBases.Add(layerType, layerBase);
     }
-    public LayerBase GetLayerBase(LayerType layerType)
+    public bool GetLayerBase(LayerType layerType , out LayerBase layerBase)
     {
-        return _layerBases.GetValueOrDefault(layerType);
+        layerBase = _layerBases.GetValueOrDefault(layerType);
+        return layerBase != null;
     }
 
     public void SetSortOrder(int order)

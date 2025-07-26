@@ -57,7 +57,7 @@ public class InfiniteScrollElement : MonoBehaviour
     }
     
 }
-
+#if UNITY_EDITOR
 [CustomEditor(typeof(InfiniteScrollElement))]
 public class InfiniteScrollElementEditor : Editor
 {
@@ -102,3 +102,4 @@ public class InfiniteScrollElementEditor : Editor
         if (_targetObject.DataLoaderPF == null) _targetObject.DataLoaderPF = _targetObject.GetComponent<IDataLoader>();
     }
 }
+#endif
