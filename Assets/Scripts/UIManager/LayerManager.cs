@@ -30,6 +30,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         _destroyCTS = this.GetCancellationTokenOnDestroy();
     }
 
+    private Dictionary<int, LayerGroup> _showedLayerGroups = new();
     public bool IsShowing { get; private set; }
     public async UniTask<LayerGroup> ShowGroupLayer(ShowLayerGroupData showData, bool isShow = true)
     {
@@ -40,15 +41,22 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             Debug.Log($"[TryShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|",showData.LayerTypes)} - {showData.LayerGroupType}  not success");
             return null;
         }
+
+        await UniTask.NextFrame();
         Debug.Log($"[ShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|",showData.LayerTypes)} - {showData.LayerGroupType}");
         IsShowing = true;
-        LayerGroup result = null;
+        LayerGroup result = GetShowedLayerGroup(showData.ID);
         try
         {
-            result = await InitLayerGroup(showData);
+            bool groupExist = result != null;
+            result ??= await InitLayerGroup(showData);
             await HideLayerExist(showData);
             SetSortingLayer(result);
-            _showingLayerGroups.Push(showData);
+            if (!groupExist)
+            {
+                _showingLayerGroups.Push(showData);
+                _showedLayerGroups.TryAdd(showData.ID, result);
+            }
             if (isShow) await DisplayLayerGroup(result);
         }
         catch (Exception e)
@@ -60,9 +68,14 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         return result;
     }
 
+    private LayerGroup GetShowedLayerGroup(int groupId)
+    {
+        return _showedLayerGroups.GetValueOrDefault(groupId);
+    }
+
     public async UniTask DisplayLayerGroup(LayerGroup group)
     {
-        await group.ShowGroupAsync(cancellationToken:destroyCancellationToken);
+        await group.ShowGroupAsync();
     }
 
     public async UniTask CloseLastLayerGroup()
@@ -75,7 +88,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         {
             var layerBase = GetLayerBase(layerType);
             if (!layerBase) continue;
-            closeTask.Add(layerBase.CloseLayerAsync(cancellationToken:destroyCancellationToken));
+            closeTask.Add(layerBase.CloseLayerAsync());
         }
         await UniTask.WhenAll(closeTask);
     }
@@ -210,13 +223,26 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     {
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return;
-        await layerBase.CloseLayerAsync(force,cancellationToken:destroyCancellationToken);
+        await layerBase.CloseLayerAsync(force);
     }
     private UniTask HideLayerAsync(LayerType layerType)
     {
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return UniTask.CompletedTask;
-        return layerBase.HideLayerAsync(cancellationToken:destroyCancellationToken);
+        return layerBase.HideLayerAsync();
+    }
+}
+
+public static class LayerGroupBuilder
+{
+    public static ShowLayerGroupData Build(LayerGroupType groupType, params LayerType[] layerTypes)
+    {
+        var data = new ShowLayerGroupData();
+        data.ID = Guid.NewGuid().GetHashCode();
+        data.LayerGroupType = groupType;
+        data.LayerTypes.AddRange(layerTypes);
+        data.ValidateData();
+        return data;
     }
 }
 
@@ -229,17 +255,8 @@ public class ShowLayerGroupData
     public bool CloseAllOtherLayer;
     public bool HideAllOtherLayer;
     public bool CloseAllPopup;
-    public static ShowLayerGroupData Build(LayerGroupType groupType, params LayerType[] layerTypes)
-    {
-        var data = new ShowLayerGroupData();
-        data.ID = Guid.NewGuid().GetHashCode();
-        data.LayerGroupType = groupType;
-        data.LayerTypes.AddRange(layerTypes);
-        data.ValidateData();
-        return data;
-    }
 
-    private void ValidateData()
+    public void ValidateData()
     {
         if(LayerGroupType == LayerGroupType.Custom) return;
         CloseAllOtherLayer = LayerGroupType == LayerGroupType.Root;

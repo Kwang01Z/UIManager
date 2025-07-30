@@ -30,18 +30,18 @@ public class LayerBase : MonoBehaviour
         canvasGroup.SetActive(false);
     }
 
-    public virtual async UniTask ShowLayerAsync(CancellationToken cancellationToken)
+    public virtual async UniTask ShowLayerAsync()
     {
         canvasGroup.SetActive(true);
     }
 
-    public virtual async UniTask HideLayerAsync(CancellationToken cancellationToken)
+    public virtual async UniTask HideLayerAsync()
     {
         canvasGroup.SetActive(false);
     }
-    public virtual async UniTask CloseLayerAsync(bool force = false, CancellationToken cancellationToken = default)
+    public virtual async UniTask CloseLayerAsync(bool force = false)
     {
-        await HideLayerAsync(cancellationToken);
+        await HideLayerAsync();
         if(force) _sortOrders.Clear();
         var order = -10000;
         if (_sortOrders.Count > 1)
@@ -90,12 +90,12 @@ public class LayerGroup
             subOrder++;
         }
     }
-    public async UniTask ShowGroupAsync(CancellationToken cancellationToken)
+    public async UniTask ShowGroupAsync()
     {
         var tasks = new List<UniTask>();
         foreach (var layerBase in _layerBases.Values)
         {
-            tasks.Add(layerBase.ShowLayerAsync(cancellationToken));
+            tasks.Add(layerBase.ShowLayerAsync());
         }
         await UniTask.WhenAll(tasks);
     }
