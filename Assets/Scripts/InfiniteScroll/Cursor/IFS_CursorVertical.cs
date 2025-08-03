@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
+public class IFS_CursorVertical : IIFS_Cursor
 {
-    private List<InfiniteScrollPlaceHolder> _placeHolders;
-    private InfiniteScrollData _scrollData;
+    private List<IFS_PlaceHolder> _placeHolders;
+    private IFS_Data _scrollData;
     private Vector4D Padding => _scrollData.Padding;
     private Vector2 Spacing => _scrollData.Spacing;
     private float ViewPortWidth => _scrollData.ViewportWidth;
-    public Vector2 CalculateAnchoredPosition(List<InfiniteScrollPlaceHolder> placeHolders, InfiniteScrollData scrollData)
+    public Vector2 CalculateAnchoredPosition(List<IFS_PlaceHolder> placeHolders, IFS_Data scrollData)
     {
         _placeHolders = placeHolders;
         _scrollData = scrollData;
@@ -29,11 +29,11 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
         {
             var placeHolder = _placeHolders[i];
 
-            bool isStretchWidth = placeHolder.BaseRectTransform.IsStretchWidth();
+            bool isStretchWidth = placeHolder.IsStretchWidth;
             var itemAnchor = CalculateNewAnchor(isStretchWidth,placeHolder,cursorPos,rowItemIndex);
             _placeHolders[i].SetPositionData(itemAnchor, Padding);
             
-            contentHeight = Mathf.Max(contentHeight, Mathf.Abs(cursorPos.y) + placeHolder.BaseRectTransform.rect.height
+            contentHeight = Mathf.Max(contentHeight, Mathf.Abs(cursorPos.y) + placeHolder.ItemHeight
                                     + Padding.bottom);
 
             if (i >= _placeHolders.Count - 1) continue;
@@ -50,28 +50,28 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
 
         return new Vector2(_scrollData.ContentSize.x, contentHeight);
     }
-    private Vector2 CalculateNewAnchor(bool isStretchWidth, InfiniteScrollPlaceHolder placeHolder, Vector2 cursorPos, int rowItemIndex)
+    private Vector2 CalculateNewAnchor(bool isStretchWidth, IFS_PlaceHolder placeHolder, Vector2 cursorPos, int rowItemIndex)
     {
         var newAnchor = isStretchWidth 
             ? new Vector2((Padding.left - Padding.right) / 2f 
-                          + (Mathf.Abs(placeHolder.BaseRectTransform.rect.width) 
-                             * placeHolder.BaseRectTransform.pivot.x 
-                             + placeHolder.BaseRectTransform.anchoredPosition.x)
+                          + (Mathf.Abs(placeHolder.ItemWidth) 
+                             * placeHolder.Pivot.x 
+                             + placeHolder.RootAnchoredPosition.x)
                 ,cursorPos.y) 
             : cursorPos;
             
         float itemWidth = isStretchWidth 
-            ? ViewPortWidth - Padding.left - Padding.right + placeHolder.BaseRectTransform.rect.width
-            : placeHolder.BaseRectTransform.rect.width;
+            ? ViewPortWidth - Padding.left - Padding.right + placeHolder.ItemWidth
+            : placeHolder.ItemWidth;
         newAnchor.x += (rowItemIndex - 1) * (itemWidth + Spacing.x);
         return newAnchor;
     }
-    private void TryInitNewRow(InfiniteScrollPlaceHolder holder, InfiniteScrollPlaceHolder nextElement
+    private void TryInitNewRow(IFS_PlaceHolder holder, IFS_PlaceHolder nextElement
         , ref Vector2 cursorPos, ref int rowItemIndex)
     {
         var elementRect = holder.BaseRectTransform;
         if(!elementRect) return;
-        bool isStretchWidth = elementRect.IsStretchWidth();
+        bool isStretchWidth = holder.IsStretchWidth;
         bool isOnlyPerRow = holder.BaseElement.ElementType == IFS_ElementType.Fixed 
                             && holder.BaseElement.NumberFixed == 1;
             
@@ -88,32 +88,32 @@ public class InfiniteScrollCursorVertical : IInfiniteScrollCursor
         }
         rowItemIndex++;
     }
-    private void InitNewRow(InfiniteScrollPlaceHolder currentHolder , InfiniteScrollPlaceHolder nextHolder, ref Vector2 cursorPos, ref int rowItemIndex)
+    private void InitNewRow(IFS_PlaceHolder currentHolder , IFS_PlaceHolder nextHolder, ref Vector2 cursorPos, ref int rowItemIndex)
     {
         var rowWidth = RowWidth(nextHolder);
         cursorPos.x = (ViewPortWidth - rowWidth) / 2f;
-        cursorPos.y -= Spacing.y + currentHolder.BaseRectTransform.rect.height;
+        cursorPos.y -= Spacing.y + currentHolder.ItemHeight;
         rowItemIndex = 1;
     }
 
-    private int MaxItemPerRow(InfiniteScrollPlaceHolder holder)
+    private int MaxItemPerRow(IFS_PlaceHolder holder)
     {
-        bool isStretchWidth = holder.BaseRectTransform.IsStretchWidth();
+        bool isStretchWidth = holder.IsStretchWidth;
         if (isStretchWidth) return 1;
         var marginWidth = Mathf.Max(Padding.left, Padding.right) * 2f;
         int maxItemPerRow = Mathf.FloorToInt((ViewPortWidth - marginWidth + Spacing.x) 
-                                             / (holder.BaseRectTransform.rect.width + Spacing.x));
+                                             / (holder.ItemWidth + Spacing.x));
         return holder.BaseElement.ElementType == IFS_ElementType.Flexible
             ? maxItemPerRow : Mathf.Min(holder.BaseElement.NumberFixed, maxItemPerRow);
     }
 
-    private float RowWidth(InfiniteScrollPlaceHolder holder)
+    private float RowWidth(IFS_PlaceHolder holder)
     {
         int maxItemPerRow = MaxItemPerRow(holder);
-        bool isStretchWidth = holder.BaseRectTransform.IsStretchWidth();
+        bool isStretchWidth = holder.IsStretchWidth;
         float itemWidth = isStretchWidth 
-            ? ViewPortWidth - Padding.left - Padding.right + holder.BaseRectTransform.rect.width
-            : holder.BaseRectTransform.rect.width;
+            ? ViewPortWidth - Padding.left - Padding.right + holder.ItemWidth
+            : holder.ItemWidth;
         return itemWidth * maxItemPerRow + Spacing.x * (maxItemPerRow - 1);
     }
 }

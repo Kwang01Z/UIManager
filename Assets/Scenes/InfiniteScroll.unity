@@ -424,11 +424,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2144427998}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0.5}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1175104201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -442,13 +442,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scrollRect: {fileID: 1781565193}
-  scrollType: 0
+  scrollType: 1
   padding:
     left: 10
     right: 10
     top: 10
     bottom: 10
-  spacing: {x: 10, y: 25}
+  spacing: {x: 10, y: 10}
 --- !u!114 &1175104202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -464,6 +464,7 @@ MonoBehaviour:
   _scrollData: {fileID: 1175104201}
   _element: {fileID: 6165063635246652330, guid: c8f1b031fb5dd48479a5e49c2f815131, type: 3}
   _element2: {fileID: 6165063635246652330, guid: 8151af17da0291242905e3a512b5b015, type: 3}
+  _element3: {fileID: 6165063635246652330, guid: e1a7d629c90833c47a0cebff0050ab33, type: 3}
   numberOfElements: 100
 --- !u!1 &1756239991
 GameObject:
@@ -585,8 +586,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 1175104200}
-  m_Horizontal: 1
-  m_Vertical: 0
+  m_Horizontal: 0
+  m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
   m_Inertia: 1

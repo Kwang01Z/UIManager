@@ -7,11 +7,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
-public partial class InfiniteScrollData : MonoBehaviour
+public partial class IFS_Data : MonoBehaviour
 {
-    List<InfiniteScrollPlaceHolder> _placeHolders = new List<InfiniteScrollPlaceHolder>();
+    List<IFS_PlaceHolder> _placeHolders = new List<IFS_PlaceHolder>();
 
-    public void InitData(List<InfiniteScrollPlaceHolder> placeHolders)
+    public void InitData(List<IFS_PlaceHolder> placeHolders)
     {
         ClearData();
         AddDataRange(placeHolders);
@@ -23,7 +23,7 @@ public partial class InfiniteScrollData : MonoBehaviour
         _placeHolders.Clear();
     }
 
-    public void AddDataRange(List<InfiniteScrollPlaceHolder> placeHolders)
+    public void AddDataRange(List<IFS_PlaceHolder> placeHolders)
     {
         _placeHolders.AddRange(placeHolders);
 

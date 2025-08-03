@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public partial class InfiniteScrollData
+public partial class IFS_Data
 {
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private GridLayoutGroup.Axis scrollType;
@@ -21,8 +21,8 @@ public partial class InfiniteScrollData
     public float ViewportHeight { get;private set; }
     
     public Vector2 ContentAnchor {get; private set;}
-    private IInfiniteScrollVisible _scrollVisible;
-    private IInfiniteScrollCursor _scrollCursor;
+    private IIFS_Visible _scrollVisible;
+    private IIFS_Cursor _scrollCursor;
     private void OnValidate()
     {
         if (scrollRect)
@@ -53,8 +53,8 @@ public partial class InfiniteScrollData
 
     protected void Awake()
     {
-        _scrollVisible = InfiniteScrollVisibleFactory.Build(scrollType);
-        _scrollCursor = InfiniteScrollCursorFactory.Build(scrollType);
+        _scrollVisible = IFS_VisibleFactory.Build(scrollType);
+        _scrollCursor = IFS_CursorFactory.Build(scrollType);
     }
 
     protected void Start()

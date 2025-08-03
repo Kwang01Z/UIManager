@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class InfiniteScrollElement : MonoBehaviour
+public class IFS_Element : MonoBehaviour
 {
     public IDataLoader DataLoaderPF;
     [SerializeField] IFS_ElementType elementType;
@@ -58,10 +58,10 @@ public class InfiniteScrollElement : MonoBehaviour
     
 }
 
-[CustomEditor(typeof(InfiniteScrollElement))]
+[CustomEditor(typeof(IFS_Element))]
 public class InfiniteScrollElementEditor : Editor
 {
-    InfiniteScrollElement _targetObject;
+    IFS_Element _targetObject;
     SerializedProperty _elementType;
     SerializedProperty _numberFixed;
     private void OnEnable()
@@ -72,7 +72,7 @@ public class InfiniteScrollElementEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        _targetObject = (InfiniteScrollElement)target;
+        _targetObject = (IFS_Element)target;
         EditorUtility.SetDirty(_targetObject);
         
         LoadIDataLoader();

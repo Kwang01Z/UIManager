@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
+public class IFS_CursorHorizontal : IIFS_Cursor
 {
-    private List<InfiniteScrollPlaceHolder> _placeHolders;
-    private InfiniteScrollData _scrollData;
+    private List<IFS_PlaceHolder> _placeHolders;
+    private IFS_Data _scrollData;
     private Vector4D Padding => _scrollData.Padding;
     private Vector2 Spacing => _scrollData.Spacing;
     private float ViewPortHeight => _scrollData.ViewportHeight;
-    public Vector2 CalculateAnchoredPosition(List<InfiniteScrollPlaceHolder> placeHolders, InfiniteScrollData scrollData)
+    public Vector2 CalculateAnchoredPosition(List<IFS_PlaceHolder> placeHolders, IFS_Data scrollData)
     {
         _placeHolders = placeHolders;
         _scrollData = scrollData;
@@ -30,11 +30,11 @@ public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
         {
             var placeHolder = _placeHolders[i];
 
-            bool isStretchHeight = placeHolder.BaseRectTransform.IsStretchHeight();
+            bool isStretchHeight = placeHolder.IsStretchHeight;
             var itemAnchor = CalculateNewAnchor(isStretchHeight,placeHolder, cursorPos, colItemIndex);
             _placeHolders[i].SetPositionData(itemAnchor, Padding);
             
-            contentWidth = Mathf.Max(contentWidth, Mathf.Abs(cursorPos.x) + placeHolder.BaseRectTransform.rect.width
+            contentWidth = Mathf.Max(contentWidth, Mathf.Abs(cursorPos.x) + placeHolder.ItemWidth
                 + Padding.right);
             
             if (i < _placeHolders.Count - 1)
@@ -52,27 +52,27 @@ public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
         }
         return new Vector2(contentWidth, _scrollData.ContentSize.y);
     }
-    private Vector2 CalculateNewAnchor(bool isStretchHeight, InfiniteScrollPlaceHolder placeHolder, Vector2 cursorPos,int colItemIndex)
+    private Vector2 CalculateNewAnchor(bool isStretchHeight, IFS_PlaceHolder placeHolder, Vector2 cursorPos,int colItemIndex)
     {
         var newAnchor = isStretchHeight 
             ? new Vector2(cursorPos.x,-(Padding.top - Padding.bottom) / 2f 
-                                      + (Mathf.Abs(placeHolder.BaseRectTransform.rect.height) 
-                                         * placeHolder.BaseRectTransform.pivot.y
-                                         + placeHolder.BaseRectTransform.anchoredPosition.y)) 
+                                      + (Mathf.Abs(placeHolder.ItemHeight) 
+                                         * placeHolder.Pivot.y
+                                         + placeHolder.RootAnchoredPosition.y)) 
             : cursorPos;
             
         float itemHeight = isStretchHeight 
-            ? ViewPortHeight - Padding.top - Padding.bottom + placeHolder.BaseRectTransform.rect.height
-            : placeHolder.BaseRectTransform.rect.height;
+            ? ViewPortHeight - Padding.top - Padding.bottom + placeHolder.ItemHeight
+            : placeHolder.ItemHeight;
         newAnchor.y -= (colItemIndex - 1) * (itemHeight + Spacing.y);
         return newAnchor;
     }
 
-    void TryInitNewCol(InfiniteScrollPlaceHolder holder, InfiniteScrollPlaceHolder nextElement, ref Vector2 cursorPos, ref int colItemIndex)
+    void TryInitNewCol(IFS_PlaceHolder holder, IFS_PlaceHolder nextElement, ref Vector2 cursorPos, ref int colItemIndex)
     {
         var elementRect = holder.BaseRectTransform;
         if(!elementRect) return;
-        bool isStretchWidth = elementRect.IsStretchWidth();
+        bool isStretchWidth = holder.IsStretchWidth;
         bool isOnlyPerRow = holder.BaseElement.ElementType == IFS_ElementType.Fixed 
                             && holder.BaseElement.NumberFixed == 1;
             
@@ -90,30 +90,30 @@ public class InfiniteScrollCursorHorizontal : IInfiniteScrollCursor
         colItemIndex++;
     }
 
-    private void InitNewColumn(InfiniteScrollPlaceHolder currentHolder,InfiniteScrollPlaceHolder nextHolder, ref Vector2 cursorPos, ref int colItemIndex)
+    private void InitNewColumn(IFS_PlaceHolder currentHolder,IFS_PlaceHolder nextHolder, ref Vector2 cursorPos, ref int colItemIndex)
     {
         var columnHeight = ColumnHeight(nextHolder);
         cursorPos.y = -(ViewPortHeight - columnHeight) / 2f;
-        cursorPos.x += Spacing.x + currentHolder.BaseRectTransform.rect.width;
+        cursorPos.x += Spacing.x + currentHolder.ItemWidth;
         colItemIndex = 1;
     }
 
-    private float ColumnHeight(InfiniteScrollPlaceHolder holder)
+    private float ColumnHeight(IFS_PlaceHolder holder)
     {
         int maxItemPerColumn = MaxItemPerColumn(holder);
-        bool isStretchHeight = holder.BaseRectTransform.IsStretchHeight();
+        bool isStretchHeight = holder.IsStretchHeight;
         float itemHeight = isStretchHeight 
-            ? ViewPortHeight - Padding.top - Padding.bottom + holder.BaseRectTransform.rect.height
-            : holder.BaseRectTransform.rect.height;
+            ? ViewPortHeight - Padding.top - Padding.bottom + holder.ItemHeight
+            : holder.ItemHeight;
         return itemHeight * maxItemPerColumn + Spacing.y * (maxItemPerColumn - 1);
     }
-    private int MaxItemPerColumn(InfiniteScrollPlaceHolder holder)
+    private int MaxItemPerColumn(IFS_PlaceHolder holder)
     {
-        bool isStretchHeight = holder.BaseRectTransform.IsStretchHeight();
+        bool isStretchHeight = holder.IsStretchHeight;
         if (isStretchHeight) return 1;
         var marginHeight = Mathf.Max(Padding.top, Padding.bottom) * 2f;
         int maxItemPerColumn = Mathf.FloorToInt((ViewPortHeight - marginHeight + Spacing.y) 
-                                                / (holder.BaseRectTransform.rect.height + Spacing.y));
+                                                / (holder.ItemHeight + Spacing.y));
         return holder.BaseElement.ElementType == IFS_ElementType.Flexible
             ? maxItemPerColumn : Mathf.Min(holder.BaseElement.NumberFixed, maxItemPerColumn);
     }

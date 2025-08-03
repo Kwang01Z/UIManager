@@ -2,18 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InfiniteScrollVisibleHorizontal : IInfiniteScrollVisible
+public class IFS_VisibleHorizontal : IIFS_Visible
 {
     private Vector2 _contentAnchor;
     private float _viewportWidth;
-    public bool IsVisible(InfiniteScrollPlaceHolder placeHolder, InfiniteScrollData scrollData)
+    public bool IsVisible(IFS_PlaceHolder placeHolder, IFS_Data scrollData)
     {
         _contentAnchor = scrollData.ContentAnchor;
         _viewportWidth = scrollData.ViewportWidth;
         return CalculateVisibleHorizontal(placeHolder);
     }
     
-    private bool CalculateVisibleHorizontal(InfiniteScrollPlaceHolder placeHolder)
+    private bool CalculateVisibleHorizontal(IFS_PlaceHolder placeHolder)
     {
         if (placeHolder.BaseElement == null) return false;
         bool overLeft = placeHolder.AnchoredPosition.x + placeHolder.ItemWidth * (1 - placeHolder.Pivot.x)

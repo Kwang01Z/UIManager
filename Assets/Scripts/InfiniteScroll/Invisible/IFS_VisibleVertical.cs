@@ -2,19 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InfiniteScrollVisibleVertical : IInfiniteScrollVisible
+public class IFS_VisibleVertical : IIFS_Visible
 {
     private Vector2 _contentAnchor;
     private float _viewportHeight;
 
-    public bool IsVisible(InfiniteScrollPlaceHolder placeHolder, InfiniteScrollData scrollData)
+    public bool IsVisible(IFS_PlaceHolder placeHolder, IFS_Data scrollData)
     {
         _contentAnchor = scrollData.ContentAnchor;
         _viewportHeight = scrollData.ViewportHeight;
         return CalculateVisibleVertical(placeHolder);
     }
 
-    private bool CalculateVisibleVertical(InfiniteScrollPlaceHolder placeHolder)
+    private bool CalculateVisibleVertical(IFS_PlaceHolder placeHolder)
     {
         if (placeHolder.BaseElement == null) return false;
 
