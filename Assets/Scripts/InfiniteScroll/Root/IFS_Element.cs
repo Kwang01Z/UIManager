@@ -57,9 +57,9 @@ public class IFS_Element : MonoBehaviour
     }
     
 }
-
+#if UNITY_EDITOR
 [CustomEditor(typeof(IFS_Element))]
-public class InfiniteScrollElementEditor : Editor
+public class IFS_ElementEditor : Editor
 {
     IFS_Element _targetObject;
     SerializedProperty _elementType;
@@ -102,3 +102,4 @@ public class InfiniteScrollElementEditor : Editor
         if (_targetObject.DataLoaderPF == null) _targetObject.DataLoaderPF = _targetObject.GetComponent<IDataLoader>();
     }
 }
+#endif
