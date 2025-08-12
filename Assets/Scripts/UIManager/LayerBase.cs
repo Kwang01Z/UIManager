@@ -16,27 +16,29 @@ public class LayerBase : MonoBehaviour
 
     public int GetSortingOrder()
     {
-        return _sortOrders.Count > 0 ? _sortOrders.Last() : 0;
+        return _sortOrders.Count > 0 ? _sortOrders[^1] : 0;
     }
 
     protected virtual void Reset()
     {
         if(!canvas) canvas = GetComponent<Canvas>();
         canvas.overrideSorting = true;
-        if(!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
-    }
-    protected virtual void Awake()
-    {
+        if (!canvasGroup)
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
+        }
         canvasGroup.SetActive(false);
     }
 
     public virtual async UniTask ShowLayerAsync()
     {
+        await UniTask.Yield();
         canvasGroup.SetActive(true);
     }
 
     public virtual async UniTask HideLayerAsync()
     {
+        await UniTask.Yield();
         canvasGroup.SetActive(false);
     }
     public virtual async UniTask CloseLayerAsync(bool force = false)
@@ -47,7 +49,7 @@ public class LayerBase : MonoBehaviour
         if (_sortOrders.Count > 1)
         {
             _sortOrders.RemoveAt(_sortOrders.Count - 1);
-            order = _sortOrders.Last();
+            order = _sortOrders[^1];
         }
         SetSortOrder(order, false);
     }
@@ -61,7 +63,7 @@ public class LayerGroup
 {
     private Dictionary<LayerType, LayerBase> _layerBases = new ();
 
-    public List<LayerType> LayerTypes => _layerBases.Keys.ToList();
+    public List<LayerType> LayerTypes => new (_layerBases.Keys);
     public async UniTask CloseGroupAsync()
     {
         var tasks = new List<UniTask>();
