@@ -14,26 +14,30 @@ public class LayerBase : MonoBehaviour
 
     private List<int> _sortOrders = new ();
 
-    public int GetSortingOrder()
+    protected virtual void OnValidate()
     {
-        return _sortOrders.Count > 0 ? _sortOrders[^1] : 0;
+        gameObject.SetActive(false);
     }
 
     protected virtual void Reset()
     {
-        if(!canvas) canvas = GetComponent<Canvas>();
+        canvas ??= GetComponent<Canvas>();
         canvas.overrideSorting = true;
-        if (!canvasGroup)
-        {
-            canvasGroup = GetComponent<CanvasGroup>();
-        }
+        
+        canvasGroup ??= GetComponent<CanvasGroup>();
         canvasGroup.SetActive(false);
+    }
+    
+    public int GetSortingOrder()
+    {
+        return _sortOrders.Count > 0 ? _sortOrders[^1] : 0;
     }
 
     public virtual async UniTask ShowLayerAsync()
     {
         await UniTask.Yield();
         canvasGroup.SetActive(true);
+        if(!gameObject.activeInHierarchy) gameObject.SetActive(true);
     }
 
     public virtual async UniTask HideLayerAsync()

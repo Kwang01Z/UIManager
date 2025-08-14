@@ -35,7 +35,7 @@ public class ActionSeal
             }
         }
     
-        public async void InvokeAsync()
+        public async UniTask InvokeAsync()
         {
             await UniTask.Yield();
             Invoke();
@@ -70,5 +70,10 @@ public class ActionSealed<T>
                 Debug.LogError(e);
             }
         }
+    }
+    public async UniTask InvokeAsync(T value)
+    {
+        await UniTask.Yield();
+        Invoke(value);
     }
 }
