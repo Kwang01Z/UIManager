@@ -399,7 +399,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hasLayerRoot: 1
   layerParent: {fileID: 1259609221}
-  SpaceBetweenLayer: 100
+  spaceBetweenLayer: 100
 --- !u!114 &1259609223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -412,6 +412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aced35d15a5206547a8c49b5ee5d24f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layer01: {fileID: 688608360734492951, guid: 0e982ae3dddf58f4d813a78d90538e92, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

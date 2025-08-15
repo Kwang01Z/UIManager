@@ -5,7 +5,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class ActionSeal
+public class ActionSealed
 {
     public Dictionary<int, Action> Actions = new();
     

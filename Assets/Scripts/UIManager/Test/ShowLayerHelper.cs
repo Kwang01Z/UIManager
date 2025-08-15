@@ -5,10 +5,11 @@ using UnityEngine;
 
 public partial class LayerManager
 {
+    private ShowLayerGroupData _showLayer01Data;
     public async UniTask ShowLayer01(int index)
     {
-        var group = LayerGroupBuilder.Build(LayerGroupType.Root, LayerType.Layer01);
-        await ShowGroupLayerAsync(group,SetupDataLayer01);
+        _showLayer01Data ??= LayerGroupBuilder.Build(LayerGroupType.Root, LayerType.Layer01);
+        await ShowGroupLayerAsync(_showLayer01Data,SetupDataLayer01);
         return;
 
         UniTask SetupDataLayer01(LayerGroup layerGroup)

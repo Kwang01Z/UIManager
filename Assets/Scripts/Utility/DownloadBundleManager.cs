@@ -381,9 +381,9 @@ public class DownloadBundleTask : IDisposable
 {
     public long BundleKey { get; set; }
     public Func<UniTask> MainTask { get; set; }
-    public ActionSeal OnComplete { get; set; } = new();
-    public ActionSeal OnFailed { get; set; } = new();
-    public ActionSeal OnCancelled { get; set; } = new();
+    public ActionSealed OnComplete { get; set; } = new();
+    public ActionSealed OnFailed { get; set; } = new();
+    public ActionSealed OnCancelled { get; set; } = new();
     public ActionSealed<float> OnProgress { get; set; } = new();
     public CancellationTokenSource CancellationTokenSource { get; private set; } = new();
 
