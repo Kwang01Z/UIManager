@@ -407,6 +407,10 @@ public class OptimizedLayerManager : MonoSingleton<OptimizedLayerManager>
     private async UniTask HideAllLayersExcept(ShowLayerGroupData showData)
     {
         var layersToHide = _showingLayerTypes.Except(showData.LayerTypes);
+        
+        // Filter out persistent layers - they should never be hidden
+        layersToHide = FilterOutPersistentLayers(layersToHide);
+        
         var hideTasks = layersToHide.Select(async layerType =>
         {
             var layer = await ResourceManager.Instance.GetLayerAsync(layerType);
@@ -464,6 +468,38 @@ public class OptimizedLayerManager : MonoSingleton<OptimizedLayerManager>
             TransitionProfile.ScaleTransition => (AnimationProfile.Scale, defaultAnimationDuration, 0f),
             _ => (AnimationProfile.Fade, defaultAnimationDuration, 0f)
         };
+    }
+    
+    /// <summary>
+    /// Filter out layers that belong to Persistent groups - they should never be hidden/closed by other operations
+    /// </summary>
+    private IEnumerable<LayerType> FilterOutPersistentLayers(IEnumerable<LayerType> layerTypes)
+    {
+        return layerTypes.Where(layerType => 
+        {
+            // Find the group this layer belongs to
+            var persistentGroup = _showingLayerGroups.FirstOrDefault(group => 
+                group.LayerGroupType == LayerGroupType.Persistent && 
+                group.LayerTypes.Contains(layerType));
+                
+            if (persistentGroup != null)
+            {
+                Debug.Log($"[OptimizedLayerManager] Skipping {layerType} - it belongs to a Persistent group and cannot be hidden");
+                return false; // Filter out persistent layers
+            }
+            
+            return true; // Keep non-persistent layers
+        });
+    }
+    
+    /// <summary>
+    /// Check if a layer type belongs to a Persistent group
+    /// </summary>
+    private bool IsLayerPersistent(LayerType layerType)
+    {
+        return _showingLayerGroups.Any(group => 
+            group.LayerGroupType == LayerGroupType.Persistent && 
+            group.LayerTypes.Contains(layerType));
     }
 
     #if UNITY_EDITOR

@@ -266,6 +266,10 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     private async UniTask HideAllLayerExist(ShowLayerGroupData showData)
     {
         var layerTypeToHide = new List<LayerType>(_showingLayerTypes.Except(showData.LayerTypes));
+        
+        // Filter out persistent layers - they should never be hidden
+        layerTypeToHide = FilterOutPersistentLayers(layerTypeToHide);
+        
         for (var i = 0; i < layerTypeToHide.Count; i++)
         {
             _hideTasks.Add(HideLayerAsync(layerTypeToHide[i]));
@@ -279,9 +283,14 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     private List<UniTask> _hideTasks = new();
     private async UniTask CloseAllLayerExist(ShowLayerGroupData showData)
     {
-        _layerTypeToClose.AddRange(showData.IgnoreHideThisLayer
+        var layersToConsider = showData.IgnoreHideThisLayer
             ? _showingLayerTypes.Except(showData.LayerTypes)
-            : _showingLayerTypes);
+            : _showingLayerTypes;
+            
+        _layerTypeToClose.AddRange(layersToConsider);
+        
+        // Filter out persistent layers - they should never be closed by other operations
+        _layerTypeToClose = FilterOutPersistentLayers(_layerTypeToClose);
         
         for (var i = 0; i < _layerTypeToClose.Count; i++)
         {
@@ -289,8 +298,21 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         }
 
         await UniTask.WhenAll(_hideTasks);
+        
+        // Only clear groups that are not persistent
+        var persistentGroups = _showingLayerGroups.Where(g => g.LayerGroupType == LayerGroupType.Persistent).ToList();
+        var persistentLayers = new HashSet<LayerType>(persistentGroups.SelectMany(g => g.LayerTypes));
+        
         _showingLayerGroups.Clear();
-        _showingLayerTypes.Clear();
+        // Restore persistent groups
+        foreach (var persistentGroup in persistentGroups)
+        {
+            _showingLayerGroups.Push(persistentGroup);
+        }
+        
+        // Update showing layer types - keep persistent layers
+        _showingLayerTypes = new HashSet<LayerType>(persistentLayers);
+        
         _layerTypeToClose.Clear();
         _hideTasks.Clear();
     }
@@ -307,6 +329,44 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return UniTask.CompletedTask;
         return layerBase.HideLayerAsync();
+    }
+    
+    /// <summary>
+    /// Filter out layers that belong to Persistent groups - they should never be hidden/closed by other operations
+    /// </summary>
+    private List<LayerType> FilterOutPersistentLayers(List<LayerType> layerTypes)
+    {
+        var filteredLayers = new List<LayerType>();
+        
+        foreach (var layerType in layerTypes)
+        {
+            // Find the group this layer belongs to
+            var persistentGroup = _showingLayerGroups.FirstOrDefault(group => 
+                group.LayerGroupType == LayerGroupType.Persistent && 
+                group.LayerTypes.Contains(layerType));
+                
+            // Only add to filtered list if it's NOT in a persistent group
+            if (persistentGroup == null)
+            {
+                filteredLayers.Add(layerType);
+            }
+            else
+            {
+                Debug.Log($"[LayerManager] Skipping {layerType} - it belongs to a Persistent group and cannot be hidden");
+            }
+        }
+        
+        return filteredLayers;
+    }
+    
+    /// <summary>
+    /// Check if a layer type belongs to a Persistent group
+    /// </summary>
+    private bool IsLayerPersistent(LayerType layerType)
+    {
+        return _showingLayerGroups.Any(group => 
+            group.LayerGroupType == LayerGroupType.Persistent && 
+            group.LayerTypes.Contains(layerType));
     }
 }
 
@@ -354,4 +414,5 @@ public enum LayerGroupType
     FullScreen = 2,
     Popup = 3,
     Notify = 4,
+    Persistent = 5,  // Never hidden by other layer operations
 }
