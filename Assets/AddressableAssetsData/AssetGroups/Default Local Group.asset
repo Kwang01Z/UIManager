@@ -16,7 +16,47 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 49c54bfc95de8894980d0491b44197b7
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 18b08960d43cd58438f914d7d0c7d504
+    m_Address: Layers/Shop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3ef34b774874ae549a6d906a3be8a12a
+    m_Address: Layers/MainMenu
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 68665ab26e1944f4aa5fe9315d80b8b8
+    m_Address: Layers/Inventory
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ab627b11fdc10bf419612204a74f3180
+    m_Address: Layers/LayerTest01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ae7c11c259520094da9ce3ddeab334b6
+    m_Address: Layers/Notification
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c3c2286e1d66b694facf6bc5d5686b10
+    m_Address: Layers/Settings
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d70fa4ae76722db43a38866ec88cfc96
+    m_Address: Layers/Loading
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f8bab8110de643e418899bae93845882
+    m_Address: Layers/Gameplay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0c562b1da40ddbe4789e293be3549d3c, type: 2}
   m_SchemaSet:
