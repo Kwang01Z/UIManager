@@ -186,7 +186,7 @@ public class LayerAnimationController : MonoSingleton<LayerAnimationController>
             await animInfo.AnimationSequence.AsyncWaitForCompletion();
             
             // Finalize state
-            FinalizeAnimationState(layer, profile, isShow);
+            await FinalizeAnimationState(layer, profile, isShow);
         }
         catch (Exception e)
         {
@@ -214,8 +214,8 @@ public class LayerAnimationController : MonoSingleton<LayerAnimationController>
 
     private void SetupInitialState(LayerBase layer, AnimationProfile profile, bool isShow)
     {
-        var canvasGroup = layer.GetComponent<CanvasGroup>();
-        var rectTransform = layer.transform as RectTransform;
+        var canvasGroup = layer.CanvasGroup;
+        var rectTransform = layer.RectTransform;
         
         switch (profile)
         {
@@ -263,11 +263,11 @@ public class LayerAnimationController : MonoSingleton<LayerAnimationController>
                 if (isShow)
                 {
                     rectTransform.localScale = Vector3.zero;
-                    canvasGroup.alpha = 0f;
+                    canvasGroup.SetActive(false);
                 }
                 else
                 {
-                    canvasGroup.alpha = 1f;
+                    canvasGroup.SetActive(true);
                 }
                 break;
                 
@@ -275,7 +275,7 @@ public class LayerAnimationController : MonoSingleton<LayerAnimationController>
                 if (isShow)
                 {
                     rectTransform.localScale = Vector3.zero;
-                    canvasGroup.alpha = 0f;
+                    canvasGroup.SetActive(false);
                 }
                 break;
         }
@@ -321,25 +321,21 @@ public class LayerAnimationController : MonoSingleton<LayerAnimationController>
                 sequence.Join(canvasGroup.DOFade(alphaTarget, duration).SetEase(defaultEase));
                 break;
         }
+        sequence.OnComplete(() => { canvasGroup.SetActive(isShow); });
         
         return sequence;
     }
 
-    private void FinalizeAnimationState(LayerBase layer, AnimationProfile profile, bool isShow)
+    private async UniTask FinalizeAnimationState(LayerBase layer, AnimationProfile profile, bool isShow)
     {
-        var canvasGroup = layer.GetComponent<CanvasGroup>();
-        var rectTransform = layer.transform as RectTransform;
-        
         // Ensure final state is correct
         if (isShow)
         {
-            canvasGroup.alpha = 1f;
-            rectTransform.localScale = Vector3.one;
-            rectTransform.anchoredPosition = Vector2.zero;
+            await layer.ShowLayerAsync();
         }
         else
         {
-            canvasGroup.alpha = 0f;
+            await layer.HideLayerAsync();
         }
     }
 
