@@ -6,12 +6,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Settings;
-#endif
-
 [RequireComponent(typeof(Canvas), typeof(CanvasGroup), typeof(RectTransform))]
 public class LayerBase : MonoBehaviour
 {
@@ -23,91 +17,7 @@ public class LayerBase : MonoBehaviour
     protected virtual void OnValidate()
     {
         gameObject.SetActive(false);
-        
-        #if UNITY_EDITOR
-        // Auto-setup Addressable if not already configured
-        AutoSetupAddressable();
-        #endif
     }
-    
-    #if UNITY_EDITOR
-    /// <summary>
-    /// Automatically setup Addressable entry với key pattern "Layers/{prefabName}"
-    /// </summary>
-    private void AutoSetupAddressable()
-    {
-        // Only run in Editor và chỉ cho prefabs
-        if (!PrefabUtility.IsPartOfPrefabAsset(this))
-            return;
-            
-        try
-        {
-            // Get Addressable settings
-            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
-            if (addressableSettings == null)
-            {
-                Debug.LogWarning("[LayerBase] Addressable settings not found. Please setup Addressables first.");
-                return;
-            }
-            
-            // Get prefab asset path
-            string assetPath = AssetDatabase.GetAssetPath(this.gameObject);
-            if (string.IsNullOrEmpty(assetPath))
-                return;
-                
-            // Get prefab name without extension
-            string prefabName = System.IO.Path.GetFileNameWithoutExtension(assetPath);
-            string addressableKey = $"Layers/{prefabName}";
-            
-            // Check if already has addressable entry
-            var existingEntry = addressableSettings.FindAssetEntry(AssetDatabase.AssetPathToGUID(assetPath));
-            
-            if (existingEntry == null)
-            {
-                // Create new addressable entry
-                var defaultGroup = addressableSettings.DefaultGroup;
-                if (defaultGroup == null)
-                {
-                    Debug.LogWarning($"[LayerBase] No default Addressable group found for {prefabName}");
-                    return;
-                }
-                
-                var newEntry = addressableSettings.CreateOrMoveEntry(
-                    AssetDatabase.AssetPathToGUID(assetPath), 
-                    defaultGroup, 
-                    false, 
-                    false
-                );
-                
-                if (newEntry != null)
-                {
-                    newEntry.address = addressableKey;
-                    addressableSettings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryMoved, newEntry, true);
-                    
-                    Debug.Log($"[LayerBase] ✅ Auto-created Addressable entry: '{addressableKey}' for prefab '{prefabName}'");
-                }
-            }
-            else if (existingEntry.address != addressableKey)
-            {
-                // Update existing entry với correct key pattern nếu khác
-                string oldAddress = existingEntry.address;
-                existingEntry.address = addressableKey;
-                addressableSettings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryModified, existingEntry, true);
-                
-                Debug.Log($"[LayerBase] 🔄 Updated Addressable key: '{oldAddress}' → '{addressableKey}' for prefab '{prefabName}'");
-            }
-            else
-            {
-                // Already configured correctly
-                Debug.Log($"[LayerBase] ✅ Addressable already configured: '{addressableKey}' for prefab '{prefabName}'");
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[LayerBase] Error setting up Addressable for {gameObject.name}: {e.Message}");
-        }
-    }
-    #endif
 
     protected virtual void Reset()
     {

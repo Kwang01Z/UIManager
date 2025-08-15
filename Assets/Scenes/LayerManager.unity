@@ -294,11 +294,8 @@ GameObject:
   - component: {fileID: 1259609220}
   - component: {fileID: 1259609219}
   - component: {fileID: 1259609218}
-  - component: {fileID: 1259609224}
-  - component: {fileID: 1259609228}
-  - component: {fileID: 1259609227}
-  - component: {fileID: 1259609226}
-  - component: {fileID: 1259609225}
+  - component: {fileID: 1259609222}
+  - component: {fileID: 1259609223}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -388,7 +385,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1259609224
+--- !u!114 &1259609222
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -397,83 +394,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 1259609217}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d56383eab966dc4fab3922e22787c0c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enableRuntimeMonitoring: 1
-  updateInterval: 1
-  maxHistoryPoints: 60
-  showDebugGUI: 0
-  maxLoadTime: 0.5
-  maxMemoryUsage: 52428800
-  maxActiveAnimations: 5
---- !u!114 &1259609225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259609217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f88a1169d80fe34b9a70adbe9647f0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  runExamplesOnStart: 1
---- !u!114 &1259609226
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259609217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1ff484cbbba08f44bfe8419d68a3f5f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxCachedLayers: 10
-  memoryCleanupInterval: 30
-  unusedLayerLifetime: 60
-  enableSmartPreloading: 1
---- !u!114 &1259609227
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259609217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f80587fad2a1b0c45a26c1f6dfa7b2f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaultAnimationDuration: 0.3
-  defaultProfile: 1
-  defaultEase: 12
-  maxConcurrentAnimations: 10
-  enableAnimationPooling: 1
-  tweenPoolSize: 20
---- !u!114 &1259609228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259609217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d2cd0c058d8296468ddc70a20f918d3, type: 3}
+  m_Script: {fileID: 11500000, guid: fdc03d618f9776f4aadb16781a592f3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hasLayerRoot: 1
   layerParent: {fileID: 1259609221}
-  spaceBetweenLayer: 100
-  enableBatchOperations: 1
-  enableSmartPreloading: 1
-  enableAnimations: 1
-  defaultTransition: 2
-  defaultAnimationDuration: 0.3
+  SpaceBetweenLayer: 100
+--- !u!114 &1259609223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259609217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aced35d15a5206547a8c49b5ee5d24f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

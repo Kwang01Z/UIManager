@@ -24,12 +24,4 @@ public static class LayerSourcePath
 public enum LayerType
 {
     Layer01 = 1,
-    MainMenuLayer = 2,
-    GameplayLayer = 3,
-    PauseLayer = 4,
-    SettingsLayer = 5,
-    InventoryLayer = 6,
-    ShopLayer = 7,
-    LoadingLayer = 8,
-    NotificationLayer = 9,
 }
