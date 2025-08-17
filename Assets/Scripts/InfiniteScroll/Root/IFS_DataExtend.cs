@@ -61,8 +61,9 @@ public partial class IFS_Data
     {
         scrollRect.onValueChanged.AddListener(OnScroll);
     }
+    
 
-    private void OnScroll(Vector2 arg0)
+    private void OnScroll(Vector2 delta)
     {
         InitData();
     }

@@ -65,8 +65,7 @@ public partial class IFS_Data : MonoBehaviour
     {
         Parallel.ForEach(_placeHolders, (placeHolder) =>
         {
-            bool isVisible = _scrollVisible.IsVisible(placeHolder, this);
-            placeHolder.SetVisible(isVisible);
+            placeHolder.SetVisible(_scrollVisible.IsVisible(placeHolder, this));
         });
     }
 
