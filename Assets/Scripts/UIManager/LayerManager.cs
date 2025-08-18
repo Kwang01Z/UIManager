@@ -397,6 +397,10 @@ public class ShowLayerGroupData
         AddToStack = LayerGroupType != LayerGroupType.Fixed && LayerGroupType != LayerGroupType.Notify;
         FixedLayer = LayerGroupType == LayerGroupType.Fixed;
     }
+    public void AddLayer(LayerType layerType)
+    {
+        LayerTypes.Add(layerType);
+    }
 }
 
 public enum LayerGroupType
