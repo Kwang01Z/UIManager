@@ -59,8 +59,16 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             if(onInitData != null) await onInitData.Invoke(result);
             await UniTask.NextFrame();
             await HideLayerRequired(showData);
-            _showingLayerGroups.Push(showData);
-            _showingLayerTypes.UnionWith(showData.LayerTypes);
+            if (showData.AddToStack)
+            {
+                _showingLayerGroups.Push(showData);
+                _showingLayerTypes.UnionWith(showData.LayerTypes);
+            }
+            else if(!showData.FixedLayer)
+            {
+                _layerNotInStack.AddRange(showData.LayerTypes);
+            }
+            
             await UniTask.NextFrame();
             if(displayImmediately) await DisplayLayerGroup(result);
         }
@@ -73,6 +81,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
 
         return result;
     }
+    private List<LayerType> _layerNotInStack = new();
 
     public async UniTask DisplayLayerGroup(LayerGroup group)
     {
@@ -190,6 +199,12 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     {
         if (showData == null) return;
 
+        foreach (var layerType in _layerNotInStack)
+        {
+            var layerBase = GetLayerBase(layerType);
+            if (!layerBase) continue;
+            layerBase.CloseLayerAsync().Forget();
+        }
         if (showData.CloseAllOtherLayer)
         {
             await CloseAllLayerExist(showData);
@@ -313,9 +328,9 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     private List<UniTask> _hideTasks = new(LimitLayer);
     private async UniTask CloseAllLayerExist(ShowLayerGroupData showData)
     {
-        _layerTypeToClose.AddRange(showData.IgnoreHideThisLayer
-            ? _showingLayerTypes.Except(showData.LayerTypes)
-            : _showingLayerTypes);
+        _layerTypeToClose.AddRange(showData.ReloadAllLayer
+            ? _showingLayerTypes
+            : _showingLayerTypes.Except(showData.LayerTypes));
         for (var i = 0; i < _layerTypeToClose.Count; i++)
         {
             _closeTasks.Add(CloseLayerAsync(_layerTypeToClose[i], true));
@@ -369,7 +384,9 @@ public class ShowLayerGroupData
     public bool CloseAllPopup;
     public bool CloseOtherLayerOver = true;
 
-    public bool IgnoreHideThisLayer = true;
+    public bool ReloadAllLayer = true;
+    public bool AddToStack = true;
+    public bool FixedLayer = false;
 
     public void ValidateData()
     {
@@ -377,6 +394,8 @@ public class ShowLayerGroupData
         CloseAllOtherLayer = LayerGroupType == LayerGroupType.Root;
         HideAllOtherLayer = LayerGroupType == LayerGroupType.FullScreen;
         CloseAllPopup = LayerGroupType == LayerGroupType.FullScreen;
+        AddToStack = LayerGroupType != LayerGroupType.Fixed && LayerGroupType != LayerGroupType.Notify;
+        FixedLayer = LayerGroupType == LayerGroupType.Fixed;
     }
 }
 
@@ -387,4 +406,5 @@ public enum LayerGroupType
     FullScreen = 2,
     Popup = 3,
     Notify = 4,
+    Fixed = 5
 }
