@@ -19,7 +19,11 @@ public partial class IFS_Data : MonoBehaviour
 
     public void ClearData()
     {
-        Parallel.ForEach(_placeHolders, (placeHolder) => { placeHolder.ReleaseData(); });
+        // Tối ưu: Thay Parallel.ForEach bằng foreach thông thường để giảm overhead
+        foreach (var placeHolder in _placeHolders)
+        {
+            placeHolder.ReleaseData();
+        }
         _placeHolders.Clear();
     }
 
@@ -42,9 +46,16 @@ public partial class IFS_Data : MonoBehaviour
 
     private void InitData()
     {
-        SetupBaseData();
-        CalculateVisible();
-        UpdateData();
+        try
+        {
+            SetupBaseData();
+            CalculateVisible();
+            UpdateData();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 
     private void SetupBaseData()
@@ -63,18 +74,20 @@ public partial class IFS_Data : MonoBehaviour
 
     private void CalculateVisible()
     {
-        Parallel.ForEach(_placeHolders, (placeHolder) =>
+        foreach (var placeHolder in _placeHolders)
         {
             placeHolder.SetVisible(_scrollVisible.IsVisible(placeHolder, this));
-        });
+        }
     }
 
     private void UpdateData()
     {
-        var placeHolderChange = _placeHolders.FindAll(x => x.IsChangeState);
-        foreach (var infiniteScrollPlaceHolder in placeHolderChange)
+        foreach (var placeHolder in _placeHolders)
         {
-            infiniteScrollPlaceHolder.UpdateData(scrollRect.content);
+            if (placeHolder.IsChangeState)
+            {
+                placeHolder.UpdateData(scrollRect.content);
+            }
         }
     }
 }

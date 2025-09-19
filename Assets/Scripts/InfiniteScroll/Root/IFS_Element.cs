@@ -53,7 +53,7 @@ public class IFS_Element : MonoBehaviour
                 _baseSizeDelta.y - margin.top - margin.bottom);
         }
 
-        if(DataLoaderPF != null && data != null) DataLoaderPF.SetupData(data);
+        if(DataLoaderPF != null && data != null) DataLoaderPF.SetupData(data).Forget();
     }
     
 }

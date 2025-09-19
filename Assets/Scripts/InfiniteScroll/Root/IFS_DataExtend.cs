@@ -11,7 +11,8 @@ public partial class IFS_Data
     [SerializeField] private GridLayoutGroup.Axis scrollType;
     [SerializeField] private Vector4D padding;
     [SerializeField] private Vector2 spacing;
-    
+
+    public GridLayoutGroup.Axis ScrollType => scrollType;
     public Vector2 Spacing => spacing;
     public Vector4D Padding => padding;
     public Vector2 ContentSize => scrollRect.content.sizeDelta;

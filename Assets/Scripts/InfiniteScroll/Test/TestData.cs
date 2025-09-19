@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TestData : MonoBehaviour
 {
@@ -19,11 +20,14 @@ public class TestData : MonoBehaviour
         {
             if (i % 20 == 0)
             {
-                data.Add(new IFS_PlaceHolder(_element3, i));
-                data.Add(new IFS_PlaceHolder(_element2, i));
-                data.Add(new IFS_PlaceHolder(_element2, i));
-                data.Add(new IFS_PlaceHolder(_element2, i));
-                data.Add(new IFS_PlaceHolder(_element2, i));
+                if (_scrollData.ScrollType == GridLayoutGroup.Axis.Vertical)
+                {
+                    data.Add(new IFS_PlaceHolder(_element2, i));data.Add(new IFS_PlaceHolder(_element2, i));
+                }
+                else
+                {
+                    data.Add(new IFS_PlaceHolder(_element3, i));
+                }
             }
             data.Add(new IFS_PlaceHolder(_element, i));
         }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class IFS_VisibleVertical : IIFS_Visible
@@ -16,13 +18,14 @@ public class IFS_VisibleVertical : IIFS_Visible
 
     private bool CalculateVisibleVertical(IFS_PlaceHolder placeHolder)
     {
-        if (placeHolder.BaseElement == null) return false;
-
-        bool belowTop = Mathf.Abs(placeHolder.AnchoredPosition.y
-                                  - placeHolder.ItemHeight * placeHolder.Pivot.y)
+        var anchor = placeHolder.AnchoredPosition;
+        var pivot = placeHolder.Pivot;
+        bool belowTop = Math_Utility.FastAbs(anchor.y
+                                - placeHolder.ItemHeight * pivot.y)
                         >= _contentAnchor.y;
-        bool overBottom = Mathf.Abs(placeHolder.AnchoredPosition.y + placeHolder.ItemHeight * (1 - placeHolder.Pivot.y))
+        bool overBottom = Math_Utility.FastAbs(anchor.y + placeHolder.ItemHeight * (1 - pivot.y))
                           <= _contentAnchor.y + _viewportHeight;
         return belowTop && overBottom;
     }
+    
 }
