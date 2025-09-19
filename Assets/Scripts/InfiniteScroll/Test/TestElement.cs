@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class TestElement : MonoBehaviour, IDataLoader
 {
-    public UniTaskVoid SetupData(object data)
+    public async UniTaskVoid SetupData(object data)
     {
-        return new UniTaskVoid();
+        await UniTask.Yield();
     }
 }
