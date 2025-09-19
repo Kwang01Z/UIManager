@@ -11,11 +11,11 @@ public class PoolHolder : MonoSingleton<PoolHolder>
     Dictionary<string,int> _capacity = new();
     
     [CanBeNull]
-    public MonoBehaviour Get(MonoBehaviour t, Transform parent = null, Vector3 position = default, Quaternion rotation = default)
+    public MonoBehaviour Get(MonoBehaviour t, Transform parent = null, Vector3 position = default, Quaternion rotation = default, string customKey = "")
     {
         lock (_pools)
         {
-            var key = GetKey(t);
+            var key = string.IsNullOrEmpty(customKey) ? GetKey(t) : customKey;
             _pools.TryAdd(key, new Queue<MonoBehaviour>());
             _capacity.TryAdd(key, 0);
         
@@ -37,7 +37,7 @@ public class PoolHolder : MonoSingleton<PoolHolder>
             else
             {
                 result = _pools[key].Dequeue();
-                result.transform.SetParent(parent);
+                result.transform.SetParent(parent, false);
             }
             result.name = key;
             result.transform.position = position;
@@ -47,11 +47,11 @@ public class PoolHolder : MonoSingleton<PoolHolder>
         }
     }
 
-    public void Release(MonoBehaviour t)
+    public void Release(MonoBehaviour t, string customKey = "")
     {
         lock (_pools)
         {
-            var key = t.name;
+            var key = string.IsNullOrEmpty(customKey)? t.name : customKey;
             _pools.TryAdd(key, new Queue<MonoBehaviour>());
 
             var size = _capacity.GetValueOrDefault(key);
@@ -67,12 +67,13 @@ public class PoolHolder : MonoSingleton<PoolHolder>
         }
     }
 
-    public void SetMaxSize(MonoBehaviour t, int size)
+    public void SetMaxSize(MonoBehaviour t, int size, string customKey = "")
     {
-        _capacity[GetKey(t)] = size;
+        var key = string.IsNullOrEmpty(customKey)? GetKey(t) : customKey;
+        _capacity[key] = size;
     }
 
-    private string GetKey(MonoBehaviour t)
+    public static string GetKey(MonoBehaviour t)
     {
         return t.name + "-(PoolElement_No." + t.gameObject.GetInstanceID() +")";
     }

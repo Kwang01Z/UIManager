@@ -20,6 +20,7 @@ public class IFS_PlaceHolder
     public bool IsStretchHeight;
     public bool IsStretchWidth;
     public Vector2 RootAnchoredPosition;
+    public string ObjectKey { get;private set; }
 
     public IFS_PlaceHolder(IFS_Element element, object data)
     {
@@ -33,6 +34,7 @@ public class IFS_PlaceHolder
         ItemWidth = rectTransform.rect.width;
         Pivot = rectTransform.pivot;
         RootAnchoredPosition = rectTransform.anchoredPosition;
+        ObjectKey = PoolHolder.GetKey(BaseElement);
     }
 
     public void SetPositionData(Vector2 anchoredPosition, Vector4D margin)
@@ -61,7 +63,7 @@ public class IFS_PlaceHolder
             return;
         }
 
-        _element = PoolHolder.Instance.Get(BaseElement,parent) as IFS_Element;
+        _element = PoolHolder.Instance.Get(BaseElement,parent,customKey:ObjectKey) as IFS_Element;
         _element?.SetupData(_anchoredPosition, _margin, _data);
     }
 
@@ -69,7 +71,7 @@ public class IFS_PlaceHolder
     {
         if (_element)
         {
-            PoolHolder.Instance.Release(_element);
+            PoolHolder.Instance.Release(_element, customKey: ObjectKey);
             _element = null;
         }
     }
