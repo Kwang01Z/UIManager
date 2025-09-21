@@ -9,6 +9,7 @@ public class PoolHolder : MonoSingleton<PoolHolder>
 {
     Dictionary<string, Queue<MonoBehaviour>> _pools = new ();
     Dictionary<string,int> _capacity = new();
+    HashSet<string> _monoKeys = new(10);
     
     [CanBeNull]
     public MonoBehaviour Get(MonoBehaviour t, Transform parent = null, Vector3 position = default, Quaternion rotation = default, string customKey = "")
@@ -16,9 +17,12 @@ public class PoolHolder : MonoSingleton<PoolHolder>
         lock (_pools)
         {
             var key = string.IsNullOrEmpty(customKey) ? GetKey(t) : customKey;
-            _pools.TryAdd(key, new Queue<MonoBehaviour>());
-            _capacity.TryAdd(key, 0);
-        
+            if (_monoKeys.Add(key))
+            {
+                _pools.Add(key, new Queue<MonoBehaviour>(10));
+                _capacity.Add(key, 0);
+            }
+            
             var size = _capacity.GetValueOrDefault(key);
             if (size > 0 && _pools[key].Count >= size)
             {
@@ -52,7 +56,10 @@ public class PoolHolder : MonoSingleton<PoolHolder>
         lock (_pools)
         {
             var key = string.IsNullOrEmpty(customKey)? t.name : customKey;
-            _pools.TryAdd(key, new Queue<MonoBehaviour>());
+            if (_monoKeys.Add(key))
+            {
+                _pools.TryAdd(key, new Queue<MonoBehaviour>());
+            }
 
             var size = _capacity.GetValueOrDefault(key);
             if (size <= 0 || _pools[key].Count < size)
@@ -83,6 +90,7 @@ public class PoolHolder : MonoSingleton<PoolHolder>
         lock (_pools)
         {
             _pools.Clear();
+            _monoKeys.Clear();
         }
     }
 }
