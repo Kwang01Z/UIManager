@@ -15,10 +15,14 @@ public class IFS_VisibleHorizontal : IIFS_Visible
     
     private bool CalculateVisibleHorizontal(IFS_PlaceHolder placeHolder)
     {
-        bool overLeft = placeHolder.AnchoredPosition.x + placeHolder.ItemWidth * (1 - placeHolder.Pivot.x)
-                        >= Math_Utility.FastAbs(_contentAnchor.x);
-        bool overRight = placeHolder.AnchoredPosition.x - placeHolder.ItemWidth * placeHolder.Pivot.x
-                         <= Math_Utility.FastAbs(_contentAnchor.x) + _viewportWidth;
+        var anchorPosX = placeHolder.AnchoredPosition.x;
+        var itemWidth = placeHolder.ItemWidth;
+        var pivotX = placeHolder.Pivot.x;
+        var contentAnchorXAbs = -(_contentAnchor.x);
+        bool overLeft = anchorPosX + itemWidth * (1 - pivotX)
+                        >= contentAnchorXAbs;
+        bool overRight = anchorPosX - itemWidth * pivotX
+                         <= contentAnchorXAbs + _viewportWidth;
         return overLeft && overRight;
     }
 }

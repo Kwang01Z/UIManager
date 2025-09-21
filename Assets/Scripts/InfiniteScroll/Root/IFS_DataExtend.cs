@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public partial class IFS_Data
@@ -18,10 +19,9 @@ public partial class IFS_Data
     public Vector2 ContentSize => scrollRect.content.sizeDelta;
     protected RectTransform ContentRect => scrollRect.content;
     protected RectTransform ViewportRect => scrollRect.viewport;
-    public float ViewportWidth { get;private set; }
-    public float ViewportHeight { get;private set; }
-    
-    public Vector2 ContentAnchor {get; private set;}
+    [HideInInspector] public float ViewportWidth;
+    [HideInInspector] public float ViewportHeight;
+    [HideInInspector] public Vector2 ContentAnchor;
     private IIFS_Visible _scrollVisible;
     private IIFS_Cursor _scrollCursor;
     private void OnValidate()
@@ -64,8 +64,18 @@ public partial class IFS_Data
     }
     
 
+    private int _frameIgnore = 0;
+    public int frameBreak = 2;
     private void OnScroll(Vector2 delta)
     {
+        if (_frameIgnore < frameBreak)
+        {
+            _frameIgnore++;
+            Invoke(nameof(InitData), 0.3f);
+            return;
+        }
+        CancelInvoke(nameof(InitData));
+        _frameIgnore = 0;
         InitData();
     }
     
