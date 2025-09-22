@@ -29,6 +29,21 @@ public class IFS_CursorHorizontal : IIFS_Cursor
         for (var i = 0; i < _placeHolders.Count; i++)
         {
             var placeHolder = _placeHolders[i];
+            if (placeHolder is IFS_PlaceSpace space)
+            {
+                if (i >= _placeHolders.Count - 1)
+                {
+                    contentWidth += space.Spacing;
+                    break;
+                }
+                var nextElement = _placeHolders[i + 1];
+                var columnHeight = ColumnHeight(nextElement);
+                cursorPos.y = -(ViewPortHeight - columnHeight) / 2f;
+                cursorPos.x += Spacing.x + space.Spacing;
+                colItemIndex = 1;
+                contentWidth += space.Spacing;
+                continue;
+            }
 
             bool isStretchHeight = placeHolder.IsStretchHeight;
             var itemAnchor = CalculateNewAnchor(isStretchHeight,placeHolder, cursorPos, colItemIndex);
@@ -41,8 +56,8 @@ public class IFS_CursorHorizontal : IIFS_Cursor
             {
                 var currentElement = _placeHolders[i];
                 var nextElement = _placeHolders[i + 1];
-                bool isNewType = currentElement.BaseElement.GetHashCode() != nextElement.BaseElement.GetHashCode();
-                if (isNewType)
+                bool isStretchOne = currentElement.IsStretchHeight || nextElement.IsStretchHeight;
+                if (isStretchOne)
                 {
                     InitNewColumn(currentElement,nextElement, ref cursorPos, ref colItemIndex);
                     continue;
@@ -70,6 +85,12 @@ public class IFS_CursorHorizontal : IIFS_Cursor
 
     void TryInitNewCol(IFS_PlaceHolder holder, IFS_PlaceHolder nextElement, ref Vector2 cursorPos, ref int colItemIndex)
     {
+        if (nextElement is IFS_PlaceSpace)
+        {
+            cursorPos.x += Spacing.x + holder.ItemWidth;
+            return;
+        }
+        
         var elementRect = holder.BaseRectTransform;
         if(!elementRect) return;
         bool isStretchWidth = holder.IsStretchWidth;
@@ -92,6 +113,11 @@ public class IFS_CursorHorizontal : IIFS_Cursor
 
     private void InitNewColumn(IFS_PlaceHolder currentHolder,IFS_PlaceHolder nextHolder, ref Vector2 cursorPos, ref int colItemIndex)
     {
+        if (nextHolder is IFS_PlaceSpace)
+        {
+            cursorPos.x += Spacing.x + currentHolder.ItemWidth;
+            return;
+        }
         var columnHeight = ColumnHeight(nextHolder);
         cursorPos.y = -(ViewPortHeight - columnHeight) / 2f;
         cursorPos.x += Spacing.x + currentHolder.ItemWidth;

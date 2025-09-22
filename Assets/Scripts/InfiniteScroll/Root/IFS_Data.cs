@@ -74,6 +74,7 @@ public partial class IFS_Data : MonoBehaviour
     {
         foreach (var placeHolder in _placeHolders)
         {
+            if(placeHolder is IFS_PlaceSpace) continue;
             _isVisible = _scrollVisible.IsVisible(placeHolder, this);
             placeHolder.SetVisible(_isVisible);
             if(placeHolder.IsChangeState) placeHolder.UpdateData(scrollRect.content);

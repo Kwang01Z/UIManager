@@ -20,6 +20,10 @@ public class IFS_PlaceHolder
     public Vector2 RootAnchoredPosition;
     public string ObjectKey;
 
+    public IFS_PlaceHolder()
+    {
+    }
+
     public IFS_PlaceHolder(IFS_Element element, object data)
     {
         BaseElement = element;
@@ -73,5 +77,14 @@ public class IFS_PlaceHolder
             PoolHolder.Instance.Release(_element, customKey: ObjectKey);
             _element = null;
         }
+    }
+}
+
+public class IFS_PlaceSpace : IFS_PlaceHolder
+{
+    public float Spacing;
+    public IFS_PlaceSpace(float spacing)
+    {
+        Spacing = spacing;
     }
 }

@@ -28,7 +28,22 @@ public class IFS_CursorVertical : IIFS_Cursor
         for (var i = 0; i < _placeHolders.Count; i++)
         {
             var placeHolder = _placeHolders[i];
-
+            if (placeHolder is IFS_PlaceSpace space)
+            {
+                if (i >= _placeHolders.Count - 1)
+                {
+                    contentHeight += space.Spacing;
+                    break;
+                }
+                var nextHolder = _placeHolders[i + 1];
+                
+                var rowWidth = RowWidth(nextHolder);
+                cursorPos.x = (ViewPortWidth - rowWidth) / 2f;
+                cursorPos.y -= Spacing.y + space.Spacing;
+                rowItemIndex = 1;
+                contentHeight += space.Spacing;
+                continue;
+            }
             bool isStretchWidth = placeHolder.IsStretchWidth;
             var itemAnchor = CalculateNewAnchor(isStretchWidth,placeHolder,cursorPos,rowItemIndex);
             _placeHolders[i].SetPositionData(itemAnchor, Padding);
@@ -39,8 +54,8 @@ public class IFS_CursorVertical : IIFS_Cursor
             if (i >= _placeHolders.Count - 1) continue;
             var currentElement = _placeHolders[i];
             var nextElement = _placeHolders[i + 1];
-            bool isNewType = currentElement.BaseElement.GetHashCode() != nextElement.BaseElement.GetHashCode();
-            if (isNewType)
+            bool isStretchOne = currentElement.IsStretchWidth || nextElement.IsStretchWidth;
+            if (isStretchOne)
             {
                 InitNewRow(currentElement,nextElement, ref cursorPos, ref rowItemIndex);
                 continue;
@@ -69,6 +84,12 @@ public class IFS_CursorVertical : IIFS_Cursor
     private void TryInitNewRow(IFS_PlaceHolder holder, IFS_PlaceHolder nextElement
         , ref Vector2 cursorPos, ref int rowItemIndex)
     {
+        if (nextElement is IFS_PlaceSpace)
+        {
+            cursorPos.y -= Spacing.y + holder.ItemHeight;
+            return;
+        }
+        
         var elementRect = holder.BaseRectTransform;
         if(!elementRect) return;
         bool isStretchWidth = holder.IsStretchWidth;
@@ -90,6 +111,12 @@ public class IFS_CursorVertical : IIFS_Cursor
     }
     private void InitNewRow(IFS_PlaceHolder currentHolder , IFS_PlaceHolder nextHolder, ref Vector2 cursorPos, ref int rowItemIndex)
     {
+        if (nextHolder is IFS_PlaceSpace)
+        {
+            cursorPos.y -= Spacing.y + currentHolder.ItemHeight;
+            return;
+        }
+
         var rowWidth = RowWidth(nextHolder);
         cursorPos.x = (ViewPortWidth - rowWidth) / 2f;
         cursorPos.y -= Spacing.y + currentHolder.ItemHeight;

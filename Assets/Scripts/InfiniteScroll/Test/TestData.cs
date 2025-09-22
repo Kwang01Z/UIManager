@@ -20,6 +20,7 @@ public class TestData : MonoBehaviour
         {
             if (i % 20 == 0)
             {
+                if(i > 0) data.Add(new IFS_PlaceSpace(10));
                 if (_scrollData.ScrollType == GridLayoutGroup.Axis.Vertical)
                 {
                     data.Add(new IFS_PlaceHolder(_element2, i));data.Add(new IFS_PlaceHolder(_element2, i));
