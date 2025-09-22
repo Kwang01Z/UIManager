@@ -24,4 +24,5 @@ public static class LayerSourcePath
 public enum LayerType
 {
     Layer01 = 1,
+    Layer02 = 2,
 }

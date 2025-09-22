@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ab30fa9a16eebc468293aa62fa36ea1, type: 3}
+  m_Name: LayerReferenceSO
+  m_EditorClassIdentifier: 
+  layerGroupList:
+  - groupName: MainMenu
+    layerReferenceList:
+    - layerType: 1
+      layerBase: {fileID: 82802858921737824, guid: 15dec27885382d94b8cefd3b05d8e39a, type: 3}
+    - layerType: 2
+      layerBase: {fileID: 82802858921737824, guid: 0e982ae3dddf58f4d813a78d90538e92, type: 3}

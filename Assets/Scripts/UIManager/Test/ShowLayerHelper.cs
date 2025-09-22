@@ -10,6 +10,7 @@ public partial class LayerManager
     {
         _showLayer01Data ??= LayerGroupBuilder.Build(LayerGroupType.Root, LayerType.Layer01);
         await ShowGroupLayerAsync(_showLayer01Data,SetupDataLayer01);
+        //Debug.LogError("ShowLayer01");
         return;
 
         UniTask SetupDataLayer01(LayerGroup layerGroup)
