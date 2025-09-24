@@ -115,4 +115,23 @@ public partial class LayerManager
             }
         }
     }
+
+    private ShowLayerGroupData _showLayer8Data;
+    public void ShowLayer8(LayerGroupType layerGroupType, System.Action<LayerGroup> onDone = null)
+    {
+        _showLayer8Data ??= LayerGroupBuilder.Build(layerGroupType, LayerType.Layer8);
+        _showLayer8Data.OnInitData = SetupDataLayer8;
+        _showLayer8Data.OnShowComplete = onDone;
+        ShowGroupLayerAsync(_showLayer8Data);
+        return;
+
+        void SetupDataLayer8(LayerGroup layerGroup)
+        {
+            if(layerGroup == null) return;
+            if (layerGroup.GetLayerBase(LayerType.Layer8, out var layerBase))
+            {
+                layerBase.InitData();
+            }
+        }
+    }
 }

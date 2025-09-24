@@ -6,6 +6,7 @@ using UnityEngine;
 public static class LayerSourcePath
 {
     public const string Layer01 = "Layers/LayerTest01";
+    public const string Layer8 = "Layers/Layer8";
     public static string GetPath(string variableName)
     {
         var type = typeof(LayerSourcePath);
@@ -28,5 +29,6 @@ public enum LayerType
     Layer03 = 3,
     Layer04 = 4,
     Layer05 = 5,
-    Layer06 = 6
+    Layer06 = 6,
+    Layer8 = 7,
 }

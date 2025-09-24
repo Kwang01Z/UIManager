@@ -13,6 +13,9 @@ namespace UIManager.Editor
         private string prefabFolderPath = "Assets/Prefabs/UI";
         private string scriptFolderPath = "Assets/Scripts/UI";
         private Vector2 scrollPosition;
+        private string resultMessage = "";
+        private string prefabPath = "";
+        private GameObject createdPrefab;
 
         [MenuItem("UI/Generate Layer Window")]
         public static void ShowWindow()
@@ -95,6 +98,25 @@ namespace UIManager.Editor
                 GenerateLayer();
             }
 
+            // Hiển thị kết quả
+            if (!string.IsNullOrEmpty(resultMessage))
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Kết quả:", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox(resultMessage, MessageType.Info);
+                
+                if (!string.IsNullOrEmpty(prefabPath))
+                {
+                    EditorGUILayout.LabelField("Đường dẫn prefab:", prefabPath);
+                }
+                
+                if (createdPrefab != null)
+                {
+                    EditorGUILayout.LabelField("Prefab Reference:");
+                    EditorGUILayout.ObjectField(createdPrefab, typeof(GameObject), false);
+                }
+            }
+
             EditorGUILayout.EndScrollView();
         }
 
@@ -117,12 +139,25 @@ namespace UIManager.Editor
                 // Thêm prefab vào LayerReferenceSO
                 AddPrefabToLayerReferenceSO();
 
-                EditorUtility.DisplayDialog("Thành công", $"Đã tạo layer '{layerName}' thành công!", "OK");
+                // Cập nhật thông tin kết quả
+                prefabPath = prefabFolderPath + "/" + layerName + ".prefab";
+                createdPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
+                resultMessage = "Đã tạo layer '" + layerName + "' thành công!\n\n" +
+                    "Prefab được tạo tại: " + prefabPath + "\n" +
+                    "Script được tạo tại: " + scriptFolderPath + "/" + layerName + "/UI" + layerName + ".cs\n" +
+                    "Enum đã được thêm vào LayerSourcePath.cs\n" +
+                    "Hàm helper đã được thêm vào ShowLayerHelper.cs\n" +
+                    "Prefab đã được thêm vào LayerReferenceSO";
+                
+                // In log để dễ theo dõi
+                Debug.Log(resultMessage);
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Lỗi khi tạo layer: {e.Message}");
-                EditorUtility.DisplayDialog("Lỗi", $"Lỗi khi tạo layer: {e.Message}", "OK");
+                resultMessage = "Lỗi khi tạo layer: " + e.Message;
+                prefabPath = "";
+                createdPrefab = null;
+                Debug.LogError("Lỗi khi tạo layer: " + e.Message);
             }
         }
 
@@ -134,7 +169,7 @@ namespace UIManager.Editor
 
             // Xác định giá trị enum tiếp theo dựa trên enum hiện tại
             int lastValue = 6; // Layer06 = 6 là giá trị cuối cùng trong enum hiện tại
-            string newEnumLine = $"    {layerName} = {lastValue + 1},";
+            string newEnumLine = "    " + layerName + " = " + (lastValue + 1) + ",";
 
             // Tìm vị trí cuối cùng của enum LayerType (trước dấu })
             int enumEndIndex = -1;
@@ -189,7 +224,7 @@ namespace UIManager.Editor
                 if (lastSourcePathIndex >= 0)
                 {
                     // Chèn hằng số đường dẫn mới sau dòng cuối cùng
-                    string newSourcePathLine = $"    public const string {layerName} = \"Layers/{layerName}\";";
+                    string newSourcePathLine = "    public const string " + layerName + " = \"Layers/" + layerName + "\";";
                     var finalLines = new string[newLines.Length + 1];
                     
                     for (int i = 0; i < lastSourcePathIndex + 1; i++)
@@ -243,7 +278,7 @@ namespace UIManager.Editor
             }
 
             // Đường dẫn đến script mới
-            string scriptPath = layerScriptFolderPath + $"/UI{layerName}.cs";
+            string scriptPath = layerScriptFolderPath + "/UI" + layerName + ".cs";
 
             // Nội dung script mới
             StringBuilder scriptContent = new StringBuilder();
@@ -251,7 +286,7 @@ namespace UIManager.Editor
             scriptContent.AppendLine("using System.Collections.Generic;");
             scriptContent.AppendLine("using UnityEngine;");
             scriptContent.AppendLine("");
-            scriptContent.AppendLine($"public class UI{layerName} : LayerBase");
+            scriptContent.AppendLine("public class UI" + layerName + " : LayerBase");
             scriptContent.AppendLine("{");
             scriptContent.AppendLine("    // Thêm các trường cụ thể cho layer của bạn");
             scriptContent.AppendLine("");
@@ -315,12 +350,12 @@ namespace UIManager.Editor
 
             // Thêm script UI layer vào
             // Vì script mới được tạo nên có thể chưa có sẵn trong Assembly, ta cần kiểm tra trước khi thêm
-            System.Type scriptType = System.Type.GetType($"UI{layerName}, Assembly-CSharp");
+            System.Type scriptType = System.Type.GetType("UI" + layerName + ", Assembly-CSharp");
             if (scriptType == null)
             {
                 // Nếu script chưa được biên dịch, tạm thời không thêm vào prefab
                 // Script sẽ được thêm sau khi người dùng tạo prefab và Unity biên dịch lại
-                Debug.LogWarning($"Script UI{layerName} chưa được biên dịch, sẽ cần thêm thủ công sau.");
+                Debug.LogWarning("Script UI" + layerName + " chưa được biên dịch, sẽ cần thêm thủ công sau.");
             }
             else
             {
@@ -328,7 +363,7 @@ namespace UIManager.Editor
             }
 
             // Tạo prefab
-            string prefabPath = prefabFolderPath + $"/{layerName}.prefab";
+            string prefabPath = prefabFolderPath + "/" + layerName + ".prefab";
             PrefabUtility.SaveAsPrefabAsset(tempGO, prefabPath);
 
             // Xóa GameObject tạm thời
@@ -360,19 +395,19 @@ namespace UIManager.Editor
                 string[] newMethodLines = new string[]
                 {
                     "", // Dòng trống
-                    $"    private ShowLayerGroupData _show{layerName}Data;",
-                    $"    public void Show{layerName}(LayerGroupType layerGroupType, System.Action<LayerGroup> onDone = null)",
+                    "    private ShowLayerGroupData _show" + layerName + "Data;",
+                    "    public void Show" + layerName + "(LayerGroupType layerGroupType, System.Action<LayerGroup> onDone = null)",
                     "    {",
-                    $"        _show{layerName}Data ??= LayerGroupBuilder.Build(layerGroupType, LayerType.{layerName});",
-                    $"        _show{layerName}Data.OnInitData = SetupData{layerName};",
-                    $"        _show{layerName}Data.OnShowComplete = onDone;",
-                    $"        ShowGroupLayerAsync(_show{layerName}Data);",
+                    "        _show" + layerName + "Data ??= LayerGroupBuilder.Build(layerGroupType, LayerType." + layerName + ");",
+                    "        _show" + layerName + "Data.OnInitData = SetupData" + layerName + ";",
+                    "        _show" + layerName + "Data.OnShowComplete = onDone;",
+                    "        ShowGroupLayerAsync(_show" + layerName + "Data);",
                     "        return;",
                     "",
-                    $"        void SetupData{layerName}(LayerGroup layerGroup)",
+                    "        void SetupData" + layerName + "(LayerGroup layerGroup)",
                     "        {",
                     "            if(layerGroup == null) return;",
-                    $"            if (layerGroup.GetLayerBase(LayerType.{layerName}, out var layerBase))",
+                    "            if (layerGroup.GetLayerBase(LayerType." + layerName + ", out var layerBase))",
                     "            {",
                     "                layerBase.InitData();",
                     "            }",
@@ -433,7 +468,7 @@ namespace UIManager.Editor
             GameObject prefabGO = (GameObject)prefabAsset;
             
             // Kiểm tra xem prefab đã có script UI+(layerName) chưa, nếu chưa có thì thêm vào
-            System.Type layerType = System.Type.GetType($"UI{layerName}, Assembly-CSharp");
+            System.Type layerType = System.Type.GetType("UI" + layerName + ", Assembly-CSharp");
             if (layerType != null)
             {
                 Component layerScript = prefabGO.GetComponent(layerType);
