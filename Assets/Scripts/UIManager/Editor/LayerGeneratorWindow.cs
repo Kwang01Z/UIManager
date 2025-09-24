@@ -130,6 +130,9 @@ namespace UIManager.Editor
                 // Tạo script UI+(tên layer)
                 CreateScriptClass();
 
+                // Yêu cầu Unity biên dịch trước khi tiếp tục
+                AssetDatabase.Refresh();
+
                 // Tạo prefab
                 CreatePrefab();
 
@@ -142,11 +145,11 @@ namespace UIManager.Editor
                 // Cập nhật thông tin kết quả
                 prefabPath = prefabFolderPath + "/" + layerName + ".prefab";
                 createdPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
-                resultMessage = "Đã tạo layer '" + layerName + "' thành công!\n\n" +
-                    "Prefab được tạo tại: " + prefabPath + "\n" +
-                    "Script được tạo tại: " + scriptFolderPath + "/" + layerName + "/UI" + layerName + ".cs\n" +
-                    "Enum đã được thêm vào LayerSourcePath.cs\n" +
-                    "Hàm helper đã được thêm vào ShowLayerHelper.cs\n" +
+                resultMessage = "Đã tạo layer '" + layerName + "' thành công!\\n\\n" +
+                    "Prefab được tạo tại: " + prefabPath + "\\n" +
+                    "Script được tạo tại: " + scriptFolderPath + "/" + layerName + "/UI" + layerName + ".cs\\n" +
+                    "Enum đã được thêm vào LayerSourcePath.cs\\n" +
+                    "Hàm helper đã được thêm vào ShowLayerHelper.cs\\n" +
                     "Prefab đã được thêm vào LayerReferenceSO";
                 
                 // In log để dễ theo dõi
@@ -344,23 +347,14 @@ namespace UIManager.Editor
             CanvasGroup canvasGroup = tempGO.AddComponent<CanvasGroup>();
             
             RectTransform rectTransform = tempGO.GetComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(1920, 1080); // Kích thước mặc định
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.sizeDelta = Vector2.zero;
             
             tempGO.AddComponent<UnityEngine.UI.GraphicRaycaster>();
 
-            // Thêm script UI layer vào
-            // Vì script mới được tạo nên có thể chưa có sẵn trong Assembly, ta cần kiểm tra trước khi thêm
-            System.Type scriptType = System.Type.GetType("UI" + layerName + ", Assembly-CSharp");
-            if (scriptType == null)
-            {
-                // Nếu script chưa được biên dịch, tạm thời không thêm vào prefab
-                // Script sẽ được thêm sau khi người dùng tạo prefab và Unity biên dịch lại
-                Debug.LogWarning("Script UI" + layerName + " chưa được biên dịch, sẽ cần thêm thủ công sau.");
-            }
-            else
-            {
-                tempGO.AddComponent(scriptType);
-            }
+            // Chú ý: Không thêm script vào prefab ở đây, vì sẽ thêm sau trong AddPrefabToLayerReferenceSO
+            // Sau khi đã chắc chắn rằng script đã được biên dịch
 
             // Tạo prefab
             string prefabPath = prefabFolderPath + "/" + layerName + ".prefab";
@@ -454,12 +448,12 @@ namespace UIManager.Editor
             }
 
             // Lấy prefab từ đường dẫn
-            string prefabPath = prefabFolderPath + $"/{layerName}.prefab";
+            string prefabPath = prefabFolderPath + "/" + layerName + ".prefab";
             Object prefabAsset = AssetDatabase.LoadAssetAtPath(prefabPath, typeof(Object));
             
             if (prefabAsset == null)
             {
-                Debug.LogError($"Không tìm thấy prefab tại: {prefabPath}");
+                Debug.LogError("Không tìm thấy prefab tại: " + prefabPath);
                 return;
             }
 
@@ -467,25 +461,36 @@ namespace UIManager.Editor
             // Chuyển đổi Object thành LayerBase
             GameObject prefabGO = (GameObject)prefabAsset;
             
-            // Kiểm tra xem prefab đã có script UI+(layerName) chưa, nếu chưa có thì thêm vào
+            // Đảm bảo script đã được biên dịch, sau đó thêm vào prefab
             System.Type layerType = System.Type.GetType("UI" + layerName + ", Assembly-CSharp");
             if (layerType != null)
             {
+                // Kiểm tra xem prefab đã có script UI+(layerName) chưa, nếu chưa có thì thêm vào
                 Component layerScript = prefabGO.GetComponent(layerType);
                 if (layerScript == null)
                 {
-                    // Thêm script component vào prefab nếu nó chưa tồn tại
-                    // Tuy nhiên, với prefab, chúng ta cần xử lý cẩn thận
-                    prefabGO.AddComponent(layerType);
-                    PrefabUtility.SaveAsPrefabAsset(prefabGO, prefabPath);
+                    // Mở prefab ra để chỉnh sửa
+                    GameObject loadedPrefab = (GameObject)PrefabUtility.LoadPrefabContents(prefabPath);
+                    
+                    // Thêm component vào prefab đang mở
+                    loadedPrefab.AddComponent(layerType);
+                    
+                    // Lưu prefab đã chỉnh sửa
+                    PrefabUtility.SaveAsPrefabAsset(loadedPrefab, prefabPath);
+                    
+                    // Đóng prefab
+                    PrefabUtility.UnloadPrefabContents(loadedPrefab);
                 }
             }
             else
             {
+                Debug.LogError("Không thể tìm thấy lớp UI" + layerName + " trong Assembly. Có thể script chưa được biên dịch đúng cách.");
                 return;
             }
             
-            LayerBase layerBase = prefabGO.GetComponent<LayerBase>();
+            // Tải lại prefab sau khi đã thêm script
+            GameObject finalPrefabGO = (GameObject)AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
+            LayerBase layerBase = finalPrefabGO.GetComponent<LayerBase>();
             
             // Thêm dữ liệu mới vào danh sách
             LayerReferenceData newReferenceData = new LayerReferenceData();
