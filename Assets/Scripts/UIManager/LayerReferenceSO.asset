@@ -17,3 +17,11 @@ MonoBehaviour:
     layerBase: {fileID: 82802858921737824, guid: 15dec27885382d94b8cefd3b05d8e39a, type: 3}
   - layerType: 2
     layerBase: {fileID: 82802858921737824, guid: 0e982ae3dddf58f4d813a78d90538e92, type: 3}
+  - layerType: 3
+    layerBase: {fileID: 82802858921737824, guid: 23e0d96577222c34b934490b7ec76840, type: 3}
+  - layerType: 4
+    layerBase: {fileID: 82802858921737824, guid: 91edc472b0c9a4b4cb56df9396259f9c, type: 3}
+  - layerType: 5
+    layerBase: {fileID: 82802858921737824, guid: a7e8bf4860a0e08479384d7e6ca82bed, type: 3}
+  - layerType: 6
+    layerBase: {fileID: 82802858921737824, guid: e1777eb57228e0848a7e3f3d89cc7cdd, type: 3}

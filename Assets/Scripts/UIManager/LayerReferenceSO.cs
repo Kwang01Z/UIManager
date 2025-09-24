@@ -12,7 +12,8 @@ public class LayerReferenceSO : ScriptableObject
 
     public LayerBase GetLayerBase(LayerType layerType)
     {
-        return LayerBaseDictionary.GetValueOrDefault(layerType);
+        if (LayerBaseDictionary.TryGetValue(layerType, out var layerBase)) return layerBase;
+        return null;
     }
 
     public void InitLayerBase()

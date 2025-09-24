@@ -43,4 +43,76 @@ public partial class LayerManager
             }
         }
     }
+    private ShowLayerGroupData _showLayer03Data;
+    public void ShowLayer03(LayerGroupType layerGroupType, Action<LayerGroup> onDone = null)
+    {
+        _showLayer03Data ??= LayerGroupBuilder.Build(layerGroupType, LayerType.Layer03);
+        _showLayer03Data.OnInitData = SetupDataLayer03;
+        _showLayer03Data.OnShowComplete = onDone;
+        ShowGroupLayerAsync(_showLayer03Data);
+        return;
+
+        void SetupDataLayer03(LayerGroup layerGroup)
+        {
+            if(layerGroup == null) return;
+            if (layerGroup.GetLayerBase(LayerType.Layer03, out var layerBase))
+            {
+                layerBase.InitData();
+            }
+        }
+    }
+    private ShowLayerGroupData _showLayer04Data;
+    public void ShowLayer04(LayerGroupType layerGroupType, Action<LayerGroup> onDone = null)
+    {
+        _showLayer04Data ??= LayerGroupBuilder.Build(layerGroupType, LayerType.Layer04);
+        _showLayer04Data.OnInitData = SetupDataLayer04;
+        _showLayer04Data.OnShowComplete = onDone;
+        ShowGroupLayerAsync(_showLayer04Data);
+        return;
+
+        void SetupDataLayer04(LayerGroup layerGroup)
+        {
+            if(layerGroup == null) return;
+            if (layerGroup.GetLayerBase(LayerType.Layer04, out var layerBase))
+            {
+                layerBase.InitData();
+            }
+        }
+    }
+    private ShowLayerGroupData _showLayer05Data;
+    public void ShowLayer05(LayerGroupType layerGroupType, Action<LayerGroup> onDone = null)
+    {
+        _showLayer05Data ??= LayerGroupBuilder.Build(layerGroupType, LayerType.Layer05);
+        _showLayer05Data.OnInitData = SetupDataLayer05;
+        _showLayer05Data.OnShowComplete = onDone;
+        ShowGroupLayerAsync(_showLayer05Data);
+        return;
+
+        void SetupDataLayer05(LayerGroup layerGroup)
+        {
+            if(layerGroup == null) return;
+            if (layerGroup.GetLayerBase(LayerType.Layer05, out var layerBase))
+            {
+                layerBase.InitData();
+            }
+        }
+    }
+    private ShowLayerGroupData _showLayer06Data;
+    public void ShowLayer06(LayerGroupType layerGroupType, Action<LayerGroup> onDone = null)
+    {
+        _showLayer06Data ??= LayerGroupBuilder.Build(layerGroupType, LayerType.Layer06);
+        _showLayer06Data.OnInitData = SetupDataLayer06;
+        _showLayer06Data.OnShowComplete = onDone;
+        ShowGroupLayerAsync(_showLayer06Data);
+        return;
+
+        void SetupDataLayer06(LayerGroup layerGroup)
+        {
+            if(layerGroup == null) return;
+            if (layerGroup.GetLayerBase(LayerType.Layer06, out var layerBase))
+            {
+                layerBase.InitData();
+            }
+        }
+    }
 }

@@ -12,15 +12,40 @@ public class LayerManagerTest : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             LayerManager.Instance.ShowLayer01(LayerGroupType.Root);
             UnityEngine.Debug.Break();
         }
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            LayerManager.Instance.ShowLayer02(LayerGroupType.Popup);
+            LayerManager.Instance.ShowLayer02(LayerGroupType.FullScreen);
             UnityEngine.Debug.Break();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            LayerManager.Instance.ShowLayer03(LayerGroupType.Popup);
+            UnityEngine.Debug.Break();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            LayerManager.Instance.ShowLayer04(LayerGroupType.FullScreen);
+            UnityEngine.Debug.Break();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            LayerManager.Instance.ShowLayer05(LayerGroupType.Popup);
+            UnityEngine.Debug.Break();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            LayerManager.Instance.ShowLayer06(LayerGroupType.Root);
+            UnityEngine.Debug.Break();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            LayerManager.Instance.CloseLastLayerGroup();
         }
     }
 }

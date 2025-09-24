@@ -65,6 +65,8 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             if(showData.OnInitData != null) showData.OnInitData.Invoke(result);
             await UniTask.NextFrame();
             HideLayerRequired(showData);
+            await UniTask.NextFrame();
+            SetSortingLayer(result);
             if (showData.AddToStack)
             {
                 _showingLayerGroups.Push(showData);
@@ -74,9 +76,8 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             {
                 _layerNotInStack.AddRange(showData.LayerTypes);
             }
+            if(showData.DisplayImmediately) result.ShowGroupAsync();
             
-            await UniTask.NextFrame();
-            if(showData.DisplayImmediately) DisplayLayerGroup(result);
             await UniTask.NextFrame();
             showData.OnShowComplete?.Invoke(result);
         }
@@ -88,12 +89,6 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         IsShowing = false;
     }
     private List<LayerType> _layerNotInStack = new();
-
-    public void DisplayLayerGroup(LayerGroup group)
-    {
-        SetSortingLayer(group);
-        group.ShowGroupAsync();
-    }
 
     public void CloseLastLayerGroup()
     {
@@ -157,7 +152,8 @@ public partial class LayerManager : MonoSingleton<LayerManager>
 
     public LayerBase GetLayerBase(LayerType layerType)
     {
-        return _createdLayerBases.GetValueOrDefault(layerType);
+        if (_createdLayerBases.TryGetValue(layerType, out var layerBase)) return layerBase;
+        return null;
     }
 
     private void CloseNotInStackAll()
@@ -225,7 +221,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         var id = -1;
         foreach (var showLayerGroupData in _showingLayerGroups)
         {
-            if (showLayerGroupData.ID == showData.ID) return id;
+            if (showLayerGroupData.ID == showData.ID) return showData.ID;
             if (showLayerGroupData.LayerTypes.Count != showData.LayerTypes.Count) continue;
             var similarCount = 0;
             for (var i = 0; i < showLayerGroupData.LayerTypes.Count; i++)
@@ -263,7 +259,9 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         _showingLayerTypes.AddRange(_showingLayerTypeTemp.Except(_layerPopupTemp));
         _showingLayerGroupsTemp.Clear();
         _showingLayerGroupsTemp.AddRange(_showingLayerGroups);
-        _showingLayerGroups = new(_showingLayerGroupsTemp.RemoveAll(x => x.LayerGroupType == LayerGroupType.Popup));
+        _showingLayerGroupsTemp.RemoveAll(x => x.LayerGroupType == LayerGroupType.Popup);
+        _showingLayerGroupsTemp.Reverse();
+        _showingLayerGroups = new(_showingLayerGroupsTemp);
     }
 
     private List<LayerType> _layerTypeToHide = new(LimitLayer);
