@@ -9,7 +9,7 @@ namespace UIManager.Editor
     public class LayerGeneratorWindow : EditorWindow
     {
         private string layerName = "";
-        private Object layerReferenceSOAsset;
+        private LayerReferenceSO layerReferenceSOAsset;
         private string prefabFolderPath = "Assets/Prefabs/UI";
         private string scriptFolderPath = "Assets/Scripts/UI";
         private Vector2 scrollPosition;
@@ -17,7 +17,7 @@ namespace UIManager.Editor
         private string prefabPath = "";
         private GameObject createdPrefab;
 
-        [MenuItem("UI/Generate Layer Window")]
+        [MenuItem("Tools/UI/Generate Layer Window")]
         public static void ShowWindow()
         {
             GetWindow<LayerGeneratorWindow>("Layer Generator");
@@ -35,7 +35,7 @@ namespace UIManager.Editor
             layerName = EditorGUILayout.TextField("Tên Layer", layerName);
 
             // Chọn LayerReferenceSO
-            layerReferenceSOAsset = EditorGUILayout.ObjectField("LayerReferenceSO", layerReferenceSOAsset, typeof(ScriptableObject), false);
+            layerReferenceSOAsset = EditorGUILayout.ObjectField("LayerReferenceSO", layerReferenceSOAsset, typeof(LayerReferenceSO), false) as LayerReferenceSO;
 
             // Chọn đường dẫn thư mục prefab
             EditorGUILayout.BeginHorizontal();
@@ -98,6 +98,12 @@ namespace UIManager.Editor
                 GenerateLayer();
             }
 
+            if (GUILayout.Button("Add Prefab to SO"))
+            {
+                // Thêm prefab vào LayerReferenceSO
+                AddPrefabToLayerReferenceSO();
+            }
+
             // Hiển thị kết quả
             if (!string.IsNullOrEmpty(resultMessage))
             {
@@ -139,9 +145,6 @@ namespace UIManager.Editor
                 // Tạo hàm helper trong ShowLayerHelper.cs
                 CreateHelperMethod();
 
-                // Thêm prefab vào LayerReferenceSO
-                AddPrefabToLayerReferenceSO();
-
                 // Cập nhật thông tin kết quả
                 prefabPath = prefabFolderPath + "/" + layerName + ".prefab";
                 createdPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject));
@@ -149,8 +152,7 @@ namespace UIManager.Editor
                     "Prefab được tạo tại: " + prefabPath + "\\n" +
                     "Script được tạo tại: " + scriptFolderPath + "/" + layerName + "/UI" + layerName + ".cs\\n" +
                     "Enum đã được thêm vào LayerSourcePath.cs\\n" +
-                    "Hàm helper đã được thêm vào ShowLayerHelper.cs\\n" +
-                    "Prefab đã được thêm vào LayerReferenceSO";
+                    "Hàm helper đã được thêm vào ShowLayerHelper.cs";
                 
                 // In log để dễ theo dõi
                 Debug.Log(resultMessage);
@@ -507,6 +509,7 @@ namespace UIManager.Editor
             // Lưu thay đổi
             EditorUtility.SetDirty(referenceSO);
             AssetDatabase.SaveAssets();
+            resultMessage = "Add Prefab To LayerReferenceSO Success!!!";
         }
     }
 }
