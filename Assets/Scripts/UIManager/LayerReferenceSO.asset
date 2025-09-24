@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ab30fa9a16eebc468293aa62fa36ea1, type: 3}
   m_Name: LayerReferenceSO
   m_EditorClassIdentifier: 
-  layerGroupList:
-  - groupName: MainMenu
-    layerReferenceList:
-    - layerType: 1
-      layerBase: {fileID: 82802858921737824, guid: 15dec27885382d94b8cefd3b05d8e39a, type: 3}
-    - layerType: 2
-      layerBase: {fileID: 82802858921737824, guid: 0e982ae3dddf58f4d813a78d90538e92, type: 3}
+  layerReferenceList:
+  - layerType: 1
+    layerBase: {fileID: 82802858921737824, guid: 15dec27885382d94b8cefd3b05d8e39a, type: 3}
+  - layerType: 2
+    layerBase: {fileID: 82802858921737824, guid: 0e982ae3dddf58f4d813a78d90538e92, type: 3}

@@ -19,7 +19,6 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     [SerializeField] private List<LayerReferenceData> layerPreload;
     public static int LimitLayer = 64;
     public int spaceBetweenLayer = 100;
-    private CancellationToken _destroyCt;
     private Dictionary<LayerType, LayerBase> _createdLayerBases = new(LimitLayer);
     private HashSet<LayerType> _showingLayerTypes = new(LimitLayer);
     private Stack<ShowLayerGroupData> _showingLayerGroups = new(LimitLayer);
@@ -32,7 +31,6 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     protected override void Awake()
     {
         base.Awake();
-        _destroyCt = this.GetCancellationTokenOnDestroy();
         layerReferenceSO.InitLayerBase();
         PreloadLayer();
     }
@@ -47,26 +45,26 @@ public partial class LayerManager : MonoSingleton<LayerManager>
 
     public bool IsShowing;
 
-    public async Task<LayerGroup> ShowGroupLayerAsync(ShowLayerGroupData showData, Func<LayerGroup, Task> onInitData = null, bool displayImmediately = true)
+    public async void ShowGroupLayerAsync(ShowLayerGroupData showData)
     {
         if (IsShowing)
         {
             Debug.Log(
                 $"[TryShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}  not success");
-            return new();
+            return;
         }
         
-        Debug.Log(
-            $"[ShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}");
+        /*Debug.Log(
+            $"[ShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}");*/
         IsShowing = true;
         LayerGroup result = null;
         try
         {
             result = InitLayerGroup(showData);
             await UniTask.NextFrame();
-            if(onInitData != null) await onInitData.Invoke(result);
+            if(showData.OnInitData != null) showData.OnInitData.Invoke(result);
             await UniTask.NextFrame();
-            await HideLayerRequired(showData);
+            HideLayerRequired(showData);
             if (showData.AddToStack)
             {
                 _showingLayerGroups.Push(showData);
@@ -78,7 +76,9 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             }
             
             await UniTask.NextFrame();
-            if(displayImmediately) await DisplayLayerGroup(result);
+            if(showData.DisplayImmediately) DisplayLayerGroup(result);
+            await UniTask.NextFrame();
+            showData.OnShowComplete?.Invoke(result);
         }
         catch (Exception e)
         {
@@ -86,31 +86,26 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         }
 
         IsShowing = false;
-
-        return result;
     }
     private List<LayerType> _layerNotInStack = new();
 
-    public async UniTask DisplayLayerGroup(LayerGroup group)
+    public void DisplayLayerGroup(LayerGroup group)
     {
         SetSortingLayer(group);
-        await group.ShowGroupAsync();
+        group.ShowGroupAsync();
     }
 
-    public async UniTask CloseLastLayerGroup()
+    public void CloseLastLayerGroup()
     {
         if (_showingLayerGroups.Count == 0) return;
         if (_showingLayerGroups.Count <= 1 && hasLayerRoot) return;
         var lastGroup = _showingLayerGroups.Pop();
-        var closeTask = new List<UniTask>();
         foreach (var layerType in lastGroup.LayerTypes)
         {
             var layerBase = GetLayerBase(layerType);
             if (!layerBase) continue;
-            closeTask.Add(layerBase.CloseLayerAsync());
+            layerBase.CloseLayerAsync();
         }
-
-        await UniTask.WhenAll(closeTask);
     }
 
     private void SetSortingLayer(LayerGroup layerGroup)
@@ -165,45 +160,45 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         return _createdLayerBases.GetValueOrDefault(layerType);
     }
 
-    private List<UniTask> _hideTaskRequiredTemps = new(LimitLayer);
-    public async UniTask HideLayerRequired(ShowLayerGroupData showData)
+    private void CloseNotInStackAll()
     {
-        if (showData == null) return;
-
         foreach (var layerType in _layerNotInStack)
         {
             var layerBase = GetLayerBase(layerType);
             if (!layerBase) continue;
-            layerBase.CloseLayerAsync().Forget();
+            layerBase.CloseLayerAsync();
         }
+        _layerNotInStack.Clear();
+    }
+
+    private void HideLayerRequired(ShowLayerGroupData showData)
+    {
+        CloseNotInStackAll();
         if (showData.CloseAllOtherLayer)
         {
-            await CloseAllLayerExist(showData);
+            CloseAllLayerExist(showData);
             return;
         }
         
         if (showData.CloseOtherLayerOver)
         {
-            _hideTaskRequiredTemps.Add(CloseOtherLayerOver(showData));
+            CloseOtherLayerOver(showData);
         }
 
         if (showData.HideAllOtherLayer)
         {
-            _hideTaskRequiredTemps.Add(HideAllLayerExist(showData));
+            HideAllLayerExist(showData);
         }
 
         if (showData.CloseAllPopup)
         {
-            _hideTaskRequiredTemps.Add(CloseAllPopupExist(showData));
+            CloseAllPopupExist(showData);
         }
-
-        await UniTask.WhenAll(_hideTaskRequiredTemps);
-        _hideTaskRequiredTemps.Clear();
     }
 
     HashSet<LayerType> _overLayerTypeTotals = new(LimitLayer);
     HashSet<LayerType> _overLayerTypes = new(LimitLayer);
-    private async UniTask CloseOtherLayerOver(ShowLayerGroupData showData)
+    private void CloseOtherLayerOver(ShowLayerGroupData showData)
     {
         var groupLayerProjectId = GetGroupLayerProjectId(showData);
         if (groupLayerProjectId == -1) return;
@@ -219,23 +214,20 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         if (_overLayerTypes.Count == 0) return;
         foreach (var overLayerType in _overLayerTypes)
         {
-            _closeTasks.Add(CloseLayerAsync(overLayerType));
+            CloseLayerAsync(overLayerType);
         }
 
         _showingLayerTypes = new(_showingLayerTypes.Except(_overLayerTypes));
-        await UniTask.WhenAll(_closeTasks);
-        _closeTasks.Clear();
     }
 
     private int GetGroupLayerProjectId(ShowLayerGroupData showData)
     {
-        int id = -1;
-        int similarCount = 0;
+        var id = -1;
         foreach (var showLayerGroupData in _showingLayerGroups)
         {
             if (showLayerGroupData.ID == showData.ID) return id;
             if (showLayerGroupData.LayerTypes.Count != showData.LayerTypes.Count) continue;
-            similarCount = 0;
+            var similarCount = 0;
             for (var i = 0; i < showLayerGroupData.LayerTypes.Count; i++)
             {
                 if(showLayerGroupData.LayerTypes[i] != showData.LayerTypes[i]) break;
@@ -251,7 +243,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     private List<LayerType> _layerPopupTemp = new(LimitLayer);
     private List<LayerType> _showingLayerTypeTemp = new(LimitLayer); 
     private List<ShowLayerGroupData> _showingLayerGroupsTemp = new(LimitLayer);
-    private async UniTask CloseAllPopupExist(ShowLayerGroupData showData)
+    private void CloseAllPopupExist(ShowLayerGroupData showData)
     {
         _layerPopupTemp.Clear();
         _layerPopupTemp.AddRange(_showingLayerGroups
@@ -262,11 +254,9 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         if(_layerPopupTemp.Count == 0) return;
         foreach (var layerType in _layerPopupTemp)
         {
-            _closeTasks.Add(CloseLayerAsync(layerType, true));
+            CloseLayerAsync(layerType, true);
         }
-
-        await UniTask.WhenAll(_closeTasks);
-        _closeTasks.Clear();
+        
         _showingLayerTypeTemp.Clear();
         _showingLayerTypeTemp.AddRange(_showingLayerTypes);
         _showingLayerTypes.Clear();
@@ -274,56 +264,44 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         _showingLayerGroupsTemp.Clear();
         _showingLayerGroupsTemp.AddRange(_showingLayerGroups);
         _showingLayerGroups = new(_showingLayerGroupsTemp.RemoveAll(x => x.LayerGroupType == LayerGroupType.Popup));
-        
-        _showingLayerGroupsTemp.Clear();
-        _showingLayerTypeTemp.Clear();
     }
 
     private List<LayerType> _layerTypeToHide = new(LimitLayer);
-    private async UniTask HideAllLayerExist(ShowLayerGroupData showData)
+    private void HideAllLayerExist(ShowLayerGroupData showData)
     {
         _layerTypeToHide.Clear();
         _layerTypeToHide.AddRange(_showingLayerTypes.Except(showData.LayerTypes));
         foreach (var layerType in _layerTypeToHide)
         {
-            _hideTasks.Add(HideLayerAsync(layerType));
+            HideLayerAsync(layerType);
         }
-
-        await UniTask.WhenAll(_hideTasks);
-        _layerTypeToHide.Clear();
-        _hideTasks.Clear();
     }
 
     private List<LayerType> _layerTypeToClose = new(LimitLayer);
-    private List<UniTask> _closeTasks = new(LimitLayer);
-    private List<UniTask> _hideTasks = new(LimitLayer);
-    private async UniTask CloseAllLayerExist(ShowLayerGroupData showData)
+    private void CloseAllLayerExist(ShowLayerGroupData showData)
     {
+        _layerTypeToClose.Clear();
         _layerTypeToClose.AddRange(_showingLayerTypes.Except(showData.LayerTypes));
         foreach (var layerType in _layerTypeToClose)
         {
-            _closeTasks.Add(CloseLayerAsync(layerType, true));
+            CloseLayerAsync(layerType, true);
         }
-
-        await UniTask.WhenAll(_closeTasks);
         _showingLayerGroups.Clear();
         _showingLayerTypes.Clear();
-        _layerTypeToClose.Clear();
-        _closeTasks.Clear();
     }
 
-    private async UniTask CloseLayerAsync(LayerType layerType, bool force = false)
+    private void CloseLayerAsync(LayerType layerType, bool force = false)
     {
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return;
-        await layerBase.CloseLayerAsync(force);
+        layerBase.CloseLayerAsync(force);
     }
 
-    private UniTask HideLayerAsync(LayerType layerType)
+    private void HideLayerAsync(LayerType layerType)
     {
         var layerBase = GetLayerBase(layerType);
-        if (!layerBase) return UniTask.CompletedTask;
-        return layerBase.HideLayerAsync();
+        if (!layerBase) return;
+        layerBase.HideLayerAsync();
     }
 }
 
@@ -346,7 +324,7 @@ public static class LayerGroupBuilder
 public class ShowLayerGroupData
 {
     public int ID;
-    public List<LayerType> LayerTypes = new List<LayerType>();
+    public List<LayerType> LayerTypes = new List<LayerType>(3);
     public LayerGroupType LayerGroupType;
 
     public bool CloseAllOtherLayer;
@@ -357,6 +335,9 @@ public class ShowLayerGroupData
     public bool AddToStack = true;
     public bool FixedLayer = false;
 
+    public Action<LayerGroup> OnInitData;
+    public Action<LayerGroup> OnShowComplete;
+    public bool DisplayImmediately = true;
     public void ValidateData()
     {
         if (LayerGroupType == LayerGroupType.Custom) return;

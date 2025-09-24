@@ -34,21 +34,24 @@ public class LayerBase : MonoBehaviour
         return _sortOrders.Count > 0 ? _sortOrders[^1] : 0;
     }
 
-    public virtual async UniTask ShowLayerAsync()
+    public virtual void InitData()
     {
-        await UniTask.Yield();
+        
+    }
+
+    public virtual void ShowLayerAsync()
+    {
         canvasGroup.SetActive(true);
         if(!gameObject.activeInHierarchy) gameObject.SetActive(true);
     }
 
-    public virtual async UniTask HideLayerAsync()
+    public virtual void HideLayerAsync()
     {
-        await UniTask.Yield();
         canvasGroup.SetActive(false);
     }
-    public virtual async UniTask CloseLayerAsync(bool force = false)
+    public virtual void CloseLayerAsync(bool force = false)
     {
-        await HideLayerAsync();
+        HideLayerAsync();
         if(force) _sortOrders.Clear();
         var order = -10000;
         if (_sortOrders.Count > 1)
@@ -69,14 +72,12 @@ public class LayerGroup
     private Dictionary<LayerType, LayerBase> _layerBases = new (4);
 
     public List<LayerType> LayerTypes => new (_layerBases.Keys);
-    public async UniTask CloseGroupAsync()
+    public void CloseGroupAsync()
     {
-        var tasks = new List<UniTask>(_layerBases.Values.Count);
         foreach (var layerBase in _layerBases.Values)
         {
-            tasks.Add(layerBase.CloseLayerAsync());
+            layerBase.CloseLayerAsync();
         }
-        await UniTask.WhenAll(tasks);
     }
     public void AddLayer(LayerType layerType ,LayerBase layerBase)
     {
@@ -85,7 +86,7 @@ public class LayerGroup
     public bool GetLayerBase(LayerType layerType , out LayerBase layerBase)
     {
         layerBase = _layerBases.GetValueOrDefault(layerType);
-        return layerBase != null;
+        return layerBase;
     }
 
     public void SetSortOrder(int order)
@@ -97,13 +98,11 @@ public class LayerGroup
             subOrder++;
         }
     }
-    public async UniTask ShowGroupAsync()
+    public void ShowGroupAsync()
     {
-        var tasks = new List<UniTask>(_layerBases.Values.Count);
         foreach (var layerBase in _layerBases.Values)
         {
-            tasks.Add(layerBase.ShowLayerAsync());
+            layerBase.ShowLayerAsync();
         }
-        await UniTask.WhenAll(tasks);
     }
 }
