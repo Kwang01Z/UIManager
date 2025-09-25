@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,6 +19,7 @@ public class LayerBase : MonoBehaviour
     [SerializeField] protected Canvas canvas;
     [SerializeField] protected CanvasGroup canvasGroup;
 
+    [SerializeField] public bool keepPreActive;
     private List<int> _sortOrders = new ();
 
     protected virtual void Reset()
@@ -31,7 +33,7 @@ public class LayerBase : MonoBehaviour
 
     protected virtual void OnValidate()
     {
-        gameObject.SetActive(false);
+        if(!keepPreActive) gameObject.SetActive(false);
     }
 
     public int GetSortingOrder()
