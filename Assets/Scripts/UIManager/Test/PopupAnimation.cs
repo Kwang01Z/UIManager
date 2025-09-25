@@ -3,7 +3,7 @@ using UnityEngine.Events;
 using LitMotion;
 using LitMotion.Extensions;
 
-public class OpenPopupAnim : MonoBehaviour
+public class PopupAnimation : MonoBehaviour
 {
     [SerializeField] private LayerBase m_uiCoreLayer;
     [SerializeField] private RectTransform panelRect;
@@ -65,8 +65,7 @@ public class OpenPopupAnim : MonoBehaviour
             _scaleHandle = LMotion
                 .Create(Vector3.zero, Vector3.one, duration)
                 .WithEase(easeType)
-                .BindToLocalScale(panelRect)      // Extensions
-                .AddTo(gameObject);               // Tự huỷ khi GameObject destroy
+                .BindToLocalScale(panelRect);             
         }
 
         // Fade dim
@@ -75,16 +74,13 @@ public class OpenPopupAnim : MonoBehaviour
             _fadeHandle = LMotion
                 .Create(0f, 1f, duration)
                 .WithEase(easeType)
-                .BindToAlpha(dimCanvasGroup)      // Extensions
-                .AddTo(gameObject);
+                .BindToAlpha(dimCanvasGroup);
         }
 
         // “Delay” để bắn OnComplete một lần khi 2 tween trên kết thúc
         _delayHandle = LMotion
             .Create(0f, 1f, duration)
             .WithOnComplete(() => OnCompleteAnim?.Invoke())
-            .WithEase(Ease.Linear)
-            .Bind(_ => { })                      // tween rỗng chỉ để đợi thời gian
-            .AddTo(gameObject);
+            .Bind(_ => { });
     }
 }
