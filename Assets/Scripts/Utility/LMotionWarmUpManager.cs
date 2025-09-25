@@ -18,13 +18,13 @@ public class WarmUpManager : MonoBehaviour
 
     private void RunWarmUp()
     {
-        var go = new GameObject("LM_WarmUp_Scale");
+        var go = new GameObject("LM_WarmUp");
         if (warmUpScale)
         {
             var t = go.transform;
             t.localScale = Vector3.zero;
 
-            LMotion.Create(Vector3.zero, Vector3.one, 0.01f)
+            LMotion.Create(Vector3.zero, Vector3.one, 0.01f).WithOnComplete(() => Destroy(go))
                 .BindToLocalScale(t);
         }
 
@@ -65,6 +65,6 @@ public class WarmUpManager : MonoBehaviour
         // Float warm-up (dùng cho giá trị bất kỳ, VD: volume, fillAmount…)
         LMotion.Create(Vector2.zero, Vector2.one, 0.01f);
         LMotion.Create(Vector4.zero, Vector4.one, 0.01f);
-        LMotion.Create(0, 1, 0.01f).WithOnComplete(() => Destroy(go));
+        LMotion.Create(0, 1, 0.01f);
     }
 }
