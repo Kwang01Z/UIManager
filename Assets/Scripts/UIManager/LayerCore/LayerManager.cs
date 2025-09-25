@@ -44,7 +44,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     }
 
     private static Queue<Action> _showQueue = new(4);
-    public readonly bool IsShowing;
+    public bool IsShowing { get; private set; }
 
     public async void ShowGroupLayerAsync(ShowLayerGroupData showData)
     {
