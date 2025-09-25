@@ -14,7 +14,6 @@ public partial class LayerManager
         _showLayer01Data.OnInitData = SetupDataLayer01;
         _showLayer01Data.OnShowComplete = onDone;
         ShowGroupLayerAsync(_showLayer01Data);
-        return;
 
         void SetupDataLayer01(LayerGroup layerGroup)
         {
@@ -22,6 +21,10 @@ public partial class LayerManager
             if (layerGroup.GetLayerBase(LayerType.Layer01, out var layerBase))
             {
                 layerBase.InitData();
+                /*for (int i = -100000; i < 100000; i++)
+                {
+                    var t = Mathf.Abs(i);
+                }*/
             }
         }
     }
