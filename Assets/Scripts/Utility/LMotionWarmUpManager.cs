@@ -10,7 +10,6 @@ public class WarmUpManager : MonoBehaviour
     public bool warmUpPosition = true;
     public bool warmUpRotation = true;
     public bool warmUpColor = true;
-    public bool warmUpFloat = true;
 
     private void Awake()
     {
@@ -26,7 +25,6 @@ public class WarmUpManager : MonoBehaviour
             t.localScale = Vector3.zero;
 
             LMotion.Create(Vector3.zero, Vector3.one, 0.01f)
-                .WithOnComplete(() => Destroy(go))
                 .BindToLocalScale(t);
         }
 
@@ -64,10 +62,9 @@ public class WarmUpManager : MonoBehaviour
                 .BindToColor(sr);
         }
 
-        if (warmUpFloat)
-        {
-            // Float warm-up (dùng cho giá trị bất kỳ, VD: volume, fillAmount…)
-            LMotion.Create(0f, 1f, 0.01f);
-        }
+        // Float warm-up (dùng cho giá trị bất kỳ, VD: volume, fillAmount…)
+        LMotion.Create(Vector2.zero, Vector2.one, 0.01f);
+        LMotion.Create(Vector4.zero, Vector4.one, 0.01f);
+        LMotion.Create(0, 1, 0.01f).WithOnComplete(() => Destroy(go));
     }
 }
