@@ -44,15 +44,19 @@ public class LayerBase : MonoBehaviour
         
     }
 
+    public ActionSealed OnShowLayer = new();
+    public ActionSealed OnHideLayer = new();
     public virtual void ShowLayerAsync()
     {
         canvasGroup.SetActive(true);
         if(!gameObject.activeInHierarchy) gameObject.SetActive(true);
+        OnShowLayer?.Invoke();
     }
 
     public virtual void HideLayerAsync()
     {
         canvasGroup.SetActive(false);
+        OnHideLayer?.Invoke();
     }
     public virtual void CloseLayerAsync(bool force = false)
     {
