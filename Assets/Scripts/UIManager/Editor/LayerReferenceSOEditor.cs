@@ -27,6 +27,10 @@ public class LayerReferenceSOEditor : Editor
         SerializedProperty layerReferenceListProperty = serializedObject.FindProperty("layerReferenceList");
         if (layerReferenceListProperty != null)
         {
+            // Check if we need to delete an item first
+            int itemToDelete = -1;
+            string itemToDeleteName = "";
+            
             // Get filtered list based on search
             var filteredIndices = GetFilteredIndices(layerReferenceListProperty, searchFilter);
             
@@ -37,14 +41,72 @@ public class LayerReferenceSOEditor : Editor
             if (GUILayout.Button("+", GUILayout.Width(25)))
             {
                 AddNewItem(layerReferenceListProperty);
+                serializedObject.ApplyModifiedProperties();
+                return; // Exit to refresh the GUI
             }
             EditorGUILayout.EndHorizontal();
             
-            // Display filtered items
+            // Display filtered items and handle deletion
             for (int i = 0; i < filteredIndices.Count; i++)
             {
                 int index = filteredIndices[i];
-                DrawLayerReferenceItem(layerReferenceListProperty, index);
+                
+                // Get properties for this item
+                SerializedProperty item = layerReferenceListProperty.GetArrayElementAtIndex(index);
+                SerializedProperty layerTypeProperty = item.FindPropertyRelative("layerType");
+                
+                if (layerTypeProperty != null)
+                {
+                    string layerTypeString = layerTypeProperty.enumDisplayNames[layerTypeProperty.enumValueIndex];
+                    
+                    // Check if this item should be deleted
+                    string foldoutKey = $"{target.GetInstanceID()}_item_{index}_{layerTypeString}";
+                    if (!foldoutStates.ContainsKey(foldoutKey))
+                    {
+                        foldoutStates[foldoutKey] = true;
+                    }
+                    
+                    // Draw item in a box with foldout
+                    EditorGUILayout.BeginVertical("box");
+                    
+                    // Header with label and delete button
+                    EditorGUILayout.BeginHorizontal();
+                    foldoutStates[foldoutKey] = EditorGUILayout.Foldout(
+                        foldoutStates[foldoutKey], 
+                        $"Layer {index + 1}: {layerTypeString}", 
+                        true
+                    );
+                    
+                    if (GUILayout.Button("X", GUILayout.Width(25), GUILayout.Height(20)))
+                    {
+                        if (EditorUtility.DisplayDialog("Delete Layer Reference", 
+                            $"Are you sure you want to delete '{layerTypeString}'?", 
+                            "Delete", "Cancel"))
+                        {
+                            itemToDelete = index;
+                            itemToDeleteName = layerTypeString;
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
+                    
+                    if (foldoutStates[foldoutKey])
+                    {
+                        EditorGUI.indentLevel++;
+                        EditorGUILayout.PropertyField(layerTypeProperty, new GUIContent("Layer Type"));
+                        EditorGUILayout.PropertyField(item.FindPropertyRelative("layerBase"), new GUIContent("Layer Base"));
+                        EditorGUI.indentLevel--;
+                    }
+                    
+                    EditorGUILayout.EndVertical();
+                }
+            }
+            
+            // Handle deletion after drawing all items
+            if (itemToDelete >= 0)
+            {
+                layerReferenceListProperty.DeleteArrayElementAtIndex(itemToDelete);
+                serializedObject.ApplyModifiedProperties();
+                return; // Exit to refresh the GUI
             }
             
             // Clear filter button if there's an active search
