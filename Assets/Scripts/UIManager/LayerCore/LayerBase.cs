@@ -28,7 +28,12 @@ public class LayerBase : MonoBehaviour
         canvasGroup ??= GetComponent<CanvasGroup>();
         canvasGroup.SetActive(false);
     }
-    
+
+    protected virtual void OnValidate()
+    {
+        gameObject.SetActive(false);
+    }
+
     public int GetSortingOrder()
     {
         return _sortOrders.Count > 0 ? _sortOrders[^1] : 0;
