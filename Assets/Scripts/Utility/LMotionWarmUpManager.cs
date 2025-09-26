@@ -2,7 +2,7 @@ using UnityEngine;
 using LitMotion;
 using LitMotion.Extensions;
 
-public class WarmUpManager : MonoBehaviour
+public class LMotionWarmUpManager : MonoBehaviour
 {
     [Header("WarmUp Settings")]
     public bool warmUpScale = true;
