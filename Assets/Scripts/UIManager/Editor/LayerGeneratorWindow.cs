@@ -10,8 +10,9 @@ namespace UIManager.Editor
     {
         private string layerName = "";
         private LayerReferenceSO layerReferenceSOAsset;
-        private string prefabFolderPath = "Assets/Prefabs/UI";
-        private string scriptFolderPath = "Assets/Scripts/UI";
+        private string prefabFolderPath = "";
+        private string scriptFolderPath = "";
+        private string layerSourcePathPath = "";
         private Vector2 scrollPosition;
         private string resultMessage = "";
         private string prefabPath = "";
@@ -39,7 +40,7 @@ namespace UIManager.Editor
 
             // Chọn đường dẫn thư mục prefab
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.TextField("Đường dẫn thư mục Prefab", prefabFolderPath);
+            EditorGUILayout.TextField("Thư mục Prefab", prefabFolderPath);
             if (GUILayout.Button("Chọn", GUILayout.Width(50)))
             {
                 string selectedPath = EditorUtility.OpenFolderPanel("Chọn thư mục chứa prefab", "Assets", "");
@@ -56,7 +57,7 @@ namespace UIManager.Editor
 
             // Chọn đường dẫn thư mục script
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.TextField("Đường dẫn thư mục Script", scriptFolderPath);
+            EditorGUILayout.TextField("Thư mục Script", scriptFolderPath);
             if (GUILayout.Button("Chọn", GUILayout.Width(50)))
             {
                 string selectedPath = EditorUtility.OpenFolderPanel("Chọn thư mục chứa script", "Assets", "");
@@ -66,6 +67,23 @@ namespace UIManager.Editor
                     if (selectedPath.StartsWith(Application.dataPath))
                     {
                         scriptFolderPath = "Assets" + selectedPath.Substring(Application.dataPath.Length);
+                    }
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // Chọn đường dẫn file LayerSourcePath
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.TextField("LayerType enum Path", layerSourcePathPath);
+            if (GUILayout.Button("Chọn", GUILayout.Width(50)))
+            {
+                string selectedPath = EditorUtility.OpenFilePanel("Chọn file LayerSourcePath.cs", "Assets", "cs");
+                if (!string.IsNullOrEmpty(selectedPath))
+                {
+                    // Chuyển đổi đường dẫn đầy đủ thành đường dẫn trong Assets
+                    if (selectedPath.StartsWith(Application.dataPath))
+                    {
+                        layerSourcePathPath = "Assets" + selectedPath.Substring(Application.dataPath.Length);
                     }
                 }
             }
@@ -168,8 +186,14 @@ namespace UIManager.Editor
 
         private void CreateNewEnum()
         {
+            // Kiểm tra xem file có tồn tại không
+            if (!File.Exists(layerSourcePathPath))
+            {
+                EditorUtility.DisplayDialog("Lỗi", "File LayerSourcePath không tồn tại tại: " + layerSourcePathPath, "OK");
+                return;
+            }
+            
             // Đọc nội dung LayerSourcePath.cs
-            string layerSourcePathPath = "Assets/Scripts/UIManager/LayerSourcePath.cs";
             string[] lines = File.ReadAllLines(layerSourcePathPath);
 
             // Xác định giá trị enum tiếp theo dựa trên enum hiện tại
