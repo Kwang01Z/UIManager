@@ -10,18 +10,39 @@ namespace UIManager.Editor
     {
         private string layerName = "";
         private LayerReferenceSO layerReferenceSOAsset;
-        private string prefabFolderPath = "";
-        private string scriptFolderPath = "";
-        private string layerSourcePathPath = "";
+        private string prefabFolderPath = "Assets/Prefabs/UI";
+        private string scriptFolderPath = "Assets/Scripts/UI";
+        private string layerSourcePathPath = "Assets/Scripts/UIManager/LayerSourcePath.cs";
         private Vector2 scrollPosition;
         private string resultMessage = "";
         private string prefabPath = "";
         private GameObject createdPrefab;
 
+        private const string PREFAB_FOLDER_KEY = "LayerGenerator_PrefabFolderPath";
+        private const string SCRIPT_FOLDER_KEY = "LayerGenerator_ScriptFolderPath";
+        private const string LAYER_SOURCE_PATH_KEY = "LayerGenerator_LayerSourcePath";
+
         [MenuItem("Tools/UI/Generate Layer Window")]
         public static void ShowWindow()
         {
             GetWindow<LayerGeneratorWindow>("Layer Generator");
+        }
+
+        private void OnEnable()
+        {
+            // Load saved paths from PlayerPrefs
+            prefabFolderPath = PlayerPrefs.GetString(PREFAB_FOLDER_KEY, "Assets/Prefabs/UI");
+            scriptFolderPath = PlayerPrefs.GetString(SCRIPT_FOLDER_KEY, "Assets/Scripts/UI");
+            layerSourcePathPath = PlayerPrefs.GetString(LAYER_SOURCE_PATH_KEY, "Assets/Scripts/UIManager/LayerSourcePath.cs");
+        }
+
+        private void OnDisable()
+        {
+            // Save current paths to PlayerPrefs
+            PlayerPrefs.SetString(PREFAB_FOLDER_KEY, prefabFolderPath);
+            PlayerPrefs.SetString(SCRIPT_FOLDER_KEY, scriptFolderPath);
+            PlayerPrefs.SetString(LAYER_SOURCE_PATH_KEY, layerSourcePathPath);
+            PlayerPrefs.Save();
         }
 
         private void OnGUI()
@@ -50,6 +71,8 @@ namespace UIManager.Editor
                     if (selectedPath.StartsWith(Application.dataPath))
                     {
                         prefabFolderPath = "Assets" + selectedPath.Substring(Application.dataPath.Length);
+                        PlayerPrefs.SetString(PREFAB_FOLDER_KEY, prefabFolderPath);
+                        PlayerPrefs.Save();
                     }
                 }
             }
@@ -67,6 +90,8 @@ namespace UIManager.Editor
                     if (selectedPath.StartsWith(Application.dataPath))
                     {
                         scriptFolderPath = "Assets" + selectedPath.Substring(Application.dataPath.Length);
+                        PlayerPrefs.SetString(SCRIPT_FOLDER_KEY, scriptFolderPath);
+                        PlayerPrefs.Save();
                     }
                 }
             }
@@ -84,6 +109,8 @@ namespace UIManager.Editor
                     if (selectedPath.StartsWith(Application.dataPath))
                     {
                         layerSourcePathPath = "Assets" + selectedPath.Substring(Application.dataPath.Length);
+                        PlayerPrefs.SetString(LAYER_SOURCE_PATH_KEY, layerSourcePathPath);
+                        PlayerPrefs.Save();
                     }
                 }
             }
