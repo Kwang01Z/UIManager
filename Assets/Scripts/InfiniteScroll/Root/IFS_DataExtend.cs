@@ -26,7 +26,7 @@ public partial class IFS_Data
     private IIFS_Cursor _scrollCursor;
     private void OnValidate()
     {
-        if (scrollRect)
+        if (!Application.isPlaying && scrollRect)
         {
             scrollRect.horizontal = scrollType == GridLayoutGroup.Axis.Horizontal;
             scrollRect.vertical = scrollType == GridLayoutGroup.Axis.Vertical;

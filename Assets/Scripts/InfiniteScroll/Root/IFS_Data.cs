@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Alchemy.Inspector;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -35,6 +36,7 @@ public partial class IFS_Data : MonoBehaviour
         InitData();
     }
 
+    [Button]
     public void ReloadData()
     {
         if (_placeHolders.Count == 0) return;
