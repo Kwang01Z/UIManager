@@ -16,7 +16,6 @@ public partial class IFS_Data
     public GridLayoutGroup.Axis ScrollType => scrollType;
     public Vector2 Spacing => spacing;
     public Vector4D Padding => padding;
-    public Vector2 ContentSize => scrollRect.content.sizeDelta;
     protected RectTransform ContentRect => scrollRect.content;
     protected RectTransform ViewportRect => scrollRect.viewport;
     [HideInInspector] public float ViewportWidth;
@@ -78,9 +77,12 @@ public partial class IFS_Data
         _frameIgnore = 0;
         InitData();
     }
-    
+
+    public Vector2 ContentSize { get; private set; }
+
     private void UpdateContentSize(Vector2 contentSize)
     {
+        ContentSize = contentSize;
         ContentRect.sizeDelta = contentSize;
     }
 

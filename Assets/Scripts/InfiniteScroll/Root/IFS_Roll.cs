@@ -26,7 +26,6 @@ public partial class IFS_Data
     public void JumpToBottom()
     {
         if (scrollRect == null) return;
-        
         if (ScrollType == GridLayoutGroup.Axis.Vertical)
         {
             // For vertical scroll, bottom means anchoredPosition.y = negative max
@@ -60,7 +59,7 @@ public partial class IFS_Data
             targetAnchor.x =- holderLeft;
         }
         
-        return targetAnchor;
+        return ValidateContentAnchor(targetAnchor);
     }
     
     public Vector2 GetPlaceholderBottomAnchorPosition(IFS_PlaceHolder holder)
@@ -82,13 +81,13 @@ public partial class IFS_Data
         {
             // For horizontal scroll, position the holder at the right of the viewport
             // The right of the holder should align with the right of the viewport
-            float holderRight = holder.AnchoredPosition.x - (1 - holder.Pivot.x) * holder.ItemWidth;
+            float holderRight = holder.AnchoredPosition.x + (1 - holder.Pivot.x) * holder.ItemWidth;
             
-            float offset = holderRight + ViewportWidth;
+            float offset = holderRight - ViewportWidth;
             targetAnchor.x = -offset;
         }
         
-        return targetAnchor;
+        return ValidateContentAnchor(targetAnchor);
     }
     
     public Vector2 GetPlaceholderMiddleAnchorPosition(IFS_PlaceHolder holder)
@@ -102,19 +101,32 @@ public partial class IFS_Data
             // For vertical scroll, position the holder in the middle of the viewport
             // The center of the holder should align with the center of the viewport
             float holderTop = holder.AnchoredPosition.y + (1-holder.Pivot.y) * holder.ItemHeight;
-            targetAnchor.y = -holderTop - ViewportHeight / 2f;
+            targetAnchor.y = -holderTop - ViewportHeight / 2f + holder.ItemHeight / 2f;
         }
         else
         {
             // For horizontal scroll, position the holder in the middle of the viewport
             // The center of the holder should align with the center of the viewport
             float holderLeft = holder.AnchoredPosition.x - (holder.Pivot.x * holder.ItemWidth);
-            targetAnchor.x =- (holderLeft + ViewportWidth / 2f);
+            targetAnchor.x =- (holderLeft + holder.ItemWidth / 2f - ViewportWidth / 2f);
         }
         
-        return targetAnchor;
+        return ValidateContentAnchor(targetAnchor);
     }
-    
+
+    private Vector2 ValidateContentAnchor(Vector2 result)
+    {
+        if (ScrollType == GridLayoutGroup.Axis.Vertical)
+        {
+            result.y = Mathf.Clamp(result.y, 0, ContentSize.y);
+        }
+        else
+        {
+            result.x = Mathf.Clamp(result.x, -ContentSize.x, 0);
+        }
+        return result;
+    }
+
     public void JumpToPlaceholderTop(IFS_PlaceHolder holder)
     {
         if (holder == null || scrollRect == null) return;
