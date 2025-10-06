@@ -72,14 +72,29 @@ public partial class IFS_Data : MonoBehaviour
         UpdateContentSize(scrollSize);
     }
     private bool _isVisible;
+    private List<IFS_PlaceHolder> _placeHoldersVisible;
     private void UpdateVisible()
     {
+        _placeHoldersVisible ??= new List<IFS_PlaceHolder>(_placeHolders.Count);
+        _placeHoldersVisible.Clear();
         foreach (var placeHolder in _placeHolders)
         {
             if(placeHolder is IFS_PlaceSpace) continue;
             _isVisible = _scrollVisible.IsVisible(placeHolder, this);
             placeHolder.SetVisible(_isVisible);
-            if(placeHolder.IsChangeState) placeHolder.UpdateData(scrollRect.content);
+            if (!placeHolder.IsChangeState) continue;
+            if (!placeHolder.IsVisible)
+            {
+                placeHolder.UpdateData(scrollRect.content);
+            }
+            else
+            {
+                _placeHoldersVisible.Add(placeHolder);
+            }
+        }
+        foreach (var placeHolder in _placeHoldersVisible)
+        {
+            placeHolder.UpdateData(scrollRect.content);
         }
     }
 }
