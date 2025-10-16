@@ -1,0 +1,256 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+
+namespace UIManager.Editor
+{
+    public class LayerManagerDebugger : EditorWindow
+    {
+        private Vector2 _scrollPosition;
+        private bool _autoRefresh = true;
+        private float _lastRefreshTime = 0f;
+        private const float REFRESH_INTERVAL = 0.5f; // Refresh mỗi 0.5 giây
+
+        private List<LayerGroupInfo> _groupHistory = new List<LayerGroupInfo>();
+        private Dictionary<LayerType, LayerInfo> _layerHistory = new Dictionary<LayerType, LayerInfo>();
+
+        [MenuItem("Window/UI Manager/Layer Manager Debugger")]
+        public static void ShowWindow()
+        {
+            GetWindow<LayerManagerDebugger>("Layer Manager Debugger");
+        }
+
+        private void OnEnable()
+        {
+            _groupHistory.Clear();
+            _layerHistory.Clear();
+        }
+
+        private void OnDisable()
+        {
+            _groupHistory.Clear();
+            _layerHistory.Clear();
+        }
+
+        private void Update()
+        {
+            if (_autoRefresh && Time.realtimeSinceStartup - _lastRefreshTime > REFRESH_INTERVAL)
+            {
+                Repaint();
+                _lastRefreshTime = Time.realtimeSinceStartup;
+            }
+        }
+
+        private void OnGUI()
+        {
+            if (Application.isPlaying)
+            {
+                DrawRuntimeInfo();
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Layer Manager Debugger chỉ hoạt động khi đang chạy game.", MessageType.Info);
+            }
+        }
+
+        private void DrawRuntimeInfo()
+        {
+            EditorGUILayout.BeginHorizontal();
+            _autoRefresh = EditorGUILayout.Toggle("Auto Refresh", _autoRefresh);
+            if (GUILayout.Button("Refresh", GUILayout.Width(80)))
+            {
+                Repaint();
+            }
+            if (GUILayout.Button("Clear History", GUILayout.Width(100)))
+            {
+                var tracker = FindObjectOfType<LayerManagerDebugTracker>();
+                tracker?.ClearHistory();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
+            DrawCurrentState();
+            EditorGUILayout.Space(20);
+            DrawGroupHistory();
+            EditorGUILayout.Space(20);
+            DrawLayerHistory();
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void DrawCurrentState()
+        {
+            EditorGUILayout.LabelField("=== TRẠNG THÁI HIỆN TẠI ===", EditorStyles.boldLabel);
+
+            var layerManager = FindObjectOfType<LayerManager>();
+            if (layerManager == null)
+            {
+                EditorGUILayout.HelpBox("Không tìm thấy LayerManager trong scene.", MessageType.Warning);
+                return;
+            }
+
+            // Hiển thị thông tin LayerManager
+            EditorGUILayout.LabelField($"Is Showing: {layerManager.IsShowing}");
+            EditorGUILayout.LabelField($"Space Between Layer: {layerManager.spaceBetweenLayer}");
+            EditorGUILayout.LabelField($"Limit Layer: {LayerManager.LimitLayer}");
+
+            EditorGUILayout.Space(10);
+
+            // Hiển thị các layer đang hiển thị
+            EditorGUILayout.LabelField("Layers đang hiển thị:", EditorStyles.boldLabel);
+            if (layerManager._showingLayerTypes != null && layerManager._showingLayerTypes.Count > 0)
+            {
+                foreach (var layerType in layerManager._showingLayerTypes.OrderByDescending(t =>
+                {
+                    var layerBase = GetLayerBaseFromManager(layerManager, t);
+                    return layerBase?.GetSortingOrder() ?? 0;
+                }))
+                {
+                    var layerBase = GetLayerBaseFromManager(layerManager, layerType);
+                    var sortingOrder = layerBase?.GetSortingOrder() ?? 0;
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField($"• {layerType}", GUILayout.Width(150));
+                    EditorGUILayout.LabelField($"Sorting: {sortingOrder}", GUILayout.Width(100));
+                    EditorGUILayout.LabelField($"Active: {layerBase?.gameObject.activeInHierarchy ?? false}");
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("Không có layer nào đang hiển thị.");
+            }
+
+            EditorGUILayout.Space(10);
+
+            // Hiển thị stack các group
+            EditorGUILayout.LabelField("Stack Groups:", EditorStyles.boldLabel);
+            if (layerManager._showingLayerGroups != null && layerManager._showingLayerGroups.Count > 0)
+            {
+                var groups = layerManager._showingLayerGroups.ToList();
+                for (int i = groups.Count - 1; i >= 0; i--)
+                {
+                    var group = groups[i];
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField($"• Group {i + 1}: {group.LayerGroupType}", GUILayout.Width(200));
+                    EditorGUILayout.LabelField($"ID: {group.ID}", GUILayout.Width(80));
+                    EditorGUILayout.LabelField($"Layers: {string.Join(", ", group.LayerTypes)}");
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("Stack trống.");
+            }
+        }
+
+        private void DrawGroupHistory()
+        {
+            EditorGUILayout.LabelField("=== LỊCH SỬ GROUPS ===", EditorStyles.boldLabel);
+
+            var tracker = FindObjectOfType<LayerManagerDebugTracker>();
+            if (tracker == null)
+            {
+                EditorGUILayout.LabelField("DebugTracker chưa được khởi tạo.");
+                return;
+            }
+
+            var groupHistory = tracker.GetGroupHistory();
+            if (groupHistory.Count == 0)
+            {
+                EditorGUILayout.LabelField("Chưa có lịch sử groups.");
+                return;
+            }
+
+            // Hiển thị lịch sử groups
+            for (int i = groupHistory.Count - 1; i >= 0; i--)
+            {
+                var groupInfo = groupHistory[i];
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField($"Frame {groupInfo.FrameCount}", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField($"Action: {groupInfo.Action}", GUILayout.Width(100));
+                EditorGUILayout.LabelField($"Type: {groupInfo.GroupType}", GUILayout.Width(100));
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.LabelField($"Layers: {string.Join(", ", groupInfo.LayerTypes)}");
+                EditorGUILayout.LabelField($"ID: {groupInfo.GroupId}");
+
+                EditorGUILayout.EndVertical();
+            }
+        }
+
+        private void DrawLayerHistory()
+        {
+            EditorGUILayout.LabelField("=== LỊCH SỬ LAYERS ===", EditorStyles.boldLabel);
+
+            var tracker = FindObjectOfType<LayerManagerDebugTracker>();
+            if (tracker == null)
+            {
+                EditorGUILayout.LabelField("DebugTracker chưa được khởi tạo.");
+                return;
+            }
+
+            var layerHistory = tracker.GetLayerHistory();
+            if (layerHistory.Count == 0)
+            {
+                EditorGUILayout.LabelField("Chưa có lịch sử layers.");
+                return;
+            }
+
+            // Hiển thị lịch sử từng layer
+            foreach (var kvp in layerHistory.OrderByDescending(k => k.Value.LastFrameCount))
+            {
+                var layerType = kvp.Key;
+                var layerInfo = kvp.Value;
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.LabelField($"Layer: {layerType}", EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField($"Current Sorting: {layerInfo.CurrentSortingOrder}", GUILayout.Width(150));
+                EditorGUILayout.LabelField($"Last Action: {layerInfo.LastAction}", GUILayout.Width(100));
+                EditorGUILayout.LabelField($"Frame: {layerInfo.LastFrameCount}", GUILayout.Width(80));
+                EditorGUILayout.EndHorizontal();
+
+                if (layerInfo.SortingHistory.Count > 0)
+                {
+                    EditorGUILayout.LabelField($"Sorting History: {string.Join(" → ", layerInfo.SortingHistory.Select(s => s.ToString()))}");
+                }
+
+                EditorGUILayout.EndVertical();
+            }
+        }
+
+        // Helper methods để lấy thông tin từ LayerManager
+        private LayerBase GetLayerBaseFromManager(LayerManager manager, LayerType layerType)
+        {
+            if (manager._createdLayerBases != null && manager._createdLayerBases.TryGetValue(layerType, out var layerBase))
+            {
+                return layerBase;
+            }
+            return null;
+        }
+
+        // Các struct để lưu trữ thông tin
+        private struct LayerGroupInfo
+        {
+            public int FrameCount;
+            public string Action;
+            public LayerGroupType GroupType;
+            public List<LayerType> LayerTypes;
+            public int GroupId;
+        }
+
+        private struct LayerInfo
+        {
+            public int CurrentSortingOrder;
+            public string LastAction;
+            public int LastFrameCount;
+            public List<int> SortingHistory;
+        }
+    }
+}

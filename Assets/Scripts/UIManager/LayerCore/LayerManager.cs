@@ -50,17 +50,13 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     {
         if (IsShowing)
         {
-#if LOG_LAYER_MANAGER
             Debug.Log(
                 $"[TryShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}  not success");
-#endif
             _showQueue.Enqueue(()=>ShowGroupLayerAsync(showData));
             return;
         }
-#if LOG_LAYER_MANAGER
         Debug.Log(
             $"[ShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}");
-#endif
         
         IsShowing = true;
         try
@@ -356,9 +352,10 @@ public class ShowLayerGroupData
         AddToStack = LayerGroupType != LayerGroupType.Fixed && LayerGroupType != LayerGroupType.Notify;
         FixedLayer = LayerGroupType == LayerGroupType.Fixed;
     }
-    public void AddLayer(LayerType layerType)
+    public ShowLayerGroupData AddLayer(LayerType layerType)
     {
         LayerTypes.Add(layerType);
+        return this;
     }
 }
 
