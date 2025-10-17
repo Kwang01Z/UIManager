@@ -9,27 +9,9 @@ namespace UIManager.Editor
     /// Tracker để thu thập thông tin debug cho LayerManager
     /// Chỉ hoạt động trong Editor và không ảnh hưởng hiệu năng runtime
     /// </summary>
-    public class LayerManagerDebugTracker : MonoBehaviour
+    public class LayerManagerDebugTracker : MonoSingleton<LayerManagerDebugTracker>
     {
-        private static LayerManagerDebugTracker _instance;
-        public static LayerManagerDebugTracker Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = FindObjectOfType<LayerManagerDebugTracker>();
-                    if (_instance == null)
-                    {
-                        var go = new GameObject("LayerManagerDebugTracker");
-                        _instance = go.AddComponent<LayerManagerDebugTracker>();
-                        go.hideFlags = HideFlags.HideAndDontSave;
-                    }
-                }
-                return _instance;
-            }
-        }
-
+        [SerializeField] private LayerManager layerManager;
         // Thông tin lịch sử (giới hạn để tránh memory leak)
         private const int MAX_HISTORY = 100;
 
@@ -40,24 +22,18 @@ namespace UIManager.Editor
         private HashSet<LayerType> _previousShowingLayers = new HashSet<LayerType>();
         private List<ShowLayerGroupData> _previousGroups = new List<ShowLayerGroupData>();
 
-        private void Awake()
+        private void OnValidate()
         {
-            if (_instance == null)
+            if (layerManager == null)
             {
-                _instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else
-            {
-                Destroy(gameObject);
+                layerManager = FindObjectOfType<LayerManager>();
             }
         }
 
         private void Update()
         {
             if (!Application.isPlaying) return;
-
-            var layerManager = FindObjectOfType<LayerManager>();
+            
             if (layerManager == null) return;
 
             // Track group changes
@@ -119,7 +95,7 @@ namespace UIManager.Editor
                     {
                         if (layerInfo.CurrentSortingOrder != currentOrder)
                         {
-                            AddLayerHistory(layerType, "Sorting Updated", currentOrder);
+                            AddLayerHistory(layerType, "Hide", currentOrder);
                         }
                     }
                 }
@@ -130,7 +106,9 @@ namespace UIManager.Editor
             {
                 if (!currentShowingLayers.Contains(layerType))
                 {
-                    AddLayerHistory(layerType, "Hide", -10000);
+                    // Lấy sorting order thực tế từ layer base thay vì hard-code -10000
+                    //var sortingOrder = GetLayerSortingOrder(layerManager, layerType);
+                    AddLayerHistory(layerType, "Close", -10000);
                 }
             }
 
@@ -197,7 +175,6 @@ namespace UIManager.Editor
 #else
             return 0;
 #endif
-            return 0; // Fallback để đảm bảo luôn có return value
         }
 
         // Public methods để Editor Window truy cập

@@ -22,6 +22,11 @@ public class LayerBase : MonoBehaviour
     [SerializeField] public bool keepPreActive;
     private List<int> _sortOrders = new ();
 
+    public bool IsActive()
+    {
+        return canvas.sortingOrder > 0;
+    }
+
     protected virtual void Reset()
     {
         canvas ??= GetComponent<Canvas>();

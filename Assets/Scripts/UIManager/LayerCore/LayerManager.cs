@@ -101,11 +101,14 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         if (_showingLayerGroups.Count == 0) return;
         if (_showingLayerGroups.Count <= 1 && hasLayerRoot) return;
         var lastGroup = _showingLayerGroups.Pop();
+
+        // Cập nhật _showingLayerTypes để loại bỏ các layer đã đóng
         foreach (var layerType in lastGroup.LayerTypes)
         {
             var layerBase = GetLayerBase(layerType);
             if (!layerBase) continue;
             layerBase.CloseLayerAsync();
+            if(!layerBase.IsActive()) _showingLayerTypes.Remove(layerType);
         }
     }
 
@@ -298,6 +301,10 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     {
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return;
+
+        // Cập nhật _showingLayerTypes khi đóng layer
+        _showingLayerTypes.Remove(layerType);
+
         layerBase.CloseLayerAsync(force);
     }
 
