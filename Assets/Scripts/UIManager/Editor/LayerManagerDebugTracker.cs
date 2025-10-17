@@ -69,9 +69,11 @@ namespace UIManager.Editor
 
         private void TrackGroupChanges(LayerManager layerManager)
         {
-            if (layerManager._showingLayerGroups == null) return;
-
-            var currentGroups = layerManager._showingLayerGroups.ToList();
+#if UNITY_EDITOR
+            var currentGroups = layerManager.GetShowingLayerGroups()?.ToList() ?? new List<ShowLayerGroupData>();
+#else
+            var currentGroups = new List<ShowLayerGroupData>();
+#endif
 
             // Phát hiện group mới được thêm
             foreach (var currentGroup in currentGroups)
@@ -96,9 +98,11 @@ namespace UIManager.Editor
 
         private void TrackLayerChanges(LayerManager layerManager)
         {
-            if (layerManager._showingLayerTypes == null) return;
-
-            var currentShowingLayers = layerManager._showingLayerTypes;
+#if UNITY_EDITOR
+            var currentShowingLayers = layerManager.GetShowingLayerTypes();
+#else
+            var currentShowingLayers = new HashSet<LayerType>();
+#endif
 
             // Phát hiện layer mới được hiển thị
             foreach (var layerType in currentShowingLayers)
@@ -183,12 +187,17 @@ namespace UIManager.Editor
 
         private int GetLayerSortingOrder(LayerManager layerManager, LayerType layerType)
         {
-            if (layerManager._createdLayerBases != null &&
-                layerManager._createdLayerBases.TryGetValue(layerType, out var layerBase))
+#if UNITY_EDITOR
+            var createdLayerBases = layerManager.GetCreatedLayerBases();
+            if (createdLayerBases != null && createdLayerBases.TryGetValue(layerType, out var layerBase))
             {
                 return layerBase.GetSortingOrder();
             }
             return 0;
+#else
+            return 0;
+#endif
+            return 0; // Fallback để đảm bảo luôn có return value
         }
 
         // Public methods để Editor Window truy cập

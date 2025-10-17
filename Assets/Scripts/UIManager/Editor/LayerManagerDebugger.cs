@@ -100,13 +100,20 @@ namespace UIManager.Editor
 
             // Hiển thị các layer đang hiển thị
             EditorGUILayout.LabelField("Layers đang hiển thị:", EditorStyles.boldLabel);
-            if (layerManager._showingLayerTypes != null && layerManager._showingLayerTypes.Count > 0)
+#if UNITY_EDITOR
+            var showingLayerTypes = layerManager.GetShowingLayerTypes();
+            if (showingLayerTypes != null && showingLayerTypes.Count > 0)
             {
-                foreach (var layerType in layerManager._showingLayerTypes.OrderByDescending(t =>
+                foreach (var layerType in showingLayerTypes.OrderByDescending(t =>
                 {
                     var layerBase = GetLayerBaseFromManager(layerManager, t);
                     return layerBase?.GetSortingOrder() ?? 0;
                 }))
+#else
+            if (false)
+            {
+                foreach (var layerType in new HashSet<LayerType>())
+#endif
                 {
                     var layerBase = GetLayerBaseFromManager(layerManager, layerType);
                     var sortingOrder = layerBase?.GetSortingOrder() ?? 0;
@@ -127,9 +134,11 @@ namespace UIManager.Editor
 
             // Hiển thị stack các group
             EditorGUILayout.LabelField("Stack Groups:", EditorStyles.boldLabel);
-            if (layerManager._showingLayerGroups != null && layerManager._showingLayerGroups.Count > 0)
+#if UNITY_EDITOR
+            var showingGroups = layerManager.GetShowingLayerGroups();
+            if (showingGroups != null && showingGroups.Count > 0)
             {
-                var groups = layerManager._showingLayerGroups.ToList();
+                var groups = showingGroups.ToList();
                 for (int i = groups.Count - 1; i >= 0; i--)
                 {
                     var group = groups[i];
@@ -144,6 +153,9 @@ namespace UIManager.Editor
             {
                 EditorGUILayout.LabelField("Stack trống.");
             }
+#else
+            EditorGUILayout.LabelField("Stack trống.");
+#endif
         }
 
         private void DrawGroupHistory()
@@ -228,11 +240,17 @@ namespace UIManager.Editor
         // Helper methods để lấy thông tin từ LayerManager
         private LayerBase GetLayerBaseFromManager(LayerManager manager, LayerType layerType)
         {
-            if (manager._createdLayerBases != null && manager._createdLayerBases.TryGetValue(layerType, out var layerBase))
+#if UNITY_EDITOR
+            var createdLayerBases = manager.GetCreatedLayerBases();
+            if (createdLayerBases != null && createdLayerBases.TryGetValue(layerType, out var layerBase))
             {
                 return layerBase;
             }
             return null;
+#else
+            return null;
+#endif
+            return null; // Fallback để đảm bảo luôn có return value
         }
 
         // Các struct để lưu trữ thông tin

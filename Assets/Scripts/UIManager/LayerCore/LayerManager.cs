@@ -307,6 +307,33 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         if (!layerBase) return;
         layerBase.HideLayerAsync();
     }
+
+    // === DEBUG METHODS - Chỉ dành cho Editor/Development ===
+#if UNITY_EDITOR
+    /// <summary>
+    /// Lấy danh sách các loại layer đang hiển thị (Editor only)
+    /// </summary>
+    public HashSet<LayerType> GetShowingLayerTypes()
+    {
+        return new HashSet<LayerType>(_showingLayerTypes);
+    }
+
+    /// <summary>
+    /// Lấy stack các group đang hiển thị (Editor only)
+    /// </summary>
+    public Stack<ShowLayerGroupData> GetShowingLayerGroups()
+    {
+        return new Stack<ShowLayerGroupData>(_showingLayerGroups);
+    }
+
+    /// <summary>
+    /// Lấy danh sách các layer đã tạo (Editor only)
+    /// </summary>
+    public Dictionary<LayerType, LayerBase> GetCreatedLayerBases()
+    {
+        return new Dictionary<LayerType, LayerBase>(_createdLayerBases);
+    }
+#endif
 }
 
 public static class LayerGroupBuilder
