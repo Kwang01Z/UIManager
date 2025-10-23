@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -14,6 +15,11 @@ namespace UIManager.Editor
 
         private List<LayerGroupInfo> _groupHistory = new List<LayerGroupInfo>();
         private Dictionary<LayerType, LayerInfo> _layerHistory = new Dictionary<LayerType, LayerInfo>();
+
+        private List<LayerType> _selectedLayerTypes = new List<LayerType>();
+        private LayerGroupType _selectedGroupType = default(LayerGroupType);
+        private string _searchText = "";
+        private int _selectedIndex = 0;
 
         [MenuItem("Window/UI Manager/Layer Manager Debugger")]
         public static void ShowWindow()
@@ -71,6 +77,8 @@ namespace UIManager.Editor
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
+            DrawControls();
+            EditorGUILayout.Space(20);
             DrawCurrentState();
             EditorGUILayout.Space(20);
             DrawGroupHistory();
@@ -78,6 +86,18 @@ namespace UIManager.Editor
             DrawLayerHistory();
 
             EditorGUILayout.EndScrollView();
+        }
+
+        private void DrawControls()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("=== CONTROLS ===", EditorStyles.boldLabel);
+
+            DrawShowGroupControls();
+            EditorGUILayout.Space(10);
+            DrawCloseGroupControls();
+
+            EditorGUILayout.EndVertical();
         }
 
         private void DrawCurrentState()
@@ -234,6 +254,114 @@ namespace UIManager.Editor
                 }
 
                 EditorGUILayout.EndVertical();
+            }
+        }
+
+        private void DrawShowGroupControls()
+        {
+            EditorGUILayout.LabelField("=== SHOW GROUP LAYER ===", EditorStyles.boldLabel);
+
+            var layerManager = FindObjectOfType<LayerManager>();
+            if (layerManager == null)
+            {
+                EditorGUILayout.HelpBox("Không tìm thấy LayerManager trong scene.", MessageType.Warning);
+                return;
+            }
+
+            _selectedGroupType = (LayerGroupType)EditorGUILayout.EnumPopup("Layer Group Type:", _selectedGroupType);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Add Layer Types:");
+
+            _searchText = EditorGUILayout.TextField("Search Layer Type:", _searchText);
+
+            var allLayerTypes = Enum.GetValues(typeof(LayerType)).Cast<LayerType>().ToList();
+            var filteredLayerTypes = allLayerTypes.Where(lt => string.IsNullOrEmpty(_searchText) || lt.ToString().ToLower().Contains(_searchText.ToLower())).ToList();
+            var names = filteredLayerTypes.Select(lt => lt.ToString()).ToArray();
+
+            if (names.Length > 0)
+            {
+                _selectedIndex = Mathf.Clamp(_selectedIndex, 0, names.Length - 1);
+                _selectedIndex = EditorGUILayout.Popup("Select Layer Type to Add:", _selectedIndex, names);
+
+                if (filteredLayerTypes.Count > 0)
+                {
+                    var selectedType = filteredLayerTypes[_selectedIndex];
+                    if (filteredLayerTypes.Count == 1)
+                    {
+                        if (GUILayout.Button($"Auto Add {selectedType}"))
+                        {
+                            if (!_selectedLayerTypes.Contains(selectedType))
+                            {
+                                _selectedLayerTypes.Add(selectedType);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (GUILayout.Button($"Add {selectedType}"))
+                        {
+                            if (!_selectedLayerTypes.Contains(selectedType))
+                            {
+                                _selectedLayerTypes.Add(selectedType);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("No matching LayerTypes found.");
+            }
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Selected Layer Types:");
+            for (int i = 0; i < _selectedLayerTypes.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                _selectedLayerTypes[i] = (LayerType)EditorGUILayout.EnumPopup("Layer Type:", _selectedLayerTypes[i]);
+                if (GUILayout.Button("Remove", GUILayout.Width(60)))
+                {
+                    _selectedLayerTypes.RemoveAt(i);
+                    i--;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndVertical();
+
+            if (GUILayout.Button("Show Group Layer Async"))
+            {
+                if (_selectedLayerTypes.Count > 0)
+                {
+                    var showData = new ShowLayerGroupData { LayerGroupType = _selectedGroupType };
+                    foreach (var layerType in _selectedLayerTypes)
+                    {
+                        showData.AddLayer(layerType);
+                    }
+                    layerManager.ShowGroupLayerAsync(showData);
+                }
+                else
+                {
+                    Debug.LogWarning("No LayerTypes selected.");
+                }
+            }
+        }
+
+        private void DrawCloseGroupControls()
+        {
+            EditorGUILayout.LabelField("=== CLOSE GROUP ===", EditorStyles.boldLabel);
+
+            var layerManager = FindObjectOfType<LayerManager>();
+            if (layerManager == null)
+            {
+                EditorGUILayout.HelpBox("Không tìm thấy LayerManager trong scene.", MessageType.Warning);
+                return;
+            }
+
+            if (GUILayout.Button("Close Last Layer Group"))
+            {
+                layerManager.CloseLastLayerGroup();
             }
         }
 

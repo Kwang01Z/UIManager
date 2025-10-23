@@ -357,6 +357,20 @@ public static class LayerGroupBuilder
         data.ValidateData();
         return data;
     }
+
+    [Obsolete]
+    [Tooltip("Hàm này có thể gây hiệu năng không mong muốn")]
+    public static ShowLayerGroupData Build(LayerGroupType groupType, List<LayerType> layerTypes)
+    {
+        var data = new ShowLayerGroupData
+        {
+            ID = Interlocked.Increment(ref _idCounter),
+            LayerGroupType = groupType
+        };
+        data.LayerTypes.AddRange(layerTypes);
+        data.ValidateData();
+        return data;
+    }
 }
 
 public class ShowLayerGroupData
