@@ -334,11 +334,7 @@ namespace UIManager.Editor
             {
                 if (_selectedLayerTypes.Count > 0)
                 {
-                    var showData = new ShowLayerGroupData { LayerGroupType = _selectedGroupType };
-                    foreach (var layerType in _selectedLayerTypes)
-                    {
-                        showData.AddLayer(layerType);
-                    }
+                    var showData = LayerGroupBuilder.Build(_selectedGroupType, _selectedLayerTypes);
                     layerManager.ShowGroupLayerAsync(showData);
                 }
                 else

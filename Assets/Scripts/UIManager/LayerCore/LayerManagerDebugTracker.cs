@@ -13,7 +13,7 @@ namespace UIManager.Editor
     {
         [SerializeField] private LayerManager layerManager;
         // Thông tin lịch sử (giới hạn để tránh memory leak)
-        private const int MAX_HISTORY = 100;
+        private const int MAX_HISTORY = 10;
 
         private List<GroupActionInfo> _groupHistory = new List<GroupActionInfo>();
         private Dictionary<LayerType, LayerActionInfo> _layerHistory = new Dictionary<LayerType, LayerActionInfo>();
