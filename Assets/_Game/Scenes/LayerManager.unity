@@ -295,7 +295,6 @@ GameObject:
   - component: {fileID: 1259609219}
   - component: {fileID: 1259609218}
   - component: {fileID: 1259609222}
-  - component: {fileID: 1259609223}
   - component: {fileID: 1259609224}
   m_Layer: 5
   m_Name: Canvas
@@ -403,19 +402,6 @@ MonoBehaviour:
   layerReferenceSO: {fileID: 11400000, guid: 161ebaba49ae1794e989630095ad9d7b, type: 2}
   layerPreload: []
   spaceBetweenLayer: 100
---- !u!114 &1259609223
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259609217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aced35d15a5206547a8c49b5ee5d24f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  layer01: {fileID: 688608360734492951, guid: 0e982ae3dddf58f4d813a78d90538e92, type: 3}
 --- !u!114 &1259609224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -428,6 +414,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e1fe5049247a9d48ab497bedfb3a0c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layerManager: {fileID: 1259609222}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

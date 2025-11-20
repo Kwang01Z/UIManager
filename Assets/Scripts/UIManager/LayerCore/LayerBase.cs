@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
@@ -51,8 +52,8 @@ public class LayerBase : MonoBehaviour
         
     }
 
-    public ActionSealed OnShowLayer = new();
-    public ActionSealed OnHideLayer = new();
+    public UnityEvent OnShowLayer = new();
+    public UnityEvent OnHideLayer = new();
     public virtual void ShowLayerAsync()
     {
         canvasGroup.SetActive(true);
