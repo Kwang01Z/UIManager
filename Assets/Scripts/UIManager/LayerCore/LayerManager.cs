@@ -1,15 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using Unity.VisualScripting;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.Serialization;
 
 public partial class LayerManager : MonoSingleton<LayerManager>
 {
@@ -31,7 +24,6 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     protected override void Awake()
     {
         base.Awake();
-        layerReferenceSO.InitLayerBase();
         PreloadLayer();
     }
 
@@ -52,40 +44,33 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         {
             Debug.Log(
                 $"[TryShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}  not success");
-            _showQueue.Enqueue(()=>ShowGroupLayerAsync(showData));
+            _showQueue.Enqueue(() => ShowGroupLayerAsync(showData));
             return;
         }
         Debug.Log(
             $"[ShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}");
-        
+
         IsShowing = true;
-        try
+        var result = InitLayerGroup(showData);
+        await UniTask.NextFrame();
+        showData.OnInitData?.Invoke(result);
+        await UniTask.NextFrame();
+        HideLayerRequired(showData);
+        await UniTask.NextFrame();
+        SetSortingLayer(result);
+        if (showData.AddToStack)
         {
-            var result = InitLayerGroup(showData);
-            await UniTask.NextFrame();
-            showData.OnInitData?.Invoke(result);
-            await UniTask.NextFrame();
-            HideLayerRequired(showData);
-            await UniTask.NextFrame();
-            SetSortingLayer(result);
-            if (showData.AddToStack)
-            {
-                _showingLayerGroups.Push(showData);
-                _showingLayerTypes.UnionWith(showData.LayerTypes);
-            }
-            else if(!showData.FixedLayer)
-            {
-                _layerNotInStack.AddRange(showData.LayerTypes);
-            }
-            if(showData.DisplayImmediately) result.ShowGroupAsync();
-            
-            await UniTask.NextFrame();
-            showData.OnShowComplete?.Invoke(result);
+            _showingLayerGroups.Push(showData);
+            _showingLayerTypes.UnionWith(showData.LayerTypes);
         }
-        catch (Exception e)
+        else if (!showData.FixedLayer)
         {
-            Debug.LogError(e);
+            _layerNotInStack.AddRange(showData.LayerTypes);
         }
+        if (showData.DisplayImmediately) result.ShowGroupAsync();
+
+        await UniTask.NextFrame();
+        showData.OnShowComplete?.Invoke(result);
 
         IsShowing = false;
         if (_showQueue.Count > 0)
@@ -101,14 +86,13 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         if (_showingLayerGroups.Count == 0) return;
         if (_showingLayerGroups.Count <= 1 && hasLayerRoot) return;
         var lastGroup = _showingLayerGroups.Pop();
-
         // Cập nhật _showingLayerTypes để loại bỏ các layer đã đóng
         foreach (var layerType in lastGroup.LayerTypes)
         {
             var layerBase = GetLayerBase(layerType);
             if (!layerBase) continue;
             layerBase.CloseLayerAsync();
-            if(!layerBase.IsActive()) _showingLayerTypes.Remove(layerType);
+            if (!layerBase.IsActive()) _showingLayerTypes.Remove(layerType);
         }
     }
 
@@ -118,19 +102,18 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         layerGroup.SetSortOrder(bestOrder);
     }
 
-    private readonly List<LayerType> _layerTypeShowingTemps = new();
     private int GetBestLayerSorting(LayerGroup layerGroup)
     {
         int bestLayerSorting = 0;
-        _layerTypeShowingTemps.Clear();
-        _layerTypeShowingTemps.AddRange(_showingLayerTypes.Except(layerGroup.LayerTypes));
-        foreach (var layerType in _layerTypeShowingTemps)
+        // Direct iteration without temp collection
+        foreach (var layerType in _showingLayerTypes)
         {
+            if (layerGroup.LayerTypes.Contains(layerType)) continue;
             var layerBase = GetLayerBase(layerType);
             if (!layerBase) continue;
             bestLayerSorting = Mathf.Max(bestLayerSorting, layerBase.GetSortingOrder());
         }
-        
+
         return bestLayerSorting / spaceBetweenLayer * spaceBetweenLayer;
     }
 
@@ -184,7 +167,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
             CloseAllLayerExist(showData);
             return;
         }
-        
+
         if (showData.CloseOtherLayerOver)
         {
             CloseOtherLayerOver(showData);
@@ -208,76 +191,109 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         var groupLayerProjectId = GetGroupLayerProjectId(showData);
         if (groupLayerProjectId == -1) return;
         _overLayerTypeTotals.Clear();
-        while (_showingLayerGroups.Count > 0 && _showingLayerGroups.First().ID != groupLayerProjectId)
+        while (_showingLayerGroups.Count > 0 && _showingLayerGroups.Peek().ID != groupLayerProjectId)
         {
             _overLayerTypeTotals.UnionWith(_showingLayerGroups.Pop().LayerTypes);
         }
 
         if (_showingLayerGroups.Count > 0) _overLayerTypeTotals.UnionWith(_showingLayerGroups.Pop().LayerTypes);
         _overLayerTypes.Clear();
-        _overLayerTypes.AddRange(_overLayerTypeTotals.Except(showData.LayerTypes));
+        foreach (var layerType in _overLayerTypeTotals)
+        {
+            if (!showData.LayerTypes.Contains(layerType))
+            {
+                _overLayerTypes.Add(layerType);
+            }
+        }
         if (_overLayerTypes.Count == 0) return;
         foreach (var overLayerType in _overLayerTypes)
         {
             CloseLayerAsync(overLayerType);
         }
 
-        _showingLayerTypes = new(_showingLayerTypes.Except(_overLayerTypes));
+        _showingLayerTypes.ExceptWith(_overLayerTypes);
     }
 
     private int GetGroupLayerProjectId(ShowLayerGroupData showData)
     {
-        var id = -1;
         foreach (var showLayerGroupData in _showingLayerGroups)
         {
             if (showLayerGroupData.ID == showData.ID) return showData.ID;
             if (showLayerGroupData.LayerTypes.Count != showData.LayerTypes.Count) continue;
-            var similarCount = 0;
+
+            // Check if all LayerTypes match
+            bool allMatch = true;
             for (var i = 0; i < showLayerGroupData.LayerTypes.Count; i++)
             {
-                if(showLayerGroupData.LayerTypes[i] != showData.LayerTypes[i]) break;
-                similarCount++;
+                if (showLayerGroupData.LayerTypes[i] != showData.LayerTypes[i])
+                {
+                    allMatch = false;
+                    break;
+                }
             }
-            if (similarCount != showLayerGroupData.LayerTypes.Count) continue;
-            id = showLayerGroupData.ID;
+            if (allMatch) return showLayerGroupData.ID;
         }
 
-        return id;
+        return -1;
     }
 
-    private readonly List<LayerType> _layerPopupTemp = new(LimitLayer);
-    private readonly List<LayerType> _showingLayerTypeTemp = new(LimitLayer); 
+    private readonly HashSet<LayerType> _layerPopupSet = new(LimitLayer);
     private readonly List<ShowLayerGroupData> _showingLayerGroupsTemp = new(LimitLayer);
     private void CloseAllPopupExist(ShowLayerGroupData showData)
     {
-        _layerPopupTemp.Clear();
-        _layerPopupTemp.AddRange(_showingLayerGroups
-            .Where(x => x.LayerGroupType == LayerGroupType.Popup)
-            .SelectMany(x => x.LayerTypes)
-            .Except(showData.LayerTypes)
-            .Distinct());
-        if(_layerPopupTemp.Count == 0) return;
-        foreach (var layerType in _layerPopupTemp)
+        _layerPopupSet.Clear();
+
+        // Collect popup layers without LINQ
+        foreach (var group in _showingLayerGroups)
+        {
+            if (group.LayerGroupType != LayerGroupType.Popup) continue;
+            foreach (var layerType in group.LayerTypes)
+            {
+                if (!showData.LayerTypes.Contains(layerType))
+                {
+                    _layerPopupSet.Add(layerType);
+                }
+            }
+        }
+
+        if (_layerPopupSet.Count == 0) return;
+
+        // Iterate directly on HashSet
+        foreach (var layerType in _layerPopupSet)
         {
             CloseLayerAsync(layerType, true);
         }
-        
-        _showingLayerTypeTemp.Clear();
-        _showingLayerTypeTemp.AddRange(_showingLayerTypes);
-        _showingLayerTypes.Clear();
-        _showingLayerTypes.AddRange(_showingLayerTypeTemp.Except(_layerPopupTemp));
+
+        _showingLayerTypes.ExceptWith(_layerPopupSet);
+
+        // Rebuild stack without allocating new Stack
         _showingLayerGroupsTemp.Clear();
-        _showingLayerGroupsTemp.AddRange(_showingLayerGroups);
-        _showingLayerGroupsTemp.RemoveAll(x => x.LayerGroupType == LayerGroupType.Popup);
+        foreach (var group in _showingLayerGroups)
+        {
+            if (group.LayerGroupType != LayerGroupType.Popup)
+            {
+                _showingLayerGroupsTemp.Add(group);
+            }
+        }
         _showingLayerGroupsTemp.Reverse();
-        _showingLayerGroups = new(_showingLayerGroupsTemp);
+        _showingLayerGroups.Clear();
+        for (int i = 0; i < _showingLayerGroupsTemp.Count; i++)
+        {
+            _showingLayerGroups.Push(_showingLayerGroupsTemp[i]);
+        }
     }
 
     private readonly List<LayerType> _layerTypeToHide = new(LimitLayer);
     private void HideAllLayerExist(ShowLayerGroupData showData)
     {
         _layerTypeToHide.Clear();
-        _layerTypeToHide.AddRange(_showingLayerTypes.Except(showData.LayerTypes));
+        foreach (var layerType in _showingLayerTypes)
+        {
+            if (!showData.LayerTypes.Contains(layerType))
+            {
+                _layerTypeToHide.Add(layerType);
+            }
+        }
         foreach (var layerType in _layerTypeToHide)
         {
             HideLayerAsync(layerType);
@@ -288,7 +304,13 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     private void CloseAllLayerExist(ShowLayerGroupData showData)
     {
         _layerTypeToClose.Clear();
-        _layerTypeToClose.AddRange(_showingLayerTypes.Except(showData.LayerTypes));
+        foreach (var layerType in _showingLayerTypes)
+        {
+            if (!showData.LayerTypes.Contains(layerType))
+            {
+                _layerTypeToClose.Add(layerType);
+            }
+        }
         foreach (var layerType in _layerTypeToClose)
         {
             CloseLayerAsync(layerType, true);
@@ -301,10 +323,6 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     {
         var layerBase = GetLayerBase(layerType);
         if (!layerBase) return;
-
-        // Cập nhật _showingLayerTypes khi đóng layer
-        _showingLayerTypes.Remove(layerType);
-
         layerBase.CloseLayerAsync(force);
     }
 
@@ -315,8 +333,6 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         layerBase.HideLayerAsync();
     }
 
-    // === DEBUG METHODS - Chỉ dành cho Editor/Development ===
-#if UNITY_EDITOR
     /// <summary>
     /// Lấy danh sách các loại layer đang hiển thị (Editor only)
     /// </summary>
@@ -325,6 +341,8 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         return new HashSet<LayerType>(_showingLayerTypes);
     }
 
+    // === DEBUG METHODS - Chỉ dành cho Editor/Development ===
+#if UNITY_EDITOR
     /// <summary>
     /// Lấy stack các group đang hiển thị (Editor only)
     /// </summary>
@@ -383,7 +401,7 @@ public class ShowLayerGroupData
     public bool HideAllOtherLayer;
     public bool CloseAllPopup;
     public bool CloseOtherLayerOver = true;
-    
+
     public bool AddToStack = true;
     public bool FixedLayer = false;
 
@@ -409,6 +427,7 @@ public class ShowLayerGroupData
 
 public enum LayerGroupType
 {
+    None = -1,
     Custom = 0,
     Root = 1,
     FullScreen = 2,
