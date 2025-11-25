@@ -68,7 +68,6 @@ public class LayerBase : MonoBehaviour
     }
     public virtual void CloseLayerAsync(bool force = false)
     {
-        HideLayerAsync();
         if(force) _sortOrders.Clear();
         var order = -10000;
         if (_sortOrders.Count > 1)
@@ -77,6 +76,7 @@ public class LayerBase : MonoBehaviour
             order = _sortOrders[^1];
         }
         SetSortOrder(order, false);
+        if(order <= 0) HideLayerAsync();
     }
     public virtual void SetSortOrder(int order, bool save = true)
     {
