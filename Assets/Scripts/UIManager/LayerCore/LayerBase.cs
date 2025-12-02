@@ -75,6 +75,10 @@ public class LayerBase : MonoBehaviour
             _sortOrders.RemoveAt(_sortOrders.Count - 1);
             order = _sortOrders[^1];
         }
+        else
+        {
+            _sortOrders.Clear();
+        }
         SetSortOrder(order, false);
         if(order <= 0) HideLayerAsync();
     }
