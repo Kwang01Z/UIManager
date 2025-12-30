@@ -61,6 +61,11 @@ public class LayerBase : MonoBehaviour
         OnShowLayer?.Invoke();
     }
 
+    public void ShowLayerWithoutEvent()
+    {
+        canvasGroup.SetActive(true);
+        if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
+    }
     public virtual void HideLayerAsync()
     {
         canvasGroup.SetActive(false);

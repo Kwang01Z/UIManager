@@ -83,22 +83,26 @@ public partial class LayerManager : MonoSingleton<LayerManager>
 
     public void CloseLastLayerGroup()
     {
-        Debug.Log($"[{Time.frameCount}] CloseLastLayerGroup");
         if (_showingLayerGroups.Count == 0) return;
         if (_showingLayerGroups.Count <= 1 && hasLayerRoot) return;
-        
-        ShowLayerGroupData lastGroup = null;
-        int index = 0;
-        foreach (var layer in _showingLayerGroups)
+        var lastGroup = _showingLayerGroups.Pop();
+        // Cập nhật _showingLayerTypes để loại bỏ các layer đã đóng
+        foreach (var layerType in lastGroup.LayerTypes)
         {
-            if (index == 1)
-            {
-                lastGroup = layer;
-                break;
-            }
-            index++;
+            var layerBase = GetLayerBase(layerType);
+            if (!layerBase) continue;
+            layerBase.CloseLayerAsync();
+            if (!layerBase.IsActive()) _showingLayerTypes.Remove(layerType);
         }
-        ShowGroupLayerAsync(lastGroup);
+        foreach (var showLayerGroupData in _showingLayerGroups)
+        {
+            foreach (var layerType in showLayerGroupData.LayerTypes)
+            {
+                var layerBase = GetLayerBase(layerType);
+                if(layerBase) layerBase.ShowLayerWithoutEvent();
+            }
+            if(showLayerGroupData.LayerGroupType is LayerGroupType.FullScreen or LayerGroupType.Root) break;
+        }
     }
 
     private void SetSortingLayer(LayerGroup layerGroup)
