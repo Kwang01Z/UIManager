@@ -42,15 +42,11 @@ public class IFS_Element : MonoBehaviour
         bool isStretchHeight = RectTransform.IsStretchHeight();
         if (isStretchWidth)
         {
-            RectTransform.sizeDelta = new Vector2(
-                _baseSizeDelta.x - margin.left - margin.right,
-                _baseSizeDelta.y);
+            RectTransform.localPosition = new Vector3(0,RectTransform.localPosition.y , 0);
         }
         else if (isStretchHeight)
         {
-            RectTransform.sizeDelta = new Vector2(
-                _baseSizeDelta.x,
-                _baseSizeDelta.y - margin.top - margin.bottom);
+            RectTransform.localPosition = new Vector3(RectTransform.localPosition.x,0 , 0);
         }
 
         if(DataLoaderPF != null && data != null) DataLoaderPF.SetupData(data).Forget();
