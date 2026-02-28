@@ -1,11 +1,13 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
 public partial class LayerManager : MonoSingleton<LayerManager>
 {
+    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private bool hasLayerRoot = true;
     [SerializeField] private RectTransform layerParent;
     [SerializeField] private LayerReferenceSO layerReferenceSO;
@@ -19,6 +21,11 @@ public partial class LayerManager : MonoSingleton<LayerManager>
     private void Reset()
     {
         if (!layerParent) layerParent = transform as RectTransform;
+    }
+
+    public void SetActiveLayerAll(bool active)
+    {
+        if(canvasGroup) canvasGroup.SetActive(true);
     }
 
     protected override void Awake()
@@ -35,29 +42,48 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         }
     }
 
-    private static Queue<Action> _showQueue = new(4);
+    private readonly Queue<ShowLayerGroupData> _showDataQueue = new(8);
     public bool IsShowing { get; private set; }
 
     public async void ShowGroupLayerAsync(ShowLayerGroupData showData)
     {
+        await UniTask.SwitchToMainThread();
+        _showDataQueue.Enqueue(showData);
+
         if (IsShowing)
         {
-            Debug.Log(
-                $"[TryShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}  not success");
-            _showQueue.Enqueue(() => ShowGroupLayerAsync(showData));
+            Debug.Log($"[TryShowGroupLayer] [Frame:{Time.frameCount}] {string.Join("|", showData.LayerTypes)} - {showData.LayerGroupType} enqueued (Queue count: {_showDataQueue.Count})");
             return;
         }
-        Debug.Log(
-            $"[ShowGroupLayer] [Frame:{Time.frameCount}] {String.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}");
 
         IsShowing = true;
+        try
+        {
+            while (_showDataQueue.Count > 0)
+            {
+                var currentData = _showDataQueue.Dequeue();
+                await InternalProcessShowGroupAsync(currentData);
+            }
+        }
+        finally
+        {
+            IsShowing = false;
+        }
+    }
+
+    private async UniTask InternalProcessShowGroupAsync(ShowLayerGroupData showData)
+    {
+        Debug.Log($"[ShowGroupLayer] [Frame:{Time.frameCount}] {string.Join("|", showData.LayerTypes)} - {showData.LayerGroupType}");
+
         var result = InitLayerGroup(showData);
         await UniTask.NextFrame();
+        
         showData.OnInitData?.Invoke(result);
         await UniTask.NextFrame();
+        
         HideLayerRequired(showData);
-        await UniTask.NextFrame();
         SetSortingLayer(result);
+        
         if (showData.AddToStack)
         {
             _showingLayerGroups.Push(showData);
@@ -67,41 +93,84 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         {
             _layerNotInStack.AddRange(showData.LayerTypes);
         }
+        
         if (showData.DisplayImmediately) result.ShowGroupAsync();
 
         await UniTask.NextFrame();
         showData.OnShowComplete?.Invoke(result);
-
-        IsShowing = false;
-        if (_showQueue.Count > 0)
-        {
-            await UniTask.NextFrame();
-            _showQueue.Dequeue().Invoke();
-        }
     }
     private readonly List<LayerType> _layerNotInStack = new();
 
     public void CloseLastLayerGroup()
     {
-        if (_showingLayerGroups.Count == 0) return;
-        if (_showingLayerGroups.Count <= 1 && hasLayerRoot) return;
+        int initialCount = _showingLayerGroups.Count;
+        Debug.Log($"[CloseLastLayerGroup] [Frame:{Time.frameCount}] Current count: {initialCount}");
+        
+        if (initialCount == 0) 
+        {
+            Debug.LogWarning("[CloseLastLayerGroup] No groups to close.");
+            return;
+        }
+        
+        if (initialCount <= 1 && hasLayerRoot) 
+        {
+            Debug.Log("[CloseLastLayerGroup] Cannot close root layer group.");
+            return;
+        }
+
         var lastGroup = _showingLayerGroups.Pop();
+        Debug.Log($"[CloseLastLayerGroup] Closing Group ID:{lastGroup.ID} - Types: {string.Join("|", lastGroup.LayerTypes)} - GroupType: {lastGroup.LayerGroupType}");
+
         // Cập nhật _showingLayerTypes để loại bỏ các layer đã đóng
         foreach (var layerType in lastGroup.LayerTypes)
         {
             var layerBase = GetLayerBase(layerType);
-            if (!layerBase) continue;
+            if (!layerBase) 
+            {
+                Debug.LogWarning($"[CloseLastLayerGroup] LayerBase not found for {layerType}");
+                continue;
+            }
+            
+            Debug.Log($"[CloseLastLayerGroup] Closing Layer: {layerType}");
             layerBase.CloseLayerAsync();
-            if (!layerBase.IsActive()) _showingLayerTypes.Remove(layerType);
+            
+            if (!layerBase.IsActive()) 
+            {
+                _showingLayerTypes.Remove(layerType);
+                Debug.Log($"[CloseLastLayerGroup] Removed {layerType} from showing types");
+            }
         }
+
+        // Restore previous groups
+        Debug.Log($"[CloseLastLayerGroup] Restoring background layers. Remaining groups: {_showingLayerGroups.Count}");
         foreach (var showLayerGroupData in _showingLayerGroups)
         {
+            Debug.Log($"[CloseLastLayerGroup] Restoring Group: {string.Join("|", showLayerGroupData.LayerTypes)}");
             foreach (var layerType in showLayerGroupData.LayerTypes)
             {
                 var layerBase = GetLayerBase(layerType);
-                if(layerBase) layerBase.ShowLayerWithoutEvent();
+                if(layerBase) 
+                {
+                    layerBase.ShowLayerWithoutEvent();
+                }
             }
-            if(showLayerGroupData.LayerGroupType is LayerGroupType.FullScreen or LayerGroupType.Root) break;
+            if(showLayerGroupData.LayerGroupType == LayerGroupType.FullScreen || showLayerGroupData.LayerGroupType == LayerGroupType.Root) 
+            {
+                Debug.Log($"[CloseLastLayerGroup] Stop restoration at {showLayerGroupData.LayerGroupType} group");
+                break;
+            }
+        }
+
+        OnCloseLayerGroup?.InvokeAsync(lastGroup);
+        Debug.Log($"[CloseLastLayerGroup] [Frame:{Time.frameCount}] Completed.");
+    }
+    public static ActionSealed<ShowLayerGroupData> OnCloseLayerGroup = new();
+
+    public void CloseAllLayerGroups()
+    {
+        while (_showingLayerGroups.Count > 1)
+        {
+            CloseLastLayerGroup();
         }
     }
 
@@ -350,6 +419,13 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         return new HashSet<LayerType>(_showingLayerTypes);
     }
 
+    public HashSet<LayerType> GetLastGroupShowingLayerTypes()
+    {
+        var lastGroup = _showingLayerGroups.FirstOrDefault();
+        if(lastGroup == null) return new HashSet<LayerType>();
+        return new HashSet<LayerType>(lastGroup.LayerTypes);
+    }
+
     // === DEBUG METHODS - Chỉ dành cho Editor/Development ===
 #if UNITY_EDITOR
     /// <summary>
@@ -368,6 +444,7 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         return new Dictionary<LayerType, LayerBase>(_createdLayerBases);
     }
 #endif
+    
 }
 
 public static class LayerGroupBuilder
