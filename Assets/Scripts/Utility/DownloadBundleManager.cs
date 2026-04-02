@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Sirenix.OdinInspector;
 
 public class DownloadBundleManager : MonoBehaviour
 {
@@ -225,19 +226,19 @@ public class DownloadBundleManager : MonoBehaviour
 
     #region Tools
 
-    //[Button]
+    [Button]
     public async void CheckAllFileExist()
     {
         await CheckFileExist(keys);
     }
 
-    //[Button]
+    [Button]
     public async void DownloadAllBundles()
     {
         LoadBundleAllAsync();
     }
 
-    //[Button]
+    [Button]
     public async UniTaskVoid Instantiate()
     {
         foreach (var key in keys)
@@ -247,7 +248,7 @@ public class DownloadBundleManager : MonoBehaviour
         }
     }
 
-    //[Button]
+    [Button]
     public void ClearCache()
     {
         Addressables.ClearDependencyCacheAsync(keys);
@@ -258,7 +259,7 @@ public class DownloadBundleManager : MonoBehaviour
     /// <summary>
     /// Xóa toàn bộ dữ liệu bundle đã tải về, bao gồm cả cache của Addressables và Unity
     /// </summary>
-    //[Button]
+    [Button]
     public async UniTask ClearAllBundles()
     {
         try
@@ -327,7 +328,7 @@ public class DownloadBundleManager : MonoBehaviour
     /// <summary>
     /// Dừng tất cả các tác vụ tải đang chạy
     /// </summary>
-    //[Button]
+    [Button]
     public void StopAllDownloads()
     {
         _downloadTasks.Stop();

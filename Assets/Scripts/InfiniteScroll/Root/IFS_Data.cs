@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Alchemy.Inspector;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Sirenix.OdinInspector;
 
 public partial class IFS_Data : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public partial class IFS_Data : MonoBehaviour
         ClearData();
         AddDataRange(placeHolders);
     }
-
+    
     public void ClearData()
     {
         foreach (var placeHolder in _placeHolders)

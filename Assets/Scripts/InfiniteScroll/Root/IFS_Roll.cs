@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using Alchemy.Inspector;
 using UnityEngine;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 
 public partial class IFS_Data
 {

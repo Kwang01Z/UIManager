@@ -1,7 +1,7 @@
-using Alchemy.Inspector;
 using LitMotion;
 using LitMotion.Extensions;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 public class AnimScaleButton : MonoBehaviour
 {

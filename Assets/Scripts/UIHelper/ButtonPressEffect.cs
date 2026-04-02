@@ -1,9 +1,9 @@
-using Alchemy.Inspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 
 public class ButtonPressEffect : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
