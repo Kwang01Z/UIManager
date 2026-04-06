@@ -1,45 +1,70 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-[InitializeOnLoad]
-public static class ButtonAttributeEditor
+public static class ButtonAttributeUtility
 {
     private static readonly Dictionary<Type, List<MethodInfo>> _methodCache = new Dictionary<Type, List<MethodInfo>>();
 
-    static ButtonAttributeEditor()
+    public static List<MethodInfo> GetButtonMethods(Type targetType)
     {
-        Editor.finishedDefaultHeaderGUI += OnFinishedDefaultHeaderGUI;
-    }
-
-    private static void OnFinishedDefaultHeaderGUI(Editor editor)
-    {
-        if (editor.targets.Length == 0) return;
-        
-        var targetType = editor.targets[0].GetType();
-        if (!_methodCache.TryGetValue(targetType, out var methods))
+        if (_methodCache.TryGetValue(targetType, out var methods))
         {
-            methods = new List<MethodInfo>();
-            foreach (var m in targetType.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+            return methods;
+        }
+
+        methods = new List<MethodInfo>();
+        var type = targetType;
+        
+        while (type != null && type != typeof(MonoBehaviour) && type != typeof(ScriptableObject) && type != typeof(object))
+        {
+            var flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+            var currentMethods = type.GetMethods(flags);
+            
+            foreach (var m in currentMethods)
             {
-                if (Attribute.IsDefined(m, typeof(ButtonAttribute)))
+                try 
                 {
-                    methods.Add(m);
+                    if (Attribute.IsDefined(m, typeof(ButtonAttribute)))
+                    {
+                        methods.Add(m);
+                    }
+                }
+                catch 
+                {
+                    // Ignore reflection errors on specific methods (e.g., generic types issues)
                 }
             }
-            _methodCache[targetType] = methods;
+            type = type.BaseType;
         }
+        
+        _methodCache[targetType] = methods;
+        return methods;
+    }
+
+    public static void DrawButtons(UnityEngine.Object[] targets)
+    {
+        if (targets == null || targets.Length == 0) return;
+
+        var targetType = targets[0].GetType();
+        var methods = GetButtonMethods(targetType);
 
         if (methods.Count == 0) return;
 
         EditorGUILayout.Space();
         foreach (var method in methods)
         {
-            var attr = (ButtonAttribute)Attribute.GetCustomAttribute(method, typeof(ButtonAttribute));
-            var guiColor = (GUIColorAttribute)Attribute.GetCustomAttribute(method, typeof(GUIColorAttribute));
+            ButtonAttribute attr = null;
+            GUIColorAttribute guiColor = null;
+
+            try 
+            {
+                attr = (ButtonAttribute)Attribute.GetCustomAttribute(method, typeof(ButtonAttribute));
+                guiColor = (GUIColorAttribute)Attribute.GetCustomAttribute(method, typeof(GUIColorAttribute));
+            }
+            catch { }
             
             string label = (attr == null || string.IsNullOrEmpty(attr.Name)) ? ObjectNames.NicifyVariableName(method.Name) : attr.Name;
             
@@ -49,7 +74,7 @@ public static class ButtonAttributeEditor
             float height = GetHeight(attr != null ? attr.Size : ButtonSizes.Medium);
             if (GUILayout.Button(label, GUILayout.Height(height)))
             {
-                foreach (var t in editor.targets)
+                foreach (var t in targets)
                 {
                     method.Invoke(t, null);
                 }
@@ -57,7 +82,6 @@ public static class ButtonAttributeEditor
             
             if (guiColor != null) GUI.backgroundColor = oldColor;
         }
-        EditorGUILayout.Space();
     }
 
     private static float GetHeight(ButtonSizes size)
@@ -70,5 +94,29 @@ public static class ButtonAttributeEditor
             case ButtonSizes.Gigantic: return 48;
             default: return 22;
         }
+    }
+}
+
+// Ensure it draws for ALL MonoBehaviours naturally at the bottom
+[CanEditMultipleObjects]
+[CustomEditor(typeof(MonoBehaviour), true, isFallback = true)]
+public class MonoBehaviourButtonEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+        ButtonAttributeUtility.DrawButtons(targets);
+    }
+}
+
+// Also support ScriptableObjects globally
+[CanEditMultipleObjects]
+[CustomEditor(typeof(ScriptableObject), true, isFallback = true)]
+public class ScriptableObjectButtonEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+        ButtonAttributeUtility.DrawButtons(targets);
     }
 }
