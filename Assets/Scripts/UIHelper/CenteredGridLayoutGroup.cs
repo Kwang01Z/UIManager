@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 #if UNITY_EDITOR
@@ -98,18 +98,18 @@ namespace FrameWork.UI
                     int bestC = 1;
                     int bestR = 1;
 
-                    // Duyệt cấu hình tối ưu tôn trọng StartAxis
+                    // Duy?t c?u h�nh t?i uu t�n tr?ng StartAxis
                     for (int i = 1; i <= m_Children.Count; i++)
                     {
                         int c, r;
                         if (startAxis == Axis.Horizontal)
                         {
-                            c = i; // Số cột
+                            c = i; // S? c?t
                             r = Mathf.CeilToInt((float)m_Children.Count / c);
                         }
                         else
                         {
-                            r = i; // Số hàng
+                            r = i; // S? h�ng
                             c = Mathf.CeilToInt((float)m_Children.Count / r);
                         }
 
@@ -128,10 +128,10 @@ namespace FrameWork.UI
                         }
                         else if (Mathf.Abs(curScale - bestScale) < 0.001f)
                         {
-                            // Tie-breaker: Ưu tiên lấp đầy trục chính (fill) mà không làm giảm scale
+                            // Tie-breaker: Uu ti�n l?p d?y tr?c ch�nh (fill) m� kh�ng l�m gi?m scale
                             if (startAxis == Axis.Horizontal)
                             {
-                                // Ưu tiên số cột lớn nhất mà vẫn fit chiều rộng ban đầu (không cần thu nhỏ thêm)
+                                // Uu ti�n s? c?t l?n nh?t m� v?n fit chi?u r?ng ban d?u (kh�ng c?n thu nh? th�m)
                                 if (c > bestC && (c * cellSize.x + (c - 1) * spacing.x) <= availableWidth + 0.1f)
                                 {
                                     bestC = c;
@@ -140,7 +140,7 @@ namespace FrameWork.UI
                             }
                             else
                             {
-                                // Ưu tiên số hàng lớn nhất mà vẫn fit chiều cao ban đầu
+                                // Uu ti�n s? h�ng l?n nh?t m� v?n fit chi?u cao ban d?u
                                 if (r > bestR && (r * cellSize.y + (r - 1) * spacing.y) <= availableHeight + 0.1f)
                                 {
                                     bestR = r;
@@ -155,7 +155,7 @@ namespace FrameWork.UI
                 }
                 else
                 {
-                    // Logic Flexible mặc định: Sử dụng tối đa dung lượng có thể chứa thay vì giới hạn theo số item
+                    // Logic Flexible m?c d?nh: S? d?ng t?i da dung lu?ng c� th? ch?a thay v� gi?i h?n theo s? item
                     if (startAxis == Axis.Horizontal)
                     {
                         cellCountX = Mathf.Max(1, Mathf.FloorToInt((availableWidth + spacing.x + 0.001f) / (cellSize.x + spacing.x)));
@@ -169,7 +169,7 @@ namespace FrameWork.UI
                 }
             }
 
-            // Tính scale cho chế độ Constraint Fixed
+            // T�nh scale cho ch? d? Constraint Fixed
             if (autoControlChildSize && m_Constraint != Constraint.Flexible)
             {
                 float reqW = cellCountX * cellSize.x + (cellCountX - 1) * spacing.x;
@@ -182,8 +182,8 @@ namespace FrameWork.UI
             scale = Mathf.Clamp(scale, 0.01f, 1f);
             Vector2 actualCellSize = cellSize * scale;
             
-            // Khi không centerGrid, ta tính kích thước thực tế dựa theo số lượng item hiện có
-            // để logic baseOffsetX/Y của Unity (childAlignment) hoạt động đúng như Grid layout chuẩn.
+            // Khi kh�ng centerGrid, ta t�nh k�ch thu?c th?c t? d?a theo s? lu?ng item hi?n c�
+            // d? logic baseOffsetX/Y c?a Unity (childAlignment) ho?t d?ng d�ng nhu Grid layout chu?n.
             int occupiedX = centerGrid ? cellCountX : Mathf.Min(m_Children.Count, cellCountX);
             int occupiedY = centerGrid ? cellCountY : Mathf.Min(m_Children.Count, cellCountY);
 
@@ -193,7 +193,7 @@ namespace FrameWork.UI
             float baseOffsetX = 0f;
             float baseOffsetY = 0f;
 
-            // Căn chỉnh toàn bộ "Khung Grid" (Grid Block) dựa trên Child Alignment chuẩn của Unity
+            // Can ch?nh to�n b? "Khung Grid" (Grid Block) d?a tr�n Child Alignment chu?n c?a Unity
             if (childAlignment == TextAnchor.UpperCenter || childAlignment == TextAnchor.MiddleCenter || childAlignment == TextAnchor.LowerCenter)
                 baseOffsetX = (availableWidth - totalGridWidth) * 0.5f;
             else if (childAlignment == TextAnchor.UpperRight || childAlignment == TextAnchor.MiddleRight || childAlignment == TextAnchor.LowerRight)
@@ -243,7 +243,7 @@ namespace FrameWork.UI
                     }
                 }
 
-                // Tính toán vị trí visual dựa trên corner
+                // T�nh to�n v? tr� visual d?a tr�n corner
                 float visualX = posX * (actualCellSize.x + spacing.x) + rowOffsetX;
                 float visualY = posY * (actualCellSize.y + spacing.y) + colOffsetY;
 
@@ -296,7 +296,7 @@ namespace FrameWork.UI
             public override void OnInspectorGUI() {
                 serializedObject.Update();
                 
-                // Vẽ các thuộc tính cơ bản của GridLayoutGroup
+                // V? c�c thu?c t�nh co b?n c?a GridLayoutGroup
                 EditorGUILayout.PropertyField(m_Padding);
                 EditorGUILayout.PropertyField(m_Spacing);
                 EditorGUILayout.PropertyField(m_CellSize);
@@ -305,7 +305,7 @@ namespace FrameWork.UI
                 EditorGUILayout.PropertyField(m_ChildAlignment);
                 EditorGUILayout.PropertyField(m_Constraint);
                 
-                // Ẩn Constraint Count nếu là Flexible
+                // ?n Constraint Count n?u l� Flexible
                 if (m_Constraint.enumValueIndex != (int)Constraint.Flexible)
                 {
                     EditorGUI.indentLevel++;
@@ -322,7 +322,7 @@ namespace FrameWork.UI
                     EditorGUILayout.LabelField("Row/Column Content Alignment:", EditorStyles.miniBoldLabel);
                     EditorGUILayout.PropertyField(m_Alignment, new GUIContent("Horizontal (In Row)"));
                     EditorGUILayout.PropertyField(m_VerticalAlignment, new GUIContent("Vertical (In Column)"));
-                    EditorGUILayout.HelpBox("Sử dụng 'Child Alignment' phía trên để căn lề cho TOÀN BỘ khung Grid.", MessageType.Info);
+                    EditorGUILayout.HelpBox("S? d?ng 'Child Alignment' ph�a tr�n d? can l? cho TO�N B? khung Grid.", MessageType.Info);
                 }
 
                 EditorGUILayout.PropertyField(m_AutoControlChildSize);

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using MemoryPack;
-using Sirenix.Utilities;
 using UnityEngine;
 
 public static class RequestResponseHandle
@@ -15,14 +14,14 @@ public static class RequestResponseHandle
     public static async UniTask SavePlayerData(PlayerData playerData)
     {
         if (playerData == null || playerData.PlayerID.IsNullOrWhitespace()) return;
-        // 2. Prepare binary for Server (MemoryPack)
+        // 1. Prepare binary for Server (MemoryPack)
         byte[] rawData = MemoryPackSerializer.Serialize(playerData);
 
-        // 3. Save to server via ApiClient
+        // 2. Save to server via ApiClient
         try 
         {
             await _apiClient.SaveData(GameConstant.GameName, playerData.PlayerID, rawData);
-            Debug.Log("Successfully saved data to local and server.");
+            Debug.Log("Successfully saved data to server.");
         }
         catch (Exception ex)
         {

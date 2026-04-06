@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
-using Sirenix.OdinInspector;
 
 public partial class IFS_Data : MonoBehaviour
 {

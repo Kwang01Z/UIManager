@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using Sirenix.OdinInspector;
 
 public class TMP_StateHandler : MonoBehaviour
 {

@@ -5,4 +5,9 @@ public static class TextUtility
     {
         return term;
     }
+
+    public static bool IsNullOrWhitespace(this string term)
+    {
+        return string.IsNullOrEmpty(term) || string.IsNullOrWhiteSpace(term);
+    }
 }

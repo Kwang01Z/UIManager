@@ -3,7 +3,6 @@ using LitMotion.Extensions;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Sirenix.OdinInspector;
 
 public class RectTransformStateHandle : AnimationStateBase
 {

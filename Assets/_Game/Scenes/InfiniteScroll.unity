@@ -249,7 +249,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
 --- !u!114 &601462244
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -449,6 +449,11 @@ MonoBehaviour:
     top: 10
     bottom: 10
   spacing: {x: 10, y: 10}
+  ViewportWidth: 0
+  ViewportHeight: 0
+  ContentAnchor: {x: 0, y: 0}
+  frameBreak: 2
+  TestIndex: 0
 --- !u!114 &1175104202
 MonoBehaviour:
   m_ObjectHideFlags: 0
