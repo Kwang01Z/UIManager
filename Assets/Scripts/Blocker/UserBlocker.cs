@@ -36,9 +36,6 @@ public class UserBlocker : MonoSingleton<UserBlocker>
 #elif UNITY_IOS || UNITY_IPHONE
             _isBlocked |= JailbreakDetector.IsJailBroken();
 #endif
-            _isBlocked |= ConfigHolder.Instance.ContainNativeDevice(GameConfig.DeviceId);
-            var ggAdsId = GetIDFA();
-            _isBlocked |= ConfigHolder.Instance.ContainGoogleAds(ggAdsId);
             
             InitChecker = true;
         }

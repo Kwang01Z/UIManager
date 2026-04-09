@@ -1,5 +1,4 @@
 using System;
-using Alchemy.Inspector;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
@@ -9,7 +8,7 @@ public class VibrationManager : MonoSingleton<VibrationManager>
 {
     #region PROPERTIES
 
-    [HelpBox("This is a singleton class that manages device vibration settings and execution.")]
+    [Header("This is a singleton class that manages device vibration settings and execution.")]
     public float VibrationRate = 0.15f;
 
     [Header("BUTTON SETTING(s)")]

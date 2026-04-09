@@ -31,10 +31,10 @@ public class NotifyScaleAnim : MonoBehaviour
             var so = new SerializedObject(this);
 
             // Add OnStartAnim -> image.enabled = true
-            UnityEventEditorUtility.AddBoolPersistentListener(so.FindProperty("OnStartAnim"), image, "set_enabled", true);
+            //UnityEventEditorUtility.AddBoolPersistentListener(so.FindProperty("OnStartAnim"), image, "set_enabled", true);
 
             // Add OnEndAnim -> image.enabled = false
-            UnityEventEditorUtility.AddBoolPersistentListener(so.FindProperty("OnEndAnim"), image, "set_enabled", false);
+            //UnityEventEditorUtility.AddBoolPersistentListener(so.FindProperty("OnEndAnim"), image, "set_enabled", false);
 
             so.ApplyModifiedProperties();
         }

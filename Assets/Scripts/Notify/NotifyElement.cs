@@ -28,10 +28,10 @@ public class NotifyElement : MonoBehaviour
             var so = new SerializedObject(this);
 
             // Add OnNotifyStateActive -> notifyScaleAnim.StartScaleAnim
-            UnityEventEditorUtility.AddVoidPersistentListener(so.FindProperty("OnNotifyStateActive"), notifyScaleAnim, "StartScaleAnim");
+            //UnityEventEditorUtility.AddVoidPersistentListener(so.FindProperty("OnNotifyStateActive"), notifyScaleAnim, "StartScaleAnim");
 
             // Add OnNotifyStateInActive -> notifyScaleAnim.StopScaleAnim
-            UnityEventEditorUtility.AddVoidPersistentListener(so.FindProperty("OnNotifyStateInActive"), notifyScaleAnim, "StopScaleAnim");
+            //UnityEventEditorUtility.AddVoidPersistentListener(so.FindProperty("OnNotifyStateInActive"), notifyScaleAnim, "StopScaleAnim");
 
             so.ApplyModifiedProperties();
         }
