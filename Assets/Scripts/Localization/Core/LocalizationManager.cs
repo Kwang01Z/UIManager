@@ -154,7 +154,11 @@ namespace Runtime.Localization
                 }
             }
 
-            if (colIndex == -1) return; // Không tìm thấy cột ngôn ngữ
+            if (colIndex == -1)
+            {
+                Debug.LogWarning($"Localization: Không tìm thấy cột cho ngôn ngữ {langStr} trong file dữ liệu. Nội dung có thể bị sai định dạng CSV.");
+                return;
+            }
 
             for (int i = 1; i < lines.Length; i++)
             {

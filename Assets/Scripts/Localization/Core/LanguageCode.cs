@@ -15,7 +15,12 @@ namespace Runtime.Localization
         de = 7,
         es = 8,
         pt = 9,
-        ru = 10
+        ru = 10,
+        tr = 11, // Turkish
+        id = 12, // Indonesian
+        hi = 13, // Hindi
+        uk = 14, // Ukrainian
+        it = 15  // Italian
     }
 
     public static class LanguageUtility
@@ -44,6 +49,16 @@ namespace Runtime.Localization
                     return LanguageCode.pt;
                 case SystemLanguage.Russian:
                     return LanguageCode.ru;
+                case SystemLanguage.Turkish:
+                    return LanguageCode.tr;
+                case SystemLanguage.Indonesian:
+                    return LanguageCode.id;
+                case SystemLanguage.Hindi:
+                    return LanguageCode.hi;
+                case SystemLanguage.Ukrainian:
+                    return LanguageCode.uk;
+                case SystemLanguage.Italian:
+                    return LanguageCode.it;
                 default:
                     return LanguageCode.en; // Mặc định là Tiếng Anh
             }

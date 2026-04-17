@@ -8,12 +8,13 @@ namespace Runtime.Localization
 {
     public static class GoogleSheetsDownloader
     {
-        public static async UniTask<bool> DownloadAndCacheFormatCSV()
+        public static async UniTask<bool> DownloadAndCacheFormatCSV(LocalizationConfig config = null)
         {
-            var config = LocalizationManager.Config;
+            if (config == null) config = LocalizationManager.Config;
+            
             if (config == null || string.IsNullOrEmpty(config.GoogleSheetsCSVUrl))
             {
-                Debug.LogError("Localization: GoogleSheetsCSVUrl bị trống.");
+                Debug.LogError("Localization: GoogleSheetsCSVUrl bị trống hoặc không tìm thấy LocalizationConfig.");
                 return false;
             }
 
@@ -34,10 +35,23 @@ namespace Runtime.Localization
                 
                 // Lưu vào cache
                 string path = Application.persistentDataPath + "/localization_data.csv";
+                
+#if UNITY_EDITOR
+                // Trong Editor, lưu trực tiếp vào Resources để Board có thể đọc được ngay
+                string editorPath = Application.dataPath + "/Resources/localization_data.csv";
+                // Đảm bảo thư mục Resources tồn tại
+                if (!System.IO.Directory.Exists(Application.dataPath + "/Resources"))
+                    System.IO.Directory.CreateDirectory(Application.dataPath + "/Resources");
+                path = editorPath;
+#endif
                 try
                 {
                     File.WriteAllText(path, csvData);
                     Debug.Log($"Localization: Đã lưu cache file CSV tại {path}");
+                    
+#if UNITY_EDITOR
+                    UnityEditor.AssetDatabase.Refresh();
+#endif
                     
                     // Force update lại RAM
                     LocalizationManager.ParseCSVToCache(csvData, LocalizationManager.CurrentLanguage);

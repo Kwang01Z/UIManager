@@ -4,8 +4,8 @@ namespace Runtime.Localization
 {
     public abstract class LocalizeBase : MonoBehaviour
     {
-        [Title("Localization Settings")]
-        [InfoBox("Khóa tìm kiếm trong bộ từ điển CSV hoặc trong Asset Dictionary")]
+        [Header("Localization Settings")]
+        [Tooltip("Khóa tìm kiếm trong bộ từ điển CSV hoặc trong Asset Dictionary")]
         public string Key;
 
         protected virtual void OnEnable()
@@ -24,9 +24,8 @@ namespace Runtime.Localization
 
         public abstract void OnLocalize();
 
-        // Nút bấm tiện ích trong Edit Mode (yêu cầu gọi sau khi game Init)
-        [Button("Force Update", ButtonSizes.Medium)]
-        [GUIColor(0.2f, 0.8f, 0.2f)]
+        // Thay vì Odin Button, chúng ta có thể gọi từ Context Menu hoặc đơn giản là để trống nếu không dùng Odin
+        [ContextMenu("Force Update")]
         protected void ForceUpdate()
         {
             if (Application.isPlaying)
