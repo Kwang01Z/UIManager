@@ -52,10 +52,18 @@ namespace Runtime.Localization.Editor
                 return;
             }
 
-            var config = Resources.Load<LocalizationConfig>("LocalizationConfig");
+            // Cố gắng tìm config bằng AssetDatabase thay vì Resources.Load để linh hoạt hơn
+            LocalizationConfig config = null;
+            string[] guids = AssetDatabase.FindAssets("t:LocalizationConfig");
+            if (guids != null && guids.Length > 0)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                config = AssetDatabase.LoadAssetAtPath<LocalizationConfig>(path);
+            }
+
             if (config == null || string.IsNullOrEmpty(config.GeminiApiKey))
             {
-                EditorUtility.DisplayDialog("Lỗi", "Vui lòng thiết lập GeminiApiKey trong file LocalizationConfig tại Resources.", "OK");
+                EditorUtility.DisplayDialog("Lỗi", "Vui lòng thiết lập GeminiApiKey trong file LocalizationConfig.\n(Đảm bảo file asset này tồn tại trong project và đã nhập Key)", "OK");
                 return;
             }
 
@@ -66,7 +74,7 @@ namespace Runtime.Localization.Editor
             
             try
             {
-                string result = await RequestGeminiAPI(prompt, config.GeminiApiKey);
+                string result = await GeminiTranslatorHelper.RequestGeminiAPI(prompt, config.GeminiApiKey, config.GeminiModel);
                 TranslatedText = result.Trim();
             }
             catch (Exception ex)
@@ -75,60 +83,6 @@ namespace Runtime.Localization.Editor
             }
             
             Repaint();
-        }
-
-        private async UniTask<string> RequestGeminiAPI(string prompt, string apiKey)
-        {
-            string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
-            
-            string jsonPayload = $"{{\"contents\":[{{\"parts\":[{{\"text\":\"{EscapeJson(prompt)}\"}}]}}]}}";
-            
-            using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
-            {
-                byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
-                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                request.downloadHandler = new DownloadHandlerBuffer();
-                request.SetRequestHeader("Content-Type", "application/json");
-
-                await request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success)
-                {
-                    throw new Exception(request.error + "\n" + request.downloadHandler.text);
-                }
-
-                // Parse Json thủ công cơ bản (không dùng thư viện ngoài để tránh crash)
-                string responseText = request.downloadHandler.text;
-                return ExtractTextFromJsonPattern(responseText);
-            }
-        }
-
-        private string EscapeJson(string str)
-        {
-            return str.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "");
-        }
-
-        // Tác giả dùng Regex hoặc trích xuất dựa trên Substring để tránh phụ thuộc thư viện Json.
-        // Response format thường là: { "candidates": [ { "content": { "parts": [ { "text": "KẾT QUẢ" } ] } } ] }
-        private string ExtractTextFromJsonPattern(string json)
-        {
-            string searchKey = "\"text\": \"";
-            int startIndex = json.IndexOf(searchKey);
-            if (startIndex == -1) return "Lỗi: Không lấy được kết quả JSON trả về.";
-            
-            startIndex += searchKey.Length;
-            int endIndex = json.IndexOf("\"", startIndex);
-            // Xử lý escaped quotes
-            while (endIndex > 0 && json[endIndex - 1] == '\\')
-            {
-                endIndex = json.IndexOf("\"", endIndex + 1);
-            }
-
-            if (endIndex == -1) return "Lỗi: Parse JSON thất bại.";
-
-            string rawText = json.Substring(startIndex, endIndex - startIndex);
-            // Giải mã ngược các ký tự escaped
-            return rawText.Replace("\\n", "\n").Replace("\\\"", "\"").Replace("\\\\", "\\");
         }
     }
 }

@@ -37,6 +37,8 @@ namespace Runtime.Localization
 
         [Header("Gemini AI Translation")]
         public string GeminiApiKey;
+        public string GeminiModel = "gemini-3-flash";
+        public int GeminiBatchSize = 10;
 
         [Header("Asset Localization")]
         public List<LocalizedAssetEntry> AssetEntries = new List<LocalizedAssetEntry>();
