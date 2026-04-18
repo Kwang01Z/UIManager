@@ -40,6 +40,37 @@ namespace Runtime.Localization
                 if (_config == null)
                 {
                     _config = Resources.Load<LocalizationConfig>("LocalizationConfig");
+#if UNITY_EDITOR
+                    if (_config == null)
+                    {
+                        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:LocalizationConfig");
+                        if (guids.Length > 0)
+                        {
+                            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                            _config = UnityEditor.AssetDatabase.LoadAssetAtPath<LocalizationConfig>(path);
+                        }
+                    }
+                    
+                    // Đảm bảo cache được khởi tạo trong Editor
+                    if (_textCache == null)
+                    {
+                        _textCache = new Dictionary<string, string>();
+                        // Nạp dữ liệu từ CSV trong Editor để các hàm GetText hoạt động ngay
+                        LoadTextCacheForLanguage(Config.DefaultLanguage);
+                    }
+                    if (_assetCache == null)
+                    {
+                        _assetCache = new Dictionary<string, LocalizedAssetEntry>();
+                        if (_config != null && _config.AssetEntries != null)
+                        {
+                            foreach (var entry in _config.AssetEntries)
+                            {
+                                if (!string.IsNullOrEmpty(entry.Key))
+                                    _assetCache[entry.Key] = entry;
+                            }
+                        }
+                    }
+#endif
                 }
                 return _config;
             }
@@ -82,7 +113,31 @@ namespace Runtime.Localization
         {
             if (string.IsNullOrEmpty(key)) return string.Empty;
 
-            if (_textCache.TryGetValue(key, out string value))
+#if UNITY_EDITOR
+            if (_textCache == null || _textCache.Count == 0) 
+            {
+                var c = Config; // Trigger initialization
+            }
+
+            // Trong Editor, nếu Cache chưa có hoặc không tìm thấy, thử tìm trực tiếp trong Config Board
+            if (_textCache == null || !_textCache.ContainsKey(key))
+            {
+                if (Config != null && Config.LocalDataBoard != null)
+                {
+                    if (Config.LocalDataBoard.TryGetValue(key, out var entry))
+                    {
+                        // Lấy ngôn ngữ hiện tại hoặc mặc định
+                        string langStr = _currentLanguage == LanguageCode.Auto ? Config.DefaultLanguage.ToString() : _currentLanguage.ToString();
+                        if (entry.Values.TryGetValue(langStr, out string val))
+                        {
+                            return val;
+                        }
+                    }
+                }
+            }
+#endif
+
+            if (_textCache != null && _textCache.TryGetValue(key, out string value))
             {
                 return value;
             }
@@ -93,7 +148,11 @@ namespace Runtime.Localization
         {
             if (string.IsNullOrEmpty(key)) return null;
 
-            if (_assetCache.TryGetValue(key, out var entry))
+#if UNITY_EDITOR
+            if (_assetCache == null) { var c = Config; } // Trigger initialization
+#endif
+
+            if (_assetCache != null && _assetCache.TryGetValue(key, out var entry))
             {
                 if (entry.Assets.TryGetValue(_currentLanguage, out var asset))
                 {

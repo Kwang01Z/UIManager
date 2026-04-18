@@ -7,15 +7,22 @@ namespace Runtime.Localization
     [AddComponentMenu("Localization/Localize TMP")]
     public class LocalizeTMP : LocalizeBase
     {
+        [SerializeField, HideInInspector]
         private TMP_Text _tmpText;
 
-        private void Awake()
+        private void OnValidate()
+        {
+            if (_tmpText == null) _tmpText = GetComponent<TMP_Text>();
+        }
+
+        private void Reset()
         {
             _tmpText = GetComponent<TMP_Text>();
         }
 
         public override void OnLocalize()
         {
+            if (_tmpText == null) _tmpText = GetComponent<TMP_Text>();
             if (_tmpText == null) return;
             
             // Lấy chuỗi văn bản không tạo rác
