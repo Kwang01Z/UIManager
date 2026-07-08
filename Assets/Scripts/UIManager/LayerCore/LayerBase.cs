@@ -19,8 +19,7 @@ public class LayerBase : MonoBehaviour
 {
     [SerializeField] protected Canvas canvas;
     [SerializeField] protected CanvasGroup canvasGroup;
-
-    [SerializeField] public bool keepPreActive;
+    
     private List<int> _sortOrders = new ();
 
     public bool IsActive()
@@ -35,11 +34,6 @@ public class LayerBase : MonoBehaviour
         
         canvasGroup ??= GetComponent<CanvasGroup>();
         canvasGroup.SetActive(false);
-    }
-
-    protected virtual void OnValidate()
-    {
-        if(!keepPreActive) gameObject.SetActive(false);
     }
 
     public int GetSortingOrder()
@@ -89,6 +83,7 @@ public class LayerBase : MonoBehaviour
     }
     public virtual void SetSortOrder(int order, bool save = true)
     {
+        if(canvas.sortingOrder == order) return;
         canvas.sortingOrder = order;
         if(save && (_sortOrders.Count == 0 || _sortOrders[^1] < order)) _sortOrders.Add(order);
     }
