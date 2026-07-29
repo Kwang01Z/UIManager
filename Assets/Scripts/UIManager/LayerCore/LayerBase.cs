@@ -19,19 +19,14 @@ public class LayerBase : MonoBehaviour
 {
     [SerializeField] protected Canvas canvas;
     [SerializeField] protected CanvasGroup canvasGroup;
-    
-    private List<int> _sortOrders = new ();
 
-    public bool IsActive()
-    {
-        return canvas.sortingOrder > 0;
-    }
+    private List<int> _sortOrders = new();
 
     protected virtual void Reset()
     {
         canvas ??= GetComponent<Canvas>();
         canvas.overrideSorting = true;
-        
+
         canvasGroup ??= GetComponent<CanvasGroup>();
         canvasGroup.SetActive(false);
     }
@@ -43,7 +38,7 @@ public class LayerBase : MonoBehaviour
 
     public virtual void InitData()
     {
-        
+
     }
 
     public UnityEvent OnShowLayer = new();
@@ -51,7 +46,7 @@ public class LayerBase : MonoBehaviour
     public virtual void ShowLayerAsync()
     {
         canvasGroup.SetActive(true);
-        if(!gameObject.activeInHierarchy) gameObject.SetActive(true);
+        if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
         OnShowLayer?.Invoke();
     }
 
@@ -60,6 +55,7 @@ public class LayerBase : MonoBehaviour
         canvasGroup.SetActive(true);
         if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
     }
+
     public virtual void HideLayerAsync()
     {
         canvasGroup.SetActive(false);
@@ -67,16 +63,22 @@ public class LayerBase : MonoBehaviour
     }
     public virtual void CloseLayerAsync(bool force = false)
     {
-        if(force) _sortOrders.Clear();
+        if (force)
+        {
+            _sortOrders.Clear();
+            OnStackClear();
+        }
         var order = -10000;
         if (_sortOrders.Count > 1)
         {
             _sortOrders.RemoveAt(_sortOrders.Count - 1);
             order = _sortOrders[^1];
+            OnRemoveFromStack();
         }
         else
         {
             _sortOrders.Clear();
+            OnStackClear();
         }
         SetSortOrder(order, false);
         if(order <= 0) HideLayerAsync();
@@ -85,7 +87,36 @@ public class LayerBase : MonoBehaviour
     {
         if(canvas.sortingOrder == order) return;
         canvas.sortingOrder = order;
-        if(save && (_sortOrders.Count == 0 || _sortOrders[^1] < order)) _sortOrders.Add(order);
+        if (save && (_sortOrders.Count == 0 || _sortOrders[^1] < order))
+        {
+            _sortOrders.Add(order);
+            OnAddToStack();
+        }
+    }
+
+    public bool IsActive()
+    {
+        return canvasGroup.alpha > 0;
+    }
+
+    public virtual void OnAddToStack()
+    {
+    }
+
+    public virtual void OnRemoveFromStack()
+    {
+    }
+
+    public virtual void OnStackClear()
+    {
+    }
+
+    public void SetHighLight(bool highlight)
+    {
+        canvasGroup.alpha = highlight ? 1 : 0;
+        canvasGroup.interactable = !highlight;
+        canvasGroup.blocksRaycasts = !highlight;
+        canvas.sortingOrder = highlight ? 32767 : (_sortOrders.Count > 0 ? _sortOrders[^1] : -10000);
     }
 }
 public class LayerGroup
