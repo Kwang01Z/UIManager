@@ -128,7 +128,7 @@ namespace Runtime.Localization
                     {
                         // Lấy ngôn ngữ hiện tại hoặc mặc định
                         string langStr = _currentLanguage == LanguageCode.Auto ? Config.DefaultLanguage.ToString() : _currentLanguage.ToString();
-                        if (entry.Values.TryGetValue(langStr, out string val))
+                        if (entry.Values != null && entry.Values.TryGetValue(langStr, out string val))
                         {
                             return val;
                         }

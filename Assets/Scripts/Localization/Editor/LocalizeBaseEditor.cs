@@ -111,7 +111,7 @@ namespace Runtime.Localization
             // Preview Section
             if (!string.IsNullOrEmpty(targetComponent.Key))
             {
-                var entry = _config.LocalDataBoard.FirstOrDefault(e => e.Key == targetComponent.Key);
+                _config.LocalDataBoard.TryGetValue(targetComponent.Key, out var entry);
                 
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Preview:", EditorStyles.boldLabel);
@@ -167,7 +167,7 @@ namespace Runtime.Localization
             if (string.IsNullOrEmpty(_searchQuery)) return;
 
             string query = _searchQuery.ToLower();
-            foreach (var entry in _config.LocalDataBoard)
+            foreach (var entry in _config.LocalDataBoard.Values)
             {
                 bool match = entry.Key.ToLower().Contains(query);
                 if (!match)

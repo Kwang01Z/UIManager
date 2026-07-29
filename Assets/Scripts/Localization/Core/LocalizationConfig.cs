@@ -44,7 +44,7 @@ namespace Runtime.Localization
         public List<LocalizedAssetEntry> AssetEntries = new List<LocalizedAssetEntry>();
 
         [HideInInspector]
-        public List<LocalizationEntry> LocalDataBoard = new List<LocalizationEntry>();
+        public UnitySerializedDictionary<string, LocalizationEntry> LocalDataBoard = new UnitySerializedDictionary<string, LocalizationEntry>();
 
         public void LoadFromLocalCSV()
         {
@@ -91,7 +91,8 @@ namespace Runtime.Localization
                     if (colMap.TryGetValue(j, out var lang))
                         entry.Values[lang] = row[j].Trim();
                 }
-                LocalDataBoard.Add(entry);
+                if (!string.IsNullOrEmpty(entry.Key))
+                    LocalDataBoard[entry.Key] = entry;
             }
             Debug.Log($"Localization: Đã nạp {LocalDataBoard.Count} dòng dữ liệu. Nhớ nhấn 'Save To Local CSV' nếu bạn muốn lưu các thay đổi này.");
         }
@@ -127,7 +128,7 @@ namespace Runtime.Localization
             foreach (var lang in langs) sb.Append($",{lang}");
             sb.AppendLine();
 
-            foreach (var row in LocalDataBoard)
+            foreach (var row in LocalDataBoard.Values)
             {
                 sb.Append(row.Key);
                 foreach (var lang in langs)

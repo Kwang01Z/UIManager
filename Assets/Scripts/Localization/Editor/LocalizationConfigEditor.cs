@@ -107,7 +107,8 @@ namespace Runtime.Localization
             if (GUILayout.Button("Add New Key", GUILayout.Width(120)))
             {
                 Undo.RecordObject(_config, "Add Localization Entry");
-                _config.LocalDataBoard.Add(new LocalizationEntry { Key = "NEW_KEY_" + _config.LocalDataBoard.Count });
+                string newKey = "NEW_KEY_" + _config.LocalDataBoard.Count;
+                _config.LocalDataBoard[newKey] = new LocalizationEntry { Key = newKey };
                 EditorUtility.SetDirty(_config);
             }
             if (GUILayout.Button("Save To CSV", GUILayout.Width(100)))
@@ -176,15 +177,19 @@ namespace Runtime.Localization
                 EditorGUILayout.LabelField("No data in Local Board. Try 'Sync' or 'Load Local CSV' in Operations tab.", EditorStyles.centeredGreyMiniLabel);
             }
 
-            for (int i = 0; i < _config.LocalDataBoard.Count; i++)
+            var entries = new List<LocalizationEntry>(_config.LocalDataBoard.Values);
+            string keyToDelete = null;
+
+            for (int i = 0; i < entries.Count; i++)
             {
-                var entry = _config.LocalDataBoard[i];
+                var entry = entries[i];
+                if (entry == null) continue;
                 
                 // Filter logic
                 bool match = string.IsNullOrEmpty(_searchFilter) || 
-                             entry.Key.Contains(_searchFilter, System.StringComparison.OrdinalIgnoreCase);
+                             (entry.Key != null && entry.Key.Contains(_searchFilter, System.StringComparison.OrdinalIgnoreCase));
                 
-                if (!match)
+                if (!match && entry.Values != null)
                 {
                     foreach (var val in entry.Values.Values)
                     {
@@ -202,11 +207,16 @@ namespace Runtime.Localization
                 
                 // Key cell
                 EditorGUI.BeginChangeCheck();
-                string newKey = EditorGUILayout.TextField(entry.Key, GUILayout.Width(keyWidth));
+                string oldKey = entry.Key;
+                string newKey = EditorGUILayout.TextField(oldKey, GUILayout.Width(keyWidth));
                 if (EditorGUI.EndChangeCheck())
                 {
                     Undo.RecordObject(_config, "Change Localization Key");
                     entry.Key = newKey;
+                    if (!string.IsNullOrEmpty(oldKey))
+                        _config.LocalDataBoard.Remove(oldKey);
+                    if (!string.IsNullOrEmpty(newKey))
+                        _config.LocalDataBoard[newKey] = entry;
                     EditorUtility.SetDirty(_config);
                 }
 
@@ -249,10 +259,7 @@ namespace Runtime.Localization
                 {
                     if (EditorUtility.DisplayDialog("Delete Key", $"Confirm deleting key: {entry.Key}?", "Delete", "Cancel"))
                     {
-                        Undo.RecordObject(_config, "Delete Localization Entry");
-                        _config.LocalDataBoard.RemoveAt(i);
-                        EditorUtility.SetDirty(_config);
-                        i--;
+                        keyToDelete = entry.Key;
                     }
                 }
                 GUI.color = Color.white;
@@ -266,6 +273,13 @@ namespace Runtime.Localization
                     Rect lastRect = GUILayoutUtility.GetLastRect();
                     EditorGUI.DrawRect(lastRect, new Color(1, 1, 1, 0.07f));
                 }
+            }
+
+            if (!string.IsNullOrEmpty(keyToDelete))
+            {
+                Undo.RecordObject(_config, "Delete Localization Entry");
+                _config.LocalDataBoard.Remove(keyToDelete);
+                EditorUtility.SetDirty(_config);
             }
 
             EditorGUILayout.EndVertical();
@@ -310,7 +324,7 @@ namespace Runtime.Localization
             foreach (var langKey in languagesToTranslate)
             {
                 missingTranslations[langKey] = new List<LocalizationEntry>();
-                foreach (var entry in _config.LocalDataBoard)
+                foreach (var entry in _config.LocalDataBoard.Values)
                 {
                     if (string.IsNullOrEmpty(entry.Key)) continue;
                     
@@ -438,7 +452,7 @@ namespace Runtime.Localization
             string sourceLang = _sourceLanguage.ToString();
             var entriesToTranslate = new List<LocalizationEntry>();
 
-            foreach (var entry in _config.LocalDataBoard)
+            foreach (var entry in _config.LocalDataBoard.Values)
             {
                 if (entry.Values.TryGetValue(sourceLang, out string sourceVal) && !string.IsNullOrEmpty(sourceVal))
                 {
