@@ -29,7 +29,16 @@ public class SearchableEnumDrawer : PropertyDrawer
         EditorGUI.LabelField(new Rect(position.x, position.y, EditorGUIUtility.labelWidth, EditorGUIUtility.singleLineHeight), label);
 
         // Display current value as a button to toggle search
-        string displayValue = property.enumDisplayNames[property.enumValueIndex];
+        int index = property.enumValueIndex;
+        string displayValue;
+        if (index >= 0 && index < property.enumDisplayNames.Length)
+        {
+            displayValue = property.enumDisplayNames[index];
+        }
+        else
+        {
+            displayValue = $"Invalid ({property.intValue})";
+        }
         if (GUI.Button(dropdownRect, displayValue, EditorStyles.layerMaskField))
         {
             // Chuyển đổi dropdownRect từ local space (của Inspector) sang screen space
