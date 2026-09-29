@@ -130,6 +130,7 @@ public class IFS_CursorVertical : IIFS_Cursor
         var marginWidth = Mathf.Max(Padding.left, Padding.right) * 2f;
         int maxItemPerRow = Mathf.FloorToInt((ViewPortWidth - marginWidth + Spacing.x) 
                                              / (holder.ItemWidth + Spacing.x));
+        maxItemPerRow = Mathf.Max(maxItemPerRow, 1);
         return holder.BaseElement.ElementType == IFS_ElementType.Flexible
             ? maxItemPerRow : Mathf.Min(holder.BaseElement.NumberFixed, maxItemPerRow);
     }

@@ -140,6 +140,7 @@ public class IFS_CursorHorizontal : IIFS_Cursor
         var marginHeight = Mathf.Max(Padding.top, Padding.bottom) * 2f;
         int maxItemPerColumn = Mathf.FloorToInt((ViewPortHeight - marginHeight + Spacing.y) 
                                                 / (holder.ItemHeight + Spacing.y));
+        maxItemPerColumn = Mathf.Max(maxItemPerColumn, 1);
         return holder.BaseElement.ElementType == IFS_ElementType.Flexible
             ? maxItemPerColumn : Mathf.Min(holder.BaseElement.NumberFixed, maxItemPerColumn);
     }
