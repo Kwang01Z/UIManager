@@ -8,20 +8,27 @@ using UnityEngine;
 public class LayerReferenceSO : ScriptableObject
 {
     public List<LayerReferenceData> layerReferenceList;
-    public Dictionary<LayerType, LayerBase> LayerBaseDictionary = new ();
+    private Dictionary<LayerType, LayerBase> _layerReferenceDic;
+
+    public Dictionary<LayerType, LayerBase> LayerBaseDictionary
+    {
+        get
+        {
+            if (_layerReferenceDic == null || _layerReferenceDic.Count == 0)
+            {
+                _layerReferenceDic = new Dictionary<LayerType, LayerBase>();
+                foreach (var layerReferenceData in layerReferenceList)
+                {
+                    _layerReferenceDic[layerReferenceData.layerType] = layerReferenceData.layerBase;
+                }
+            }
+            return _layerReferenceDic;
+        }
+    }
 
     public LayerBase GetLayerBase(LayerType layerType)
     {
-        if (LayerBaseDictionary.TryGetValue(layerType, out var layerBase)) return layerBase;
-        return null;
-    }
-
-    public void InitLayerBase()
-    {
-        foreach (var layerReferenceData in layerReferenceList)
-        {
-            LayerBaseDictionary.TryAdd(layerReferenceData.layerType, layerReferenceData.layerBase);
-        }
+        return LayerBaseDictionary.TryGetValue(layerType, out var layerBase) ? layerBase : null;
     }
 }
 
