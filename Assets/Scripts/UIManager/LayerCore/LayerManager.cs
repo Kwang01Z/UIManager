@@ -84,10 +84,13 @@ public partial class LayerManager : MonoSingleton<LayerManager>
         HideLayerRequired(showData);
         SetSortingLayer(result);
         
-        if (showData.AddToStack && !_showingLayerGroups.Contains(showData))
+        if (showData.AddToStack)
         {
-            _showingLayerGroups.Push(showData);
-            _showingLayerTypes.UnionWith(showData.LayerTypes);
+            if (!_showingLayerGroups.Contains(showData))
+            {
+                _showingLayerGroups.Push(showData);
+                _showingLayerTypes.UnionWith(showData.LayerTypes);
+            }
         }
         else if (!showData.FixedLayer)
         {

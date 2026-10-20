@@ -20,6 +20,8 @@ public class LayerBase : MonoBehaviour
     [SerializeField] protected Canvas canvas;
     [SerializeField] protected CanvasGroup canvasGroup;
 
+    public CanvasGroup CanvasGroup => canvasGroup;
+    public RectTransform RectTransform => transform as RectTransform;
     private List<int> _sortOrders = new();
 
     protected virtual void Reset()
@@ -122,6 +124,7 @@ public class LayerBase : MonoBehaviour
 public class LayerGroup
 {
     private Dictionary<LayerType, LayerBase> _layerBases = new (4);
+    public Dictionary<LayerType, LayerBase> LayerBases => _layerBases;
 
     public List<LayerType> LayerTypes => new (_layerBases.Keys);
     public void CloseGroupAsync()
