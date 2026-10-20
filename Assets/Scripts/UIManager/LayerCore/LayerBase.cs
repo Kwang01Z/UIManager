@@ -8,12 +8,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Settings;
-#endif
-
 [RequireComponent(typeof(Canvas), typeof(CanvasGroup), typeof(RectTransform))]
 public class LayerBase : MonoBehaviour
 {
@@ -23,6 +17,24 @@ public class LayerBase : MonoBehaviour
     public CanvasGroup CanvasGroup => canvasGroup;
     public RectTransform RectTransform => transform as RectTransform;
     private List<int> _sortOrders = new();
+    private bool _renderingEnabled = true;
+
+    internal void SetVisible(bool visible)
+    {
+        float alpha = visible ? 1f : 0f;
+        if (canvasGroup.alpha != alpha) canvasGroup.alpha = alpha;
+        if (canvasGroup.blocksRaycasts != visible) canvasGroup.blocksRaycasts = visible;
+        if (canvasGroup.interactable != visible) canvasGroup.interactable = visible;
+        bool render = visible && _renderingEnabled;
+        if (canvas.enabled != render) canvas.enabled = render;
+    }
+
+    internal void SetRenderingEnabled(bool enabled)
+    {
+        _renderingEnabled = enabled;
+        bool render = enabled && IsActive();
+        if (canvas.enabled != render) canvas.enabled = render;
+    }
 
     protected virtual void Reset()
     {
@@ -30,7 +42,7 @@ public class LayerBase : MonoBehaviour
         canvas.overrideSorting = true;
 
         canvasGroup ??= GetComponent<CanvasGroup>();
-        canvasGroup.SetActive(false);
+        SetVisible(false);
     }
 
     public int GetSortingOrder()
@@ -47,31 +59,26 @@ public class LayerBase : MonoBehaviour
     public UnityEvent OnHideLayer = new();
     public virtual void ShowLayerAsync()
     {
-        canvasGroup.SetActive(true);
+        SetVisible(true);
         if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
         OnShowLayer?.Invoke();
     }
 
     public void ShowLayerWithoutEvent()
     {
-        canvasGroup.SetActive(true);
+        SetVisible(true);
         if (!gameObject.activeInHierarchy) gameObject.SetActive(true);
     }
 
     public virtual void HideLayerAsync()
     {
-        canvasGroup.SetActive(false);
+        SetVisible(false);
         OnHideLayer?.Invoke();
     }
     public virtual void CloseLayerAsync(bool force = false)
     {
-        if (force)
-        {
-            _sortOrders.Clear();
-            OnStackClear();
-        }
         var order = -10000;
-        if (_sortOrders.Count > 1)
+        if (!force && _sortOrders.Count > 1)
         {
             _sortOrders.RemoveAt(_sortOrders.Count - 1);
             order = _sortOrders[^1];
@@ -87,13 +94,38 @@ public class LayerBase : MonoBehaviour
     }
     public virtual void SetSortOrder(int order, bool save = true)
     {
-        if(canvas.sortingOrder == order) return;
-        canvas.sortingOrder = order;
+        if (canvas.sortingOrder != order) canvas.sortingOrder = order;
         if (save && (_sortOrders.Count == 0 || _sortOrders[^1] < order))
         {
             _sortOrders.Add(order);
             OnAddToStack();
         }
+    }
+
+    // Only the manager reconciles ownership; standalone CloseLayerAsync remains supported.
+    internal void SynchronizeSortOrders(List<int> orders)
+    {
+        int previousCount = _sortOrders.Count;
+        if (previousCount == orders.Count)
+        {
+            bool unchanged = true;
+            for (int i = 0; i < orders.Count; i++)
+            {
+                if (_sortOrders[i] == orders[i]) continue;
+                unchanged = false;
+                break;
+            }
+            if (unchanged)
+            {
+                SetSortOrder(previousCount > 0 ? _sortOrders[^1] : -10000, false);
+                return;
+            }
+        }
+        _sortOrders.Clear();
+        for (int i = 0; i < orders.Count; i++) _sortOrders.Add(orders[i]);
+        SetSortOrder(_sortOrders.Count > 0 ? _sortOrders[^1] : -10000, false);
+        for (int i = previousCount; i < orders.Count; i++) OnAddToStack();
+        for (int i = orders.Count; i < previousCount; i++) OnRemoveFromStack();
     }
 
     public bool IsActive()
@@ -115,10 +147,9 @@ public class LayerBase : MonoBehaviour
 
     public void SetHighLight(bool highlight)
     {
-        canvasGroup.alpha = highlight ? 1 : 0;
-        canvasGroup.interactable = !highlight;
-        canvasGroup.blocksRaycasts = !highlight;
-        canvas.sortingOrder = highlight ? 32767 : (_sortOrders.Count > 0 ? _sortOrders[^1] : -10000);
+        SetSortOrder(highlight ? 32767 : (_sortOrders.Count > 0 ? _sortOrders[^1] : -10000), false);
+        bool isActive = IsActive();
+        SetVisible(isActive);
     }
 }
 public class LayerGroup
@@ -127,6 +158,12 @@ public class LayerGroup
     public Dictionary<LayerType, LayerBase> LayerBases => _layerBases;
 
     public List<LayerType> LayerTypes => new (_layerBases.Keys);
+    public void CopyLayerTypesTo(List<LayerType> destination)
+    {
+        if (destination == null) throw new ArgumentNullException(nameof(destination));
+        destination.Clear();
+        foreach (var type in _layerBases.Keys) destination.Add(type);
+    }
     public void CloseGroupAsync()
     {
         foreach (var layerBase in _layerBases.Values)

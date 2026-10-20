@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "UIManager/LayerReferenceSO", fileName = "LayerReferenceSO", order = 1)]
@@ -10,15 +9,19 @@ public class LayerReferenceSO : ScriptableObject
     public List<LayerReferenceData> layerReferenceList;
     private Dictionary<LayerType, LayerBase> _layerReferenceDic;
 
+    private void OnValidate() => _layerReferenceDic = null;
+
     public Dictionary<LayerType, LayerBase> LayerBaseDictionary
     {
         get
         {
-            if (_layerReferenceDic == null || _layerReferenceDic.Count == 0)
+            if (_layerReferenceDic == null)
             {
-                _layerReferenceDic = new Dictionary<LayerType, LayerBase>();
+                _layerReferenceDic = new Dictionary<LayerType, LayerBase>(layerReferenceList?.Count ?? 0);
+                if (layerReferenceList == null) return _layerReferenceDic;
                 foreach (var layerReferenceData in layerReferenceList)
                 {
+                    if (layerReferenceData == null) continue;
                     _layerReferenceDic[layerReferenceData.layerType] = layerReferenceData.layerBase;
                 }
             }

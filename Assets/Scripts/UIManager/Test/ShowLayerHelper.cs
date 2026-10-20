@@ -13,10 +13,12 @@ public partial class LayerManager
         if (_showLayer01Data == null)
         {
             _showLayer01Data = LayerGroupBuilder.Build(layerGroupType, LayerType.Layer01);
-            _showLayer01Data.AddLayer(LayerType.Layer02).AddLayer(LayerType.Layer03);
             _showLayer01Data.OnInitData = SetupDataLayer01;
             _showLayer01Data.OnShowComplete = onDone;
         }
+        _showLayer01Data.LayerGroupType = layerGroupType;
+        _showLayer01Data.ValidateData();
+        _showLayer01Data.OnShowComplete = onDone;
         ShowGroupLayerAsync(_showLayer01Data);
 
         void SetupDataLayer01(LayerGroup layerGroup)
@@ -41,6 +43,9 @@ public partial class LayerManager
             _showLayer02Data.OnInitData = SetupDataLayer02;
             _showLayer02Data.OnShowComplete = onDone;
         }
+        _showLayer02Data.LayerGroupType = layerGroupType;
+        _showLayer02Data.ValidateData();
+        _showLayer02Data.OnShowComplete = onDone;
         ShowGroupLayerAsync(_showLayer02Data);
         return;
 
@@ -62,7 +67,10 @@ public partial class LayerManager
             _showLayer03Data.OnInitData = SetupDataLayer03;
             _showLayer03Data.OnShowComplete = onDone;
         }
-        
+
+        _showLayer03Data.LayerGroupType = layerGroupType;
+        _showLayer03Data.ValidateData();
+        _showLayer03Data.OnShowComplete = onDone;
         ShowGroupLayerAsync(_showLayer03Data);
         return;
 
@@ -84,6 +92,9 @@ public partial class LayerManager
             _showLayer04Data.OnInitData = SetupDataLayer04;
             _showLayer04Data.OnShowComplete = onDone;
         }
+        _showLayer04Data.LayerGroupType = layerGroupType;
+        _showLayer04Data.ValidateData();
+        _showLayer04Data.OnShowComplete = onDone;
         ShowGroupLayerAsync(_showLayer04Data);
         return;
 
@@ -102,11 +113,12 @@ public partial class LayerManager
         if (_showLayer05Data == null)
         {
             _showLayer05Data = LayerGroupBuilder.Build(layerGroupType, LayerType.Layer05);
-            _showLayer05Data.AddLayer(LayerType.Layer02);
-            _showLayer05Data.AddLayer(LayerType.Layer03);
             _showLayer05Data.OnInitData = SetupDataLayer05;
             _showLayer05Data.OnShowComplete = onDone;
         }
+        _showLayer05Data.LayerGroupType = layerGroupType;
+        _showLayer05Data.ValidateData();
+        _showLayer05Data.OnShowComplete = onDone;
         ShowGroupLayerAsync(_showLayer05Data);
         return;
 
@@ -128,6 +140,9 @@ public partial class LayerManager
             _showLayer06Data.OnInitData = SetupDataLayer06;
             _showLayer06Data.OnShowComplete = onDone;
         }
+        _showLayer06Data.LayerGroupType = layerGroupType;
+        _showLayer06Data.ValidateData();
+        _showLayer06Data.OnShowComplete = onDone;
         ShowGroupLayerAsync(_showLayer06Data);
         return;
 

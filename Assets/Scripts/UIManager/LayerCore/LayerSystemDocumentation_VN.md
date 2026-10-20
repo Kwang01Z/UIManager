@@ -26,11 +26,30 @@ Hệ thống Quản lý Layer là một kiến trúc quản lý layer UI toàn d
 
 | Loại | Hành vi |
 |------|---------|
-| Root | Đóng tất cả các layer khác khi được hiển thị |
-| FullScreen | Đóng các layer phía trên, ẩn các layer khác, đóng popup, bỏ qua ngăn xếp |
+| Root | Thay thế các group điều hướng khác; giữ Fixed |
+| FullScreen | Ẩn nền, đóng popup; được thêm vào stack để hỗ trợ Back |
 | Popup | Cửa sổ popup bình thường với hành vi tiêu chuẩn |
-| Notify | Layer thông báo không được thêm vào ngăn xếp |
-| Fixed | Layer cố định không được thêm vào ngăn xếp |
+| Notify | Không vào stack; được đóng khi mở group tiếp theo |
+| Fixed | Không vào stack; luôn nằm trên các group điều hướng, giữ qua Back và đổi Root |
+
+### Quy tắc điều hướng
+
+- Open, Back và CloseAll dùng chung hàng đợi, theo thứ tự gọi. Request mở được sao chép khi gửi để callback và danh sách layer không bị ghi đè bởi lần gọi sau.
+- Mở lại bất kỳ group nào đã có trong stack sẽ đóng tất cả group phía sau nó, rồi hiển thị lại group đó. Ví dụ `Root → A → B → C → A` còn `Root → A`; Back tiếp theo về Root. Quy tắc này áp dụng cả Popup và Custom, không phụ thuộc `CloseOtherLayerOver`.
+- Sorting và visibility được tính từ các group còn tồn tại. Layer dùng chung giữ quyền sở hữu của group phía dưới khi group phía trên đóng.
+- `CloseAllLayerGroups()` giữ group cuối nếu `hasLayerRoot = true`, và đóng hết group trong stack nếu bằng `false`. Fixed không thuộc stack.
+- Lỗi khởi tạo/callback được ghi log và không chặn các request kế tiếp. Hủy manager sẽ hủy phần chờ frame và bỏ các request còn lại.
+- `OnShowComplete` chạy một frame sau khi gọi hiển thị. Luồng này chưa tích hợp `TransitionProcessor`/`LayerAnimationBase`, nên callback không đại diện cho kết thúc animation.
+
+### Hiệu năng
+
+- Stack dùng `List` theo thứ tự đáy → đỉnh, duyệt bằng chỉ số và xóa tại chỗ; đường chuyển UI không dùng LINQ hay tạo collection tạm để tính sorting/visibility.
+- Mỗi layer tái sử dụng buffer sorting. Reconcile duyệt các group còn tồn tại và layer có quyền sở hữu trước/sau lần chuyển; không quét toàn bộ cache prefab mỗi lần. Preload được kiểm tra một lần khi bắt đầu điều hướng.
+- Chỉ ghi `Canvas.enabled`, `sortingOrder` và các thuộc tính CanvasGroup khi giá trị thay đổi. Hide/Close vẫn tắt Canvas và raycast; Show/Back khôi phục Canvas theo trạng thái bật/tắt toàn bộ UI.
+- Request mở vẫn tạo snapshot độc lập. `LayerGroup` chỉ được tạo khi có callback cần nhận nó; các object có thể được callback giữ lại không bị pool/reuse. Lần đầu tạo layer, tăng độ sâu stack hoặc kích thước group vẫn có thể cấp phát để mở rộng buffer.
+- Với gameplay polling, dùng `IsLayerShowing`, `CopyShowingLayerTypesTo` và `LayerGroup.CopyLayerTypesTo` với list tái sử dụng. Các API trả snapshot collection cũ vẫn tạo bản sao độc lập.
+- `CloseAll` giữ callback và trạng thái trung gian của từng lần đóng. Callback, instantiate prefab và công cụ debugger có chi phí riêng ngoài phần reconcile.
+- Dùng marker `LayerManager.Reconcile` trong Unity Profiler để đo CPU/GC thực tế. Kết quả .NET harness không đại diện cho thời gian layout/rebuild/rendering của Unity.
 
 ## Tạo Layer Mới
 
